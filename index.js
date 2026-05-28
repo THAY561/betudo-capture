@@ -160,14 +160,10 @@ async function iniciar() {
         await new Promise(r => setTimeout(r, 5000));
         console.log('Login concluido. Navegando para crash...');
 
-        try {
-            await page.goto(`${SITE_URL}/casino/crash`, { waitUntil: 'networkidle2', timeout: 60000 });
-        } catch(e) {
-            for (const u of [`${SITE_URL}/crash`, `${SITE_URL}/games/crash`]) {
-                try { await page.goto(u, { waitUntil: 'domcontentloaded', timeout: 15000 }); break; } catch(e2) {}
-            }
-        }
-        console.log('Monitorando rodadas em tempo real...');
+        console.log('Navegando para Aviator...');
+        await page.goto('https://www.betudo.bet/casino/spribe/aviator', { waitUntil: 'networkidle2', timeout: 60000 });
+
+                console.log('Monitorando rodadas em tempo real...');
 
         setInterval(async () => {
             try { await page.evaluate(() => document.title); }
