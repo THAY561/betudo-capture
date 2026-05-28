@@ -126,35 +126,14 @@ async function iniciar() {
         }, 3000);
 
         console.log('Fazendo login...');
-        let loginPageOk = false;
-        for (const loginUrl of [`${SITE_URL}/login`, `${SITE_URL}/entrar`, `${SITE_URL}/signin`]) {
-            try {
-                const resp = await page.goto(loginUrl, { waitUntil: 'domcontentloaded', timeout: 10000 });
-                if (resp && resp.status() < 400) {
-                    loginPageOk = true;
-                    console.log('URL login ok: ' + loginUrl);
-                    await new Promise(r => setTimeout(r, 3000));
-                    break;
-                }
-            } catch(e) {}
-        }
-
-        if (!loginPageOk) {
-            await page.goto(SITE_URL, { waitUntil: 'networkidle2', timeout: 60000 });
-            await new Promise(r => setTimeout(r, 4000));
-            const clicked = await tryClick(page, [
-                '[data-action="login"]', '.login-btn', '[class*="loginBtn"]',
-                '[class*="login-btn"]', '[class*="LoginButton"]', '[class*="signin"]'
-            ]);
-            if (!clicked) {
-                await page.evaluate(() => {
-                    const btns = Array.from(document.querySelectorAll('button, a'));
-                    const btn = btns.find(b => /entrar|login|sign in/i.test(b.textContent.trim()));
-                    if (btn) btn.click();
-                });
-            }
-            await new Promise(r => setTimeout(r, 3000));
-        }
+        await page.goto('https://www.betudo.bet/?modal=login', { waitUntil: 'networkidle2', timeout: 30000 });
+        await new Promise(r => setTimeout(r, 4000));
+        const inputInfo = await page.evaluate(() => {
+            return Array.from(document.querySelectorAll('input')).slice(0,8).map(i =>
+                '[type='+i.type+' name='+i.name+' id='+i.id+' ph='+i.placeholder.substring(0,20)+']'
+            ).join(', ');
+        });
+        console.log('DEBUG inputs: ' + (inputInfo || 'nenhum'));
 
         const filled = await tryType(page, [
             'input[type="email"]', 'input[name="email"]', 'input[name="username"]',
