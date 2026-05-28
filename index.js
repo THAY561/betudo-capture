@@ -25,7 +25,6 @@ function salvarRound(roundId, maxMultiplier) {
     console.log(`Round ${roundId} | ${maxMultiplier}x | ${horario}`);
 }
 
-// Script injetado em TODOS os frames (incluindo iframe cross-origin da Spribe)
 const SCRIPT = `(function(){
   if(window.__cm)return;
   window.__cm=true;
@@ -54,60 +53,56 @@ app.get('/', (req, res) => {
             const p = l.split(',');
             return `<tr><td>${p[0]||''}</td><td>${p[1]||''}</td><td class="m">${p[2]||''}x</td></tr>`;
         }).join('');
-        res.send(`<!DOCTYPE html>
-<html><head><meta charset="utf-8"><meta http-equiv="refresh" content="10">
-<title>Betudo Capture</title>
-<style>
-body{font-family:Arial;max-width:700px;margin:40px auto;padding:20px;background:#0a0a0a;color:#ddd}
-h2{color:#00ff88}.n{font-size:2rem;font-weight:bold;color:#00ff88}
-a.btn{display:inline-block;padding:10px 22px;background:#28a745;color:#fff;border-radius:6px;text-decoration:none;font-weight:bold;margin:16px 0}
-table{width:100%;border-collapse:collapse;margin-top:16px}
-th,td{border:1px solid #222;padding:7px 12px;font-size:13px}
-th{background:#161616;color:#666}.m{color:#00ffff;font-weight:bold}
-</style></head><body>
-<h2>Betudo Crash Monitor</h2>
-<p>Rodadas capturadas: <span class="n">${total}</span></p>
-<a class="btn" href="/baixar">Baixar CSV</a>
-<table><tr><th>Horario</th><th>Round ID</th><th>Multiplicador</th></tr>${rows}</table>
-</body></html>`);
+        res.send(`<!DOCTYPE html><html><head><meta charset="utf-8"><meta http-equiv="refresh" content="10"><title>Betudo Capture</title><style>body{font-family:Arial,sans-serif;max-width:700px;margin:40px auto;padding:20px;background:#0a0a0a;color:#ddd}h2{color:#00ff88}.n{font-size:2.2rem;font-weight:bold;color:#00ff88}a.btn{display:inline-block;padding:10px 22px;background:#28a745;color:#fff;border-radius:6px;text-decoration:none;font-weight:bold;margin:16px 0}table{width:100%;border-collapse:collapse;margin-top:16px}th,td{border:1px solid #222;padding:7px 12px;font-size:13px}th{background:#161616;color:#666}.m{color:#00ffff;font-weight:bold}</style></head><body><h2>Betudo Crash Monitor</h2><p>Rodadas capturadas: <span class="n">${total}</span></p><a class="btn" href="/baixar">Baixar CSV</a><table><tr><th>Horario</th><th>Round ID</th><th>Multiplicador</th></tr>${rows}</table></body></html>`);
     } catch(e) { res.send('<p>Aguardando dados...</p>'); }
 });
 
 app.get('/baixar', (req, res) => { res.download(ARQUIVO); });
-
 app.get('/dados', (req, res) => {
     const dados = fs.readFileSync(ARQUIVO, 'utf8');
     res.type('text/plain').send(dados.trim().split('\n').slice(-21).join('\n'));
 });
-
 app.listen(PORT, () => console.log(`Servidor na porta ${PORT}`));
+
+async function tryClick(page, sels) {
+    for (const sel of sels) {
+        try { await page.click(sel); return true; } catch(e) {}
+    }
+    return false;
+}
+
+async function tryType(page, sels, text) {
+    for (const sel of sels) {
+        try {
+            await page.waitForSelector(sel, { timeout: 3000, visible: true });
+            await page.type(sel, text, { delay: 60 });
+            console.log('Seletor encontrado: ' + sel);
+            return true;
+        } catch(e) {}
+    }
+    return false;
+}
 
 async function iniciar() {
     console.log('Iniciando...');
-
     if (!EMAIL || !SENHA) {
         console.error('EMAIL e SENHA nao configurados!');
         setTimeout(iniciar, 60000);
         return;
     }
-
     let browser;
     try {
         browser = await puppeteer.launch({
             headless: 'new',
-            args: ['--no-sandbox','--disable-setuid-sandbox','--disable-dev-shm-usage','--disable-gpu']
+            args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-gpu']
         });
-
         const page = await browser.newPage();
-
-        // Injeta interceptor em TODOS os frames (incluindo iframes cross-origin da Spribe)
         await page.evaluateOnNewDocument(SCRIPT);
 
-        // Fallback: console listener no frame principal
         page.on('console', (msg) => {
             try {
                 const texto = msg.text();
-                if (!texto.includes('roundChartInfo') && !texto.includes('maxMultiplier')) return;
+                if (!texto.includes('maxMultiplier')) return;
                 msg.args().forEach(async (arg) => {
                     try {
                         const val = await arg.jsonValue();
@@ -118,14 +113,11 @@ async function iniciar() {
             } catch(e) {}
         });
 
-        // Poll de todos os frames a cada 3s (captura dados de iframes cross-origin)
         const poll = setInterval(async () => {
             try {
                 for (const frame of page.frames()) {
                     try {
-                        const items = await frame.evaluate(
-                            `(()=>{var q=window.__rq||[];window.__rq=[];return q;})()`
-                        );
+                        const items = await frame.evaluate(`(()=>{var q=window.__rq||[];window.__rq=[];return q;})()`);
                         for (const item of items)
                             if (item.r && item.m) salvarRound(Number(item.r), Number(item.m));
                     } catch(e) {}
@@ -133,51 +125,75 @@ async function iniciar() {
             } catch(e) {}
         }, 3000);
 
-        // Login
         console.log('Fazendo login...');
-        await page.goto(SITE_URL, { waitUntil: 'networkidle2', timeout: 60000 });
-        await new Promise(r => setTimeout(r, 3000));
-
-        const loginSels = ['[data-action="login"]','.login-btn','[class*="loginBtn"]','[class*="LoginButton"]'];
-        let loginClicked = false;
-        for (const sel of loginSels) {
-            try { await page.click(sel); loginClicked = true; break; } catch(e) {}
+        let loginPageOk = false;
+        for (const loginUrl of [`${SITE_URL}/login`, `${SITE_URL}/entrar`, `${SITE_URL}/signin`]) {
+            try {
+                const resp = await page.goto(loginUrl, { waitUntil: 'domcontentloaded', timeout: 10000 });
+                if (resp && resp.status() < 400) {
+                    loginPageOk = true;
+                    console.log('URL login ok: ' + loginUrl);
+                    await new Promise(r => setTimeout(r, 3000));
+                    break;
+                }
+            } catch(e) {}
         }
-        if (!loginClicked) {
-            await page.evaluate(() => {
-                const btn = Array.from(document.querySelectorAll('button,a'))
-                    .find(b => /entrar|login/i.test(b.textContent.trim()));
-                if (btn) btn.click();
-            });
-        }
-        await new Promise(r => setTimeout(r, 2000));
 
-        await page.type('input[type="email"],input[name="email"],input[name="username"]', EMAIL, { delay: 60 });
+        if (!loginPageOk) {
+            await page.goto(SITE_URL, { waitUntil: 'networkidle2', timeout: 60000 });
+            await new Promise(r => setTimeout(r, 4000));
+            const clicked = await tryClick(page, [
+                '[data-action="login"]', '.login-btn', '[class*="loginBtn"]',
+                '[class*="login-btn"]', '[class*="LoginButton"]', '[class*="signin"]'
+            ]);
+            if (!clicked) {
+                await page.evaluate(() => {
+                    const btns = Array.from(document.querySelectorAll('button, a'));
+                    const btn = btns.find(b => /entrar|login|sign in/i.test(b.textContent.trim()));
+                    if (btn) btn.click();
+                });
+            }
+            await new Promise(r => setTimeout(r, 3000));
+        }
+
+        const filled = await tryType(page, [
+            'input[type="email"]', 'input[name="email"]', 'input[name="username"]',
+            'input[name="login"]', 'input[name="identifier"]',
+            'input[type="tel"]', 'input[name="phone"]', 'input[name="cpf"]',
+            'input[placeholder*="email" i]', 'input[placeholder*="CPF" i]',
+            'input[placeholder*="telefone" i]', 'input[placeholder*="login" i]',
+            'input[placeholder*="usuario" i]'
+        ], EMAIL);
+        if (!filled) console.log('AVISO: campo de login nao encontrado');
         await new Promise(r => setTimeout(r, 500));
-        await page.type('input[type="password"]', SENHA, { delay: 60 });
+
+        await tryType(page, [
+            'input[type="password"]', 'input[name="password"]',
+            'input[name="senha"]', 'input[placeholder*="senha" i]',
+            'input[placeholder*="password" i]'
+        ], SENHA);
         await new Promise(r => setTimeout(r, 500));
 
-        const submitSels = ['button[type="submit"]','.btn-login','[class*="submitBtn"]'];
-        let submitted = false;
-        for (const sel of submitSels) {
-            try { await page.click(sel); submitted = true; break; } catch(e) {}
+        const submitted = await tryClick(page, ['button[type="submit"]', '.btn-login', '[class*="submitBtn"]']);
+        if (!submitted) {
+            await page.evaluate(() => { const form = document.querySelector('form'); if (form) form.submit(); });
         }
-        if (!submitted) await page.evaluate(() => { const f=document.querySelector('form'); if(f)f.submit(); });
-
         await new Promise(r => setTimeout(r, 5000));
         console.log('Login concluido. Navegando para crash...');
 
         try {
             await page.goto(`${SITE_URL}/casino/crash`, { waitUntil: 'networkidle2', timeout: 60000 });
         } catch(e) {
-            await page.goto(SITE_URL, { waitUntil: 'networkidle2' }).catch(()=>{});
+            for (const u of [`${SITE_URL}/crash`, `${SITE_URL}/games/crash`]) {
+                try { await page.goto(u, { waitUntil: 'domcontentloaded', timeout: 15000 }); break; } catch(e2) {}
+            }
         }
         console.log('Monitorando rodadas em tempo real...');
 
-        // Watchdog: reconecta se a pagina cair
         setInterval(async () => {
             try { await page.evaluate(() => document.title); }
             catch(e) {
+                console.log('Pagina caiu, reconectando...');
                 clearInterval(poll);
                 try { await browser.close(); } catch(e) {}
                 setTimeout(iniciar, 5000);
