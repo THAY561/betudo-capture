@@ -7,6 +7,7 @@ const API_KEY = process.env.API_KEY || 'betudo2024';
 const ARQUIVO = 'dados.csv';
 
 app.use(express.json());
+app.use(express.static('public'));
 
 // CORS — permite requisições da extensão Chrome e do betudo.bet
 app.use((req, res, next) => {
@@ -71,6 +72,18 @@ app.get('/baixar', (req, res) => { res.download(ARQUIVO); });
 app.get('/dados', (req, res) => {
     const d = fs.readFileSync(ARQUIVO, 'utf8');
     res.type('text/plain').send(d.trim().split('\n').slice(-21).join('\n'));
+});
+
+app.get('/api/rounds', (req, res) => {
+    try {
+        const dados = fs.readFileSync(ARQUIVO, 'utf8');
+        const linhas = dados.trim().split('\n').slice(1).filter(Boolean);
+        const result = linhas.map(l => {
+            const p = l.split(',');
+            return { data: p[0]||'', horario: p[1]||'', roundId: Number(p[2])||0, maxMultiplier: Number(p[3])||0 };
+        });
+        res.json(result);
+    } catch(e) { res.json([]); }
 });
 
 app.listen(PORT, () => console.log('Servidor rodando na porta ' + PORT));

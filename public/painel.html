@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TH 100x — Análise Aviator</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#0a0a0f;color:#ddd;min-height:100vh}
+:root{--blue:#4fa3e0;--purple:#a855f7;--green:#22c55e;--moon:#f97316;--red:#ef4444;
+--bg1:#111118;--bg2:#1a1a24;--bg3:#222230;--border:#2d2d3d;--text1:#f0f0f5;--text2:#8888aa}
+/* Header */
+header{background:linear-gradient(135deg,#0f0f1a,#1a1a2e);border-bottom:1px solid var(--border);
+  padding:14px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+header h1{font-size:1.3rem;color:var(--moon);font-weight:900;letter-spacing:-0.5px}
+header h1 span{color:#fff}
+#status-bar{font-size:12px;color:var(--text2)}
+#status-bar b{color:var(--green)}
+/* Tabs */
+.tab-nav{display:flex;gap:2px;padding:10px 20px 0;background:var(--bg1);
+  border-bottom:1px solid var(--border);overflow-x:auto;flex-wrap:nowrap}
+.tab-btn{background:none;border:none;border-bottom:3px solid transparent;color:var(--text2);
+  cursor:pointer;font-size:12px;font-weight:700;padding:8px 14px;transition:all .2s;white-space:nowrap}
+.tab-btn:hover{color:var(--text1)}
+.tab-btn.active{color:var(--moon);border-bottom-color:var(--moon)}
+/* Main */
+main{padding:20px;max-width:1100px;margin:0 auto}
+.tab-pane{display:none}.tab-pane.active{display:block}
+/* Cards */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:20px}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center}
+.card .val{font-size:1.8rem;font-weight:900;line-height:1.1}
+.card .lbl{font-size:10px;color:var(--text2);margin-top:4px;text-transform:uppercase;letter-spacing:.5px}
+.card.blue .val{color:var(--blue)}.card.purple .val{color:var(--purple)}
+.card.green .val{color:var(--green)}.card.moon .val{color:var(--moon)}.card.white .val{color:var(--text1)}
+/* Section */
+.section{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:18px}
+.section h3{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--text2);margin-bottom:14px}
+/* Chips */
+.tape{display:flex;flex-wrap:wrap;gap:4px}
+.chip{border-radius:5px;font-size:11px;font-weight:700;padding:3px 7px;white-space:nowrap;cursor:default}
+.chip.blue{background:rgba(79,163,224,.18);color:var(--blue);border:1px solid rgba(79,163,224,.3)}
+.chip.purple{background:rgba(168,85,247,.18);color:var(--purple);border:1px solid rgba(168,85,247,.3)}
+.chip.green{background:rgba(34,197,94,.18);color:var(--green);border:1px solid rgba(34,197,94,.3)}
+.chip.moon{background:rgba(249,115,22,.18);color:var(--moon);border:1px solid rgba(249,115,22,.3)}
+.chip.recent{border-color:var(--red)!important;box-shadow:0 0 6px rgba(239,68,68,.4)}
+/* Dots */
+.dot-grid{display:flex;flex-wrap:wrap;gap:4px}
+.dot{width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;
+  justify-content:center;font-size:7px;font-weight:900;color:#000}
+.dot.blue{background:var(--blue)}.dot.purple{background:var(--purple)}
+.dot.green{background:var(--green)}.dot.moon{background:var(--moon)}
+.dot.recent{outline:2px solid var(--red);outline-offset:2px}
+/* Dist bars */
+.dist-row{display:grid;grid-template-columns:110px 1fr 50px 50px;align-items:center;gap:8px;margin-bottom:7px}
+.dist-label{font-size:11px;color:var(--text2)}
+.dist-bar-wrap{height:7px;background:var(--bg3);border-radius:4px;overflow:hidden}
+.dist-bar{height:100%;border-radius:4px;transition:width .4s}
+.dist-count{font-size:12px;font-weight:700;text-align:right}
+.dist-pct{font-size:11px;color:var(--text2);text-align:right}
+/* Run tags */
+.run-timeline{display:flex;flex-wrap:wrap;gap:4px}
+.run-tag{display:inline-flex;align-items:center;gap:3px;border-radius:5px;
+  padding:3px 7px;font-size:11px;font-weight:700;border:1px solid transparent}
+.run-tag.blue{background:rgba(79,163,224,.12);color:var(--blue);border-color:rgba(79,163,224,.22)}
+.run-tag.purple{background:rgba(168,85,247,.12);color:var(--purple);border-color:rgba(168,85,247,.22)}
+.run-tag.green{background:rgba(34,197,94,.12);color:var(--green);border-color:rgba(34,197,94,.22)}
+.run-tag.moon{background:rgba(249,115,22,.12);color:var(--moon);border-color:rgba(249,115,22,.22)}
+.run-tag.current{border-color:var(--red)!important;box-shadow:0 0 5px rgba(239,68,68,.3)}
+.rdot{width:7px;height:7px;border-radius:50%}
+.rdot.blue{background:var(--blue)}.rdot.purple{background:var(--purple)}
+.rdot.green{background:var(--green)}.rdot.moon{background:var(--moon)}
+/* Run list */
+.run-list{display:flex;flex-direction:column;gap:5px}
+.run-item{display:grid;grid-template-columns:50px 1fr 60px 80px;align-items:center;
+  gap:8px;padding:8px 12px;border-radius:7px;background:var(--bg3);border:1px solid var(--border);font-size:12px}
+.run-item.cur{border-color:var(--red)}
+/* Cycles */
+.cycle-item{display:flex;align-items:center;justify-content:space-between;
+  padding:9px 12px;border-radius:7px;background:var(--bg3);border:1px solid var(--border);margin-bottom:5px}
+.cycle-dots{display:flex;gap:3px}
+.cycle-name{font-size:11px;color:var(--text2);margin-left:8px;flex:1}
+.cycle-count{font-size:13px;font-weight:900;color:var(--moon)}
+/* HV */
+.hv-item{display:grid;grid-template-columns:55px 70px 1fr 70px;align-items:center;
+  gap:8px;padding:8px 12px;border-radius:7px;background:var(--bg3);border:1px solid var(--border);margin-bottom:5px;font-size:12px}
+.hv-item.last{border-color:var(--red)}
+/* Alert */
+.alert-box{border-radius:10px;padding:18px;margin-bottom:18px;text-align:center}
+.alert-box.fire{background:rgba(249,115,22,.12);border:2px solid var(--moon)}
+.alert-box.danger{background:rgba(239,68,68,.1);border:2px solid var(--red)}
+.alert-box.ok{background:rgba(34,197,94,.08);border:2px solid var(--green)}
+.alert-box .icon{font-size:1.8rem}.alert-box .title{font-size:1rem;font-weight:800;margin:5px 0 3px}
+.alert-box .desc{font-size:12px;color:var(--text2)}
+/* Prog */
+.prog-item{padding:10px 12px;border-radius:7px;background:var(--bg3);border:1px solid var(--border);margin-bottom:5px;font-size:12px}
+.prog-header{display:flex;justify-content:space-between;margin-bottom:3px}
+.prog-ratio{font-weight:900;color:var(--moon)}
+.prog-seq{color:var(--text2)}
+/* Trend */
+.trend-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.trend-card{background:var(--bg3);border-radius:8px;padding:12px;border:1px solid var(--border)}
+.t-label{font-size:10px;color:var(--text2);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px}
+.t-val{font-size:1.3rem;font-weight:900}
+.t-up{color:var(--green)}.t-down{color:var(--red)}.t-flat{color:var(--text2)}
+/* Config */
+.config-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.config-row{display:flex;flex-direction:column;gap:4px}
+.config-row label{font-size:11px;color:var(--text2)}
+.config-row input[type=number]{background:var(--bg3);border:1px solid var(--border);
+  border-radius:6px;color:var(--text1);font-size:14px;padding:7px 10px;width:100%}
+.config-row input:focus{outline:1px solid var(--moon);border-color:var(--moon)}
+/* Buttons */
+.btn{border:none;border-radius:7px;cursor:pointer;font-size:12px;font-weight:700;padding:8px 16px}
+.btn-apply{background:var(--moon);border:none;border-radius:7px;color:#000;cursor:pointer;
+  font-size:13px;font-weight:800;margin-top:14px;padding:11px 28px}
+.btn-apply:hover{opacity:.85}
+.btn-add{background:var(--green);color:#000}
+.btn-undo{background:var(--bg3);color:var(--text2);border:1px solid var(--border)}
+.btn-clear{background:rgba(239,68,68,.12);color:var(--red);border:1px solid rgba(239,68,68,.25)}
+.btn-import{background:rgba(79,163,224,.12);color:var(--blue);border:1px solid rgba(79,163,224,.25)}
+.btn-refresh{background:rgba(249,115,22,.12);color:var(--moon);border:1px solid rgba(249,115,22,.25)}
+/* Capture */
+.capture-bar{display:flex;gap:7px;align-items:center;margin-bottom:10px;flex-wrap:wrap}
+.capture-bar input[type=number]{background:var(--bg3);border:1px solid var(--border);
+  border-radius:7px;color:var(--text1);font-size:18px;padding:8px 14px;width:120px}
+.import-area{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:7px;
+  color:var(--text1);font-size:12px;margin-top:8px;padding:9px;resize:vertical;min-height:70px}
+.import-area:focus{outline:1px solid var(--blue)}
+/* Utils */
+.empty{color:var(--text2);font-size:12px;text-align:center;padding:28px}
+.mt8{margin-top:8px}.mt12{margin-top:12px}
+.flex-between{display:flex;justify-content:space-between;align-items:center}
+</style>
+</head>
+<body>
+<header>
+  <h1>🛩 TH <span>100x</span></h1>
+  <div id="status-bar">Carregando dados...</div>
+</header>
+<nav class="tab-nav">
+  <button class="tab-btn active" onclick="showTab('geral')">📊 Visão Geral</button>
+  <button class="tab-btn" onclick="showTab('seq')">🔗 Sequências</button>
+  <button class="tab-btn" onclick="showTab('ciclos')">🔄 Ciclos</button>
+  <button class="tab-btn" onclick="showTab('hv')">🌙 10x+</button>
+  <button class="tab-btn" onclick="showTab('prog')">📈 P.A./P.G.</button>
+  <button class="tab-btn" onclick="showTab('capture')">✏️ Captura</button>
+  <button class="tab-btn" onclick="showTab('config')">⚙️ Config</button>
+</nav>
+<main>
+
+<!-- VISÃO GERAL -->
+<div id="tab-geral" class="tab-pane active">
+  <div id="geral-cards" class="cards"></div>
+  <div class="section">
+    <h3>Fita de Histórico <small style="text-transform:none;letter-spacing:0;color:var(--text2)">(recente → antigo)</small></h3>
+    <div id="tape" class="tape"></div>
+  </div>
+  <div class="section">
+    <h3>Distribuição por Faixa</h3>
+    <div id="dist"></div>
+  </div>
+</div>
+
+<!-- SEQUÊNCIAS -->
+<div id="tab-seq" class="tab-pane">
+  <div class="section">
+    <h3>Mapa de Cores <small style="text-transform:none;letter-spacing:0;color:var(--text2)">(recente → antigo)</small></h3>
+    <div id="dotgrid" class="dot-grid"></div>
+  </div>
+  <div class="section">
+    <div class="flex-between" style="margin-bottom:14px">
+      <h3 style="margin:0">Runs Consecutivos</h3>
+      <span id="runs-total" style="font-size:11px;color:var(--text2)"></span>
+    </div>
+    <div id="run-list" class="run-list"></div>
+  </div>
+  <div class="section">
+    <h3>Distribuição de Comprimentos de Runs</h3>
+    <div id="run-dist"></div>
+  </div>
+</div>
+
+<!-- CICLOS -->
+<div id="tab-ciclos" class="tab-pane">
+  <div class="section">
+    <h3>Estado Atual</h3>
+    <div id="cycle-state"></div>
+  </div>
+  <div class="section">
+    <h3>Timeline de Runs (antigo → recente)</h3>
+    <div id="run-timeline" class="run-timeline"></div>
+  </div>
+  <div class="section">
+    <h3>Padrões Cíclicos Mais Frequentes</h3>
+    <div id="cycles"></div>
+  </div>
+</div>
+
+<!-- 10x+ -->
+<div id="tab-hv" class="tab-pane">
+  <div id="hv-alert"></div>
+  <div id="hv-cards" class="cards"></div>
+  <div class="section">
+    <h3>Ocorrências e Intervalos</h3>
+    <div id="hv-list"></div>
+  </div>
+</div>
+
+<!-- P.A./P.G. -->
+<div id="tab-prog" class="tab-pane">
+  <div class="section">
+    <h3>Tendência Recente (últimas 5 vs 5 anteriores)</h3>
+    <div id="trend"></div>
+  </div>
+  <div class="section">
+    <h3>Progressões Aritméticas (P.A.)</h3>
+    <div id="pa-list"></div>
+  </div>
+  <div class="section">
+    <h3>Progressões Geométricas (P.G.)</h3>
+    <div id="pg-list"></div>
+  </div>
+</div>
+
+<!-- CAPTURA -->
+<div id="tab-capture" class="tab-pane">
+  <div class="section">
+    <h3>Entrada Rápida</h3>
+    <div class="capture-bar">
+      <input type="number" id="inp-round" min="1.00" step="0.01" placeholder="2.50">
+      <button class="btn btn-add" onclick="addRound()">Add</button>
+      <button class="btn btn-undo" onclick="undoRound()">↩ Undo</button>
+      <button class="btn btn-clear" onclick="clearManual()">🗑 Limpar</button>
+      <button class="btn btn-refresh" onclick="fetchData()">🔄 Atualizar Railway</button>
+    </div>
+    <div style="font-size:12px;color:var(--text2)">
+      Rodadas do Railway: <b id="rw-count" style="color:var(--green)">0</b> &nbsp;|&nbsp;
+      Adicionadas manualmente: <b id="manual-count" style="color:var(--blue)">0</b>
+    </div>
+  </div>
+  <div class="section">
+    <h3>Importar em Lote</h3>
+    <textarea id="import-area" class="import-area" placeholder="Cole valores separados por espaço, vírgula, ponto e vírgula ou quebra de linha.&#10;Ex: 1.50, 2.30x, 5.00, 11.20, 1.09x"></textarea>
+    <div style="margin-top:8px;display:flex;gap:8px;align-items:center">
+      <button class="btn btn-import" onclick="importBatch()">Importar</button>
+      <span id="import-msg" style="font-size:12px;color:var(--green)"></span>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIG -->
+<div id="tab-config" class="tab-pane">
+  <div class="section">
+    <h3>Limiares de Classificação</h3>
+    <div class="config-grid">
+      <div class="config-row">
+        <label>🔵 Azul → 🟣 Roxa acima de (x)</label>
+        <input type="number" id="cfg-blue" min="1.01" step="0.01" value="2.00">
+      </div>
+      <div class="config-row">
+        <label>🟣 Roxa → 🟢 Verde acima de (x)</label>
+        <input type="number" id="cfg-purple" min="1.01" step="0.01" value="5.00">
+      </div>
+      <div class="config-row">
+        <label>🟢 Verde → 🌙 Moon acima de (x)</label>
+        <input type="number" id="cfg-green" min="1.01" step="0.01" value="10.00">
+      </div>
+      <div class="config-row">
+        <label>🌙 Rastrear "alta" acima de (x)</label>
+        <input type="number" id="cfg-hv" min="1.01" step="0.01" value="10.00">
+      </div>
+    </div>
+    <button class="btn-apply" onclick="applyConfig()">✓ Aplicar</button>
+  </div>
+  <div class="section mt12">
+    <h3>Auto-atualização</h3>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:10px">Dados do Railway atualizados a cada 30s automaticamente.</div>
+    <button class="btn btn-refresh" onclick="fetchData()">🔄 Atualizar Agora</button>
+    <div id="last-fetch" style="font-size:11px;color:var(--text2);margin-top:8px"></div>
+  </div>
+</div>
+
+</main>
+<script>
+// ── State
+let rwRounds = [];      // from Railway API
+let manualMults = [];   // manually typed
+let cfg = { blue: 2.0, purple: 5.0, green: 10.0, hv: 10.0 };
+let activeTab = 'geral';
+
+function getMults() {
+  return [...rwRounds.map(r => r.maxMultiplier), ...manualMults];
+}
+
+// ── Color
+function getColor(m) {
+  if (m < cfg.blue)   return 'blue';
+  if (m < cfg.purple) return 'purple';
+  if (m < cfg.green)  return 'green';
+  return 'moon';
+}
+const L = { blue:'B', purple:'P', green:'G', moon:'L' };
+const LBL = { blue:'Azul', purple:'Roxa', green:'Verde', moon:'Moon' };
+const CLR = { blue:'var(--blue)', purple:'var(--purple)', green:'var(--green)', moon:'var(--moon)' };
+
+// ── Stats
+function calcStats(arr) {
+  if (!arr.length) return { mean:0, median:0 };
+  const s = [...arr].sort((a,b)=>a-b);
+  const mean = arr.reduce((a,b)=>a+b,0)/arr.length;
+  const m = Math.floor(s.length/2);
+  return { mean, median: s.length%2 ? s[m] : (s[m-1]+s[m])/2 };
+}
+
+// ── Runs
+function getRuns(mults) {
+  const runs = []; let i = 0;
+  while (i < mults.length) {
+    const c = getColor(mults[i]); const g = [];
+    while (i < mults.length && getColor(mults[i])===c) g.push(mults[i++]);
+    runs.push({ color:c, letter:L[c], length:g.length, mults:g, avg:g.reduce((a,b)=>a+b,0)/g.length });
+  }
+  return runs;
+}
+
+// ── Cycles
+function findCycles(mults) {
+  const str = mults.slice(-300).map(m=>L[getColor(m)]).join('');
+  const cnt = {};
+  for (let len=2; len<=5; len++)
+    for (let i=0; i<=str.length-len*2; i++) {
+      const p=str.substring(i,i+len), n=str.substring(i+len,i+len*2);
+      if (p===n) cnt[p]=(cnt[p]||0)+1;
+    }
+  return Object.entries(cnt).sort((a,b)=>b[1]-a[1]).slice(0,8);
+}
+
+// ── High Value
+function hvStats(mults) {
+  const idxs = mults.reduce((a,m,i)=>{ if(m>=cfg.hv) a.push(i); return a; },[]);
+  const intervals = idxs.slice(1).map((v,i)=>v-idxs[i]);
+  const avg = intervals.length ? intervals.reduce((a,b)=>a+b,0)/intervals.length : 0;
+  return {
+    count:idxs.length, idxs, intervals,
+    avg:avg.toFixed(1),
+    min:intervals.length?Math.min(...intervals):'-',
+    max:intervals.length?Math.max(...intervals):'-',
+    since:idxs.length?mults.length-1-idxs[idxs.length-1]:mults.length,
+    freq:(idxs.length/Math.max(mults.length,1)*100).toFixed(1)
+  };
+}
+
+// ── PA
+function findPA(mults) {
+  const src = mults.slice(-500); const res = [];
+  for (let len=3;len<=7;len++)
+    for (let s=0;s<=src.length-len;s++) {
+      const seq=src.slice(s,s+len);
+      const diffs=seq.slice(1).map((v,i)=>v-seq[i]);
+      const avg=diffs.reduce((a,b)=>a+b,0)/diffs.length;
+      const maxD=Math.max(...diffs.map(d=>Math.abs(d-avg)));
+      if (maxD<=0.15 && Math.abs(avg)>=0.10) res.push({s,len,seq,ratio:avg});
+    }
+  return res.sort((a,b)=>b.len-a.len).slice(0,10);
+}
+
+// ── PG
+function findPG(mults) {
+  const src = mults.slice(-500); const res = [];
+  for (let len=3;len<=7;len++)
+    for (let s=0;s<=src.length-len;s++) {
+      const seq=src.slice(s,s+len);
+      if (seq.some(v=>v<=0)) continue;
+      const ratios=seq.slice(1).map((v,i)=>v/seq[i]);
+      const avg=ratios.reduce((a,b)=>a+b,0)/ratios.length;
+      const maxD=Math.max(...ratios.map(r=>Math.abs(r-avg)/avg));
+      if (maxD<=0.15 && (avg>=1.08||avg<=0.92)) res.push({s,len,seq,ratio:avg});
+    }
+  return res.sort((a,b)=>b.len-a.len).slice(0,10);
+}
+
+// ── HTML helpers
+function chipHtml(m,recent=false){
+  const c=getColor(m);
+  return `<span class="chip ${c}${recent?' recent':''}">${m.toFixed(2)}x</span>`;
+}
+function dotHtml(c,recent=false){
+  return `<span class="dot ${c}${recent?' recent':''}">${L[c]}</span>`;
+}
+function runTag(r,isCur=false){
+  return `<span class="run-tag ${r.color}${isCur?' current':''}"><span class="rdot ${r.color}"></span>${r.length}${r.letter}</span>`;
+}
+
+// ── Render: Geral
+function renderGeral(mults) {
+  if (!mults.length){ document.getElementById('geral-cards').innerHTML='<p class="empty">Sem dados. Adicione rodadas ou aguarde a extensão capturar.</p>'; return; }
+  const {mean,median}=calcStats(mults);
+  const cnt={blue:0,purple:0,green:0,moon:0};
+  mults.forEach(m=>cnt[getColor(m)]++);
+  const n=mults.length, last=mults[mults.length-1];
+  document.getElementById('geral-cards').innerHTML=`
+    <div class="card white"><div class="val">${n}</div><div class="lbl">Total Rodadas</div></div>
+    <div class="card white"><div class="val">${mean.toFixed(2)}x</div><div class="lbl">Média</div></div>
+    <div class="card white"><div class="val">${median.toFixed(2)}x</div><div class="lbl">Mediana</div></div>
+    <div class="card blue"><div class="val">${cnt.blue}</div><div class="lbl">🔵 Azuis ${(cnt.blue/n*100).toFixed(0)}%</div></div>
+    <div class="card purple"><div class="val">${cnt.purple}</div><div class="lbl">🟣 Roxas ${(cnt.purple/n*100).toFixed(0)}%</div></div>
+    <div class="card green"><div class="val">${cnt.green}</div><div class="lbl">🟢 Verdes ${(cnt.green/n*100).toFixed(0)}%</div></div>
+    <div class="card moon"><div class="val">${cnt.moon}</div><div class="lbl">🌙 Moon ${(cnt.moon/n*100).toFixed(0)}%</div></div>
+    <div class="card ${getColor(last)}"><div class="val">${last.toFixed(2)}x</div><div class="lbl">Última Rodada</div></div>`;
+  const rev=[...mults].reverse();
+  document.getElementById('tape').innerHTML=rev.map((m,i)=>chipHtml(m,i===0)).join('');
+  const bands=[
+    {l:'1x – 1.99x',min:1,max:2,c:'blue'},{l:'2x – 4.99x',min:2,max:5,c:'purple'},
+    {l:'5x – 9.99x',min:5,max:10,c:'green'},{l:'10x – 19.99x',min:10,max:20,c:'moon'},{l:'20x+',min:20,max:Infinity,c:'moon'}];
+  const maxC=Math.max(...bands.map(b=>mults.filter(m=>m>=b.min&&m<b.max).length),1);
+  document.getElementById('dist').innerHTML=bands.map(b=>{
+    const c=mults.filter(m=>m>=b.min&&m<b.max).length, pct=(c/n*100).toFixed(1), w=(c/maxC*100).toFixed(1);
+    return `<div class="dist-row">
+      <div class="dist-label">${b.l}</div>
+      <div class="dist-bar-wrap"><div class="dist-bar" style="width:${w}%;background:${CLR[b.c]}"></div></div>
+      <div class="dist-count" style="color:${CLR[b.c]}">${c}</div>
+      <div class="dist-pct">${pct}%</div></div>`;
+  }).join('');
+}
+
+// ── Render: Sequências
+function renderSeq(mults) {
+  if (!mults.length){ document.getElementById('dotgrid').innerHTML='<p class="empty">Sem dados</p>'; return; }
+  const rev=[...mults].reverse();
+  document.getElementById('dotgrid').innerHTML=rev.map((m,i)=>dotHtml(getColor(m),i===0)).join('');
+  const runs=getRuns(mults);
+  document.getElementById('runs-total').textContent=runs.length+' runs';
+  const runsRev=[...runs].reverse();
+  document.getElementById('run-list').innerHTML=runsRev.map((r,i)=>{
+    const isCur=i===0, num=runs.length-i;
+    return `<div class="run-item${isCur?' cur':''}">
+      <span style="color:var(--text2);font-size:10px">#${num}${isCur?' <b style="color:var(--red)">●</b>':''}</span>
+      <span style="font-weight:700;color:${CLR[r.color]}">${r.length}× ${LBL[r.color]}</span>
+      <span style="text-align:center;font-weight:900;color:${CLR[r.color]}">${r.length}</span>
+      <span style="text-align:right;color:var(--text2)">${r.avg.toFixed(2)}x avg</span></div>`;
+  }).join('');
+  const rd={};
+  runs.forEach(r=>{ const k=r.length+'×'+r.color; if(!rd[k]) rd[k]={r,count:0}; rd[k].count++; });
+  const srd=Object.values(rd).sort((a,b)=>b.count-a.count);
+  const maxRD=Math.max(...srd.map(d=>d.count),1);
+  document.getElementById('run-dist').innerHTML=srd.map(d=>{
+    const pct=(d.count/runs.length*100).toFixed(1), w=(d.count/maxRD*100).toFixed(1);
+    return `<div class="dist-row">
+      <div class="dist-label" style="color:${CLR[d.r.color]}">${d.r.length}× ${LBL[d.r.color]}</div>
+      <div class="dist-bar-wrap"><div class="dist-bar" style="width:${w}%;background:${CLR[d.r.color]}"></div></div>
+      <div class="dist-count" style="color:${CLR[d.r.color]}">${d.count}</div>
+      <div class="dist-pct">${pct}%</div></div>`;
+  }).join('');
+}
+
+// ── Render: Ciclos
+function renderCiclos(mults) {
+  if (!mults.length){ document.getElementById('cycles').innerHTML='<p class="empty">Sem dados</p>'; return; }
+  const runs=getRuns(mults);
+  const cur=runs[runs.length-1], prev=runs.length>1?runs[runs.length-2]:null;
+  document.getElementById('cycle-state').innerHTML=`<div style="display:flex;gap:12px;flex-wrap:wrap">
+    ${prev?`<div class="trend-card"><div class="t-label">Run Anterior</div><div class="t-val" style="color:${CLR[prev.color]}">${prev.length}× ${LBL[prev.color]}</div></div>`:''}
+    <div class="trend-card" style="border-color:var(--red)"><div class="t-label">Run Atual 🔴</div><div class="t-val" style="color:${CLR[cur.color]}">${cur.length}× ${LBL[cur.color]}</div></div>
+    <div class="trend-card"><div class="t-label">Total de Runs</div><div class="t-val">${runs.length}</div></div></div>`;
+  document.getElementById('run-timeline').innerHTML=runs.map((r,i)=>runTag(r,i===runs.length-1)).join('');
+  const cycles=findCycles(mults);
+  const colorMap={B:'blue',P:'purple',G:'green',L:'moon'};
+  document.getElementById('cycles').innerHTML=cycles.length?cycles.map(([pat,cnt])=>{
+    const letters=pat.split('');
+    const dotsHtml=letters.map(l=>`<span class="dot ${colorMap[l]}" style="width:16px;height:16px;font-size:6px">${l}</span>`).join('');
+    const name=letters.map(l=>LBL[colorMap[l]]).join(' → ');
+    return `<div class="cycle-item"><div class="cycle-dots">${dotsHtml}</div><div class="cycle-name">${name}</div><div class="cycle-count">${cnt}×</div></div>`;
+  }).join(''):'<p class="empty">Dados insuficientes para detectar padrões</p>';
+}
+
+// ── Render: HV
+function renderHV(mults) {
+  const hv=hvStats(mults);
+  let alert='';
+  if (!hv.count)
+    alert=`<div class="alert-box ok"><div class="icon">💤</div><div class="title">Nenhum ${cfg.hv}x+ ainda</div><div class="desc">Aguardando vela alta no histórico.</div></div>`;
+  else if (hv.since===0)
+    alert=`<div class="alert-box fire"><div class="icon">🔥</div><div class="title">AGORA — Última rodada foi ${cfg.hv}x+!</div><div class="desc">Vela alta acabou de ocorrer.</div></div>`;
+  else if (hv.avg>0 && hv.since>parseFloat(hv.avg))
+    alert=`<div class="alert-box danger"><div class="icon">⚠️</div><div class="title">ACIMA DA MÉDIA — ${hv.since} rodadas sem ${cfg.hv}x+</div><div class="desc">Média histórica: ${hv.avg} rodadas de intervalo.</div></div>`;
+  else
+    alert=`<div class="alert-box ok"><div class="icon">✅</div><div class="title">Normal — ${hv.since} rodadas desde o último ${cfg.hv}x+</div><div class="desc">Média histórica: ${hv.avg} rodadas.</div></div>`;
+  document.getElementById('hv-alert').innerHTML=alert;
+  document.getElementById('hv-cards').innerHTML=`
+    <div class="card moon"><div class="val">${hv.count}</div><div class="lbl">Ocorrências ${cfg.hv}x+</div></div>
+    <div class="card white"><div class="val">${hv.avg}</div><div class="lbl">Intervalo Médio</div></div>
+    <div class="card green"><div class="val">${hv.min}</div><div class="lbl">Menor Intervalo</div></div>
+    <div class="card blue"><div class="val">${hv.max}</div><div class="lbl">Maior Intervalo</div></div>
+    <div class="card white"><div class="val">${hv.since}</div><div class="lbl">Rodadas Desde Último</div></div>
+    <div class="card purple"><div class="val">${hv.freq}%</div><div class="lbl">Frequência</div></div>`;
+  if (!hv.count){ document.getElementById('hv-list').innerHTML='<p class="empty">Nenhuma vela alta registrada</p>'; return; }
+  const maxInt=hv.intervals.length?Math.max(...hv.intervals):1;
+  document.getElementById('hv-list').innerHTML=hv.idxs.map((idx,i)=>{
+    const m=mults[idx], intv=i===0?'—':hv.intervals[i-1], w=i===0?0:(hv.intervals[i-1]/maxInt*100);
+    const isLast=i===hv.idxs.length-1;
+    return `<div class="hv-item${isLast?' last':''}">
+      <span style="color:var(--text2);font-size:10px">Rd ${idx+1}</span>
+      <span style="color:var(--moon);font-weight:900">${m.toFixed(2)}x</span>
+      <div style="display:flex;align-items:center;gap:6px">
+        <div class="dist-bar-wrap" style="flex:1"><div class="dist-bar" style="width:${w}%;background:var(--moon)"></div></div>
+        <span style="font-size:11px;color:var(--text2);width:55px;text-align:right">${intv==='—'?'—':intv+' rds'}</span>
+      </div>
+      <span style="font-size:10px;color:${isLast?'var(--red)':'var(--text2)'}">${isLast?'↑ último':''}</span></div>`;
+  }).join('');
+}
+
+// ── Render: Prog
+function renderProg(mults) {
+  const last5=mults.slice(-5), prev5=mults.slice(-10,-5);
+  const avgL=last5.length?last5.reduce((a,b)=>a+b,0)/last5.length:0;
+  const avgP=prev5.length?prev5.reduce((a,b)=>a+b,0)/prev5.length:0;
+  let trend='→ Estável',tClass='t-flat';
+  if (prev5.length&&avgL>avgP*1.1){trend='↑ Alta';tClass='t-up';}
+  else if (prev5.length&&avgL<avgP*0.9){trend='↓ Queda';tClass='t-down';}
+  const blues5=last5.filter(m=>getColor(m)==='blue').length;
+  document.getElementById('trend').innerHTML=`<div class="trend-grid">
+    <div class="trend-card"><div class="t-label">Últimas 5</div>
+      <div style="font-size:12px;margin-bottom:6px">${last5.map(m=>`<span style="color:${CLR[getColor(m)]}">${m.toFixed(2)}x</span>`).join(' ')||'—'}</div>
+      <div class="t-val">${avgL.toFixed(2)}x</div></div>
+    <div class="trend-card"><div class="t-label">5 Anteriores</div>
+      <div style="font-size:12px;margin-bottom:6px">${prev5.map(m=>`<span style="color:${CLR[getColor(m)]}">${m.toFixed(2)}x</span>`).join(' ')||'—'}</div>
+      <div class="t-val">${avgP.toFixed(2)}x</div></div>
+    <div class="trend-card"><div class="t-label">Tendência</div><div class="t-val ${tClass}">${trend}</div></div>
+    <div class="trend-card"><div class="t-label">Azuis nas últimas 5</div><div class="t-val" style="color:var(--blue)">${blues5}/5</div></div></div>`;
+  const pas=findPA(mults);
+  document.getElementById('pa-list').innerHTML=pas.length?pas.map(p=>`
+    <div class="prog-item"><div class="prog-header">
+      <span style="color:var(--text2)">Rodadas ${p.s+1}–${p.s+p.len}</span>
+      <span class="prog-ratio">${p.ratio>=0?'+':''}${p.ratio.toFixed(2)} razão</span></div>
+      <div class="prog-seq">${p.seq.map(v=>v.toFixed(2)+'x').join(' → ')}</div></div>
+  `).join(''):'<p class="empty">Nenhuma P.A. detectada</p>';
+  const pgs=findPG(mults);
+  document.getElementById('pg-list').innerHTML=pgs.length?pgs.map(p=>`
+    <div class="prog-item"><div class="prog-header">
+      <span style="color:var(--text2)">Rodadas ${p.s+1}–${p.s+p.len}</span>
+      <span class="prog-ratio">×${p.ratio.toFixed(2)} fator</span></div>
+      <div class="prog-seq">${p.seq.map(v=>v.toFixed(2)+'x').join(' → ')}</div></div>
+  `).join(''):'<p class="empty">Nenhuma P.G. detectada</p>';
+}
+
+// ── Master render
+function renderAll() {
+  const mults=getMults();
+  document.getElementById('rw-count').textContent=rwRounds.length;
+  document.getElementById('manual-count').textContent=manualMults.length;
+  renderGeral(mults); renderSeq(mults); renderCiclos(mults); renderHV(mults); renderProg(mults);
+}
+
+// ── Fetch
+async function fetchData() {
+  try {
+    const r=await fetch('/api/rounds');
+    rwRounds=await r.json();
+    const last=rwRounds.length?rwRounds[rwRounds.length-1]:null;
+    document.getElementById('status-bar').innerHTML=
+      `<b>${rwRounds.length}</b> rodadas${last?` — última: <b>${last.maxMultiplier.toFixed(2)}x</b>`:''}`;
+    document.getElementById('last-fetch').textContent='Atualizado: '+new Date().toLocaleTimeString('pt-BR');
+    renderAll();
+  } catch(e) {
+    document.getElementById('status-bar').textContent='Sem conexão com Railway — modo manual';
+  }
+}
+
+// ── Capture
+function addRound(){
+  const inp=document.getElementById('inp-round'), v=parseFloat(inp.value);
+  if(!v||v<1) return; manualMults.push(v); inp.value=''; inp.focus(); renderAll();
+}
+function undoRound(){ if(!manualMults.length) return; manualMults.pop(); renderAll(); }
+function clearManual(){ if(!confirm('Apagar histórico manual?')) return; manualMults=[]; renderAll(); }
+function importBatch(){
+  const raw=document.getElementById('import-area').value;
+  const vals=raw.split(/[\s,;\n]+/).map(v=>parseFloat(v.replace('x',''))).filter(v=>v>=1&&!isNaN(v));
+  if(!vals.length) return;
+  manualMults.push(...vals);
+  document.getElementById('import-area').value='';
+  const msg=document.getElementById('import-msg');
+  msg.textContent=`✓ ${vals.length} rodadas importadas`; setTimeout(()=>msg.textContent='',3000);
+  renderAll();
+}
+document.getElementById('inp-round').addEventListener('keydown',e=>{ if(e.key==='Enter') addRound(); });
+
+// ── Config
+function applyConfig(){
+  cfg.blue  =parseFloat(document.getElementById('cfg-blue').value)||2;
+  cfg.purple=parseFloat(document.getElementById('cfg-purple').value)||5;
+  cfg.green =parseFloat(document.getElementById('cfg-green').value)||10;
+  cfg.hv    =parseFloat(document.getElementById('cfg-hv').value)||10;
+  renderAll();
+}
+
+// ── Tab switch
+function showTab(id){
+  activeTab=id;
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  const idx=['geral','seq','ciclos','hv','prog','capture','config'].indexOf(id);
+  document.querySelectorAll('.tab-btn')[idx]?.classList.add('active');
+}
+
+// ── Init
+fetchData();
+setInterval(fetchData,30000);
+</script>
+</body>
+</html>
