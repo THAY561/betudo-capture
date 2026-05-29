@@ -1,16 +1,11 @@
 {
   "manifest_version": 3,
   "name": "Betudo Aviator Collector",
-  "version": "2.0",
+  "version": "2.1",
   "description": "Captura rodadas do Aviator e envia para Railway automaticamente.",
   "content_scripts": [
     {
-      "matches": [
-        "https://www.betudo.bet/*",
-        "https://betudo.bet/*",
-        "https://*.spribe.co/*",
-        "https://*.spribe.io/*"
-      ],
+      "matches": ["<all_urls>"],
       "js": ["content.js"],
       "run_at": "document_start",
       "all_frames": true,

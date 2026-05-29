@@ -88,5 +88,5 @@
         window.WebSocket = PatchedWS;
     }
 
-    console.info('[AviatorBot] v2 ativo em ' + window.location.href);
+    console.info('[AviatorBot] v2.1 ativo em ' + window.location.href);
 })();
