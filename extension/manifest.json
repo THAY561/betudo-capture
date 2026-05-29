@@ -1,25 +1,23 @@
 {
   "manifest_version": 3,
   "name": "Betudo Aviator Collector",
-  "version": "1.0",
-  "description": "Captura rodadas do Aviator e envia para o servidor Railway automaticamente.",
+  "version": "2.0",
+  "description": "Captura rodadas do Aviator e envia para Railway automaticamente.",
   "content_scripts": [
     {
       "matches": [
         "https://www.betudo.bet/*",
-        "https://betudo.bet/*"
+        "https://betudo.bet/*",
+        "https://*.spribe.co/*",
+        "https://*.spribe.io/*"
       ],
       "js": ["content.js"],
       "run_at": "document_start",
-      "all_frames": true
+      "all_frames": true,
+      "world": "MAIN"
     }
   ],
   "host_permissions": [
     "https://betudo-capture-production.up.railway.app/*"
-  ],
-  "icons": {
-    "16": "icon.png",
-    "48": "icon.png",
-    "128": "icon.png"
-  }
+  ]
 }

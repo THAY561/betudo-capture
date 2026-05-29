@@ -1,5 +1,5 @@
-// Betudo Aviator Collector — Content Script
-// Roda em https://www.betudo.bet/* (todos os frames, incluindo iframe da Spribe)
+// Betudo Aviator Collector v2 — roda no contexto REAL da página (world: MAIN)
+// Intercepta console.log E WebSocket para capturar dados de qualquer frame
 
 (function () {
     if (window.__aviatorBotInstalled) return;
@@ -7,13 +7,12 @@
 
     const RAILWAY_URL = 'https://betudo-capture-production.up.railway.app/collect';
     const API_KEY = 'betudo2024';
-
     const seenRounds = new Set();
 
     function enviarRound(roundId, maxMultiplier) {
         const id = Number(roundId);
         const mult = Number(maxMultiplier);
-        if (!id || !mult) return;
+        if (!id || !mult || mult <= 0) return;
         if (seenRounds.has(id)) return;
         seenRounds.add(id);
 
@@ -23,41 +22,71 @@
             body: JSON.stringify({ key: API_KEY, roundId: id, maxMultiplier: mult })
         })
         .then(r => r.json())
-        .then(d => console.log('[AviatorBot] Round ' + id + ' | ' + mult + 'x | ok=' + d.saved))
-        .catch(e => console.warn('[AviatorBot] Erro ao enviar round:', e));
+        .then(() => console.info('[AviatorBot] ✓ Round ' + id + ' | ' + mult + 'x enviado'))
+        .catch(() => {});
     }
 
-    // Intercepta console.log para capturar mensagens do jogo
+    function verificarDados(a) {
+        if (!a) return;
+
+        // Objeto direto com roundId + maxMultiplier
+        if (typeof a === 'object' && 'maxMultiplier' in a && 'roundId' in a) {
+            enviarRound(a.roundId, a.maxMultiplier);
+            return;
+        }
+
+        // String JSON
+        if (typeof a === 'string' && a.includes('maxMultiplier')) {
+            try {
+                const p = JSON.parse(a);
+                if ('maxMultiplier' in p && 'roundId' in p) {
+                    enviarRound(p.roundId, p.maxMultiplier);
+                    return;
+                }
+            } catch (e) {}
+            // Regex como fallback
+            const mr = a.match(/roundId[^\d]*(\d+)/);
+            const mm = a.match(/maxMultiplier[^\d]*([\d.]+)/);
+            if (mr && mm) enviarRound(mr[1], mm[1]);
+        }
+    }
+
+    // ── 1. Intercepta console.log da página real ───────────────────────────
     const _log = console.log.bind(console);
     console.log = function () {
         _log.apply(console, arguments);
         try {
-            const args = Array.prototype.slice.call(arguments);
-            for (let i = 0; i < args.length; i++) {
-                const a = args[i];
-
-                // Objeto direto com roundId + maxMultiplier
-                if (a && typeof a === 'object' && 'maxMultiplier' in a && 'roundId' in a) {
-                    enviarRound(a.roundId, a.maxMultiplier);
-                    return;
-                }
-
-                // String JSON ou texto com as chaves
-                if (typeof a === 'string' && a.includes('maxMultiplier')) {
-                    try {
-                        const p = JSON.parse(a);
-                        if ('maxMultiplier' in p && 'roundId' in p) {
-                            enviarRound(p.roundId, p.maxMultiplier);
-                            return;
-                        }
-                    } catch (e) {}
-                    const mr = a.match(/roundId[^\d]*(\d+)/);
-                    const mm = a.match(/maxMultiplier[^\d]*([\d.]+)/);
-                    if (mr && mm) enviarRound(mr[1], mm[1]);
-                }
-            }
+            Array.prototype.slice.call(arguments).forEach(verificarDados);
         } catch (e) {}
     };
 
-    console.log('[AviatorBot] Extensão ativa em', window.location.href);
+    // ── 2. Intercepta WebSocket (canal principal do jogo Spribe) ───────────
+    const OrigWS = window.WebSocket;
+    if (OrigWS) {
+        function PatchedWS(url, protocols) {
+            const ws = protocols ? new OrigWS(url, protocols) : new OrigWS(url);
+            ws.addEventListener('message', function (event) {
+                try {
+                    if (typeof event.data !== 'string') return;
+                    if (!event.data.includes('maxMultiplier') && !event.data.includes('roundId')) return;
+
+                    const data = JSON.parse(event.data);
+                    // Verifica objeto raiz e campos aninhados
+                    verificarDados(data);
+                    if (data && data.data)    verificarDados(data.data);
+                    if (data && data.payload) verificarDados(data.payload);
+                    if (data && data.result)  verificarDados(data.result);
+                } catch (e) {}
+            });
+            return ws;
+        }
+        PatchedWS.prototype = OrigWS.prototype;
+        PatchedWS.CONNECTING = OrigWS.CONNECTING;
+        PatchedWS.OPEN       = OrigWS.OPEN;
+        PatchedWS.CLOSING    = OrigWS.CLOSING;
+        PatchedWS.CLOSED     = OrigWS.CLOSED;
+        window.WebSocket = PatchedWS;
+    }
+
+    console.info('[AviatorBot] v2 ativo em ' + window.location.href);
 })();
