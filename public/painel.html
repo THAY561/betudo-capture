@@ -43,11 +43,12 @@ main{padding:18px 20px;max-width:1140px;margin:0 auto}
 #resumo{background:linear-gradient(135deg,#111,#0e0e0e);border:1px solid var(--gb);
   border-radius:12px;padding:16px 20px;margin-bottom:16px}
 .res-title{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--gold);margin-bottom:12px}
-.res-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px}
-.res-item{display:flex;align-items:flex-start;gap:10px;background:var(--bg2);border-radius:8px;padding:10px 12px;border:1px solid var(--border)}
-.res-icon{font-size:1.1rem;flex-shrink:0;margin-top:1px}
-.res-body .rt{font-size:12px;font-weight:700;color:var(--text1)}
-.res-body .rd{font-size:10px;color:var(--text2);margin-top:2px}
+.res-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px}
+.res-item{display:flex;align-items:center;gap:10px;background:var(--bg2);border-radius:8px;padding:11px 14px;border:1px solid var(--border);min-width:0}
+.res-icon{font-size:1.2rem;flex-shrink:0}
+.res-body{min-width:0;flex:1}
+.res-body .rt{font-size:12px;font-weight:700;color:var(--text1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.res-body .rd{font-size:10px;color:var(--text2);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .res-body .rw{color:var(--red)}.res-body .ro{color:var(--gold)}.res-body .rg{color:var(--green)}
 
 /* SECTION BLOCK */
@@ -501,7 +502,8 @@ function renderResumo(ms,rs){
   items.push({icon:'📊',title:`Tendência: <span class="tv ${trendCls}" style="font-size:12px">${trendTxt}</span>`,desc:`Média últ. 5: ${al.toFixed(2)}x vs anteriores: ${ap.toFixed(2)}x`,cls:''});
 
   // Total
-  items.push({icon:'🗃',title:`${ms.length} rodadas no histórico`,desc:`Média geral: ${avg(ms).toFixed(2)}x · Mediana: ${med(ms).toFixed(2)}x`,cls:''});
+  const nonBlue=ms.filter(m=>m>=cfg.blue);
+  items.push({icon:'🗃',title:`${ms.length} rodadas no histórico`,desc:`Média (sem azuis): ${nonBlue.length?avg(nonBlue).toFixed(2):'—'}x · Mediana: ${med(ms).toFixed(2)}x`,cls:''});
 
   document.getElementById('res-grid').innerHTML=items.map(it=>`<div class="res-item"><div class="res-icon">${it.icon}</div><div class="res-body"><div class="rt">${it.title}</div><div class="rd ${it.cls}">${it.desc}</div></div></div>`).join('');
 }
@@ -513,7 +515,7 @@ function renderHist(ms){
   ms.forEach(m=>cnt[gc(m)]++);
   document.getElementById('h-cards').innerHTML=`
     <div class="card"><div class="val">${n}</div><div class="lbl">Total</div></div>
-    <div class="card"><div class="val">${avg(ms).toFixed(2)}x</div><div class="lbl">Média</div></div>
+    <div class="card"><div class="val">${ms.filter(m=>m>=cfg.blue).length?avg(ms.filter(m=>m>=cfg.blue)).toFixed(2):'—'}x</div><div class="lbl">Média ≥${cfg.blue}x</div></div>
     <div class="card"><div class="val">${med(ms).toFixed(2)}x</div><div class="lbl">Mediana</div></div>
     <div class="card blue"><div class="val">${cnt.blue}</div><div class="lbl">Azuis ${(cnt.blue/n*100).toFixed(0)}%</div></div>
     <div class="card purple"><div class="val">${cnt.purple}</div><div class="lbl">Roxas ${(cnt.purple/n*100).toFixed(0)}%</div></div>
