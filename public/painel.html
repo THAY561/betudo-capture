@@ -3,228 +3,317 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>TH 100x — Análise Aviator</title>
+<title>TH 100x — Painel</title>
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Segoe UI',Arial,sans-serif;background:#0a0a0f;color:#ddd;min-height:100vh}
-:root{--blue:#4fa3e0;--purple:#a855f7;--green:#22c55e;--moon:#f97316;--red:#ef4444;
---bg1:#111118;--bg2:#1a1a24;--bg3:#222230;--border:#2d2d3d;--text1:#f0f0f5;--text2:#8888aa}
-header{background:linear-gradient(135deg,#0f0f1a,#1a1a2e);border-bottom:1px solid var(--border);
-  padding:14px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
-header h1{font-size:1.3rem;color:var(--moon);font-weight:900;letter-spacing:-.5px}
-header h1 span{color:#fff}
-#status-bar{font-size:12px;color:var(--text2)}
-#status-bar b{color:var(--green)}
-.tab-nav{display:flex;gap:2px;padding:10px 20px 0;background:var(--bg1);border-bottom:1px solid var(--border);overflow-x:auto}
-.tab-btn{background:none;border:none;border-bottom:3px solid transparent;color:var(--text2);cursor:pointer;font-size:12px;font-weight:700;padding:8px 12px;transition:all .2s;white-space:nowrap}
-.tab-btn:hover{color:var(--text1)}.tab-btn.active{color:var(--moon);border-bottom-color:var(--moon)}
-main{padding:20px;max-width:1100px;margin:0 auto}
+:root{
+  --gold:#FFB800;--gold2:#FFC933;--gold-dim:rgba(255,184,0,.12);--gold-border:rgba(255,184,0,.25);
+  --blue:#60A5FA;--purple:#C084FC;--green:#4ADE80;
+  --bg:#080808;--bg1:#111111;--bg2:#181818;--bg3:#242424;
+  --border:#2a2a2a;--text1:#FFFFFF;--text2:#777777;--red:#F87171;
+}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text1);min-height:100vh}
+
+/* ── HEADER ── */
+header{
+  background:#0d0d0d;
+  border-bottom:1px solid var(--border);
+  padding:0 24px;
+  height:58px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;
+}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-icon{width:32px;height:32px;background:var(--gold);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;color:#000}
+.logo-text{font-size:1.1rem;font-weight:900;color:var(--text1);letter-spacing:-.3px}
+.logo-text span{color:var(--gold)}
+#status-bar{font-size:11px;color:var(--text2);display:flex;align-items:center;gap:6px}
+.status-dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green)}
+
+/* ── TABS ── */
+.tab-nav{
+  background:#0d0d0d;
+  border-bottom:1px solid var(--border);
+  padding:0 24px;
+  display:flex;gap:0;overflow-x:auto;
+}
+.tab-btn{
+  background:none;border:none;border-bottom:2px solid transparent;
+  color:var(--text2);cursor:pointer;font-family:inherit;font-size:12px;
+  font-weight:700;padding:14px 16px;letter-spacing:.3px;
+  transition:all .15s;white-space:nowrap;text-transform:uppercase;
+}
+.tab-btn:hover{color:var(--text1)}
+.tab-btn.active{color:var(--gold);border-bottom-color:var(--gold)}
+
+/* ── MAIN ── */
+main{padding:24px;max-width:1140px;margin:0 auto}
 .tab-pane{display:none}.tab-pane.active{display:block}
-/* Cards */
-.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(135px,1fr));gap:10px;margin-bottom:18px}
-.card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:13px;text-align:center}
-.card .val{font-size:1.7rem;font-weight:900;line-height:1.1}
+
+/* ── CARDS GRID ── */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-bottom:20px}
+.card{
+  background:var(--bg2);border:1px solid var(--border);border-radius:10px;
+  padding:14px 12px;text-align:center;position:relative;overflow:hidden;
+}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--border)}
+.card.gold::before{background:var(--gold)}
+.card.blue::before{background:var(--blue)}
+.card.purple::before{background:var(--purple)}
+.card.green::before{background:var(--green)}
+.card.red::before{background:var(--red)}
+.card .val{font-size:1.75rem;font-weight:900;line-height:1;color:var(--text1)}
+.card.gold .val{color:var(--gold)}
+.card.blue .val{color:var(--blue)}
+.card.purple .val{color:var(--purple)}
+.card.green .val{color:var(--green)}
+.card.red .val{color:var(--red)}
+.card .lbl{font-size:10px;color:var(--text2);margin-top:6px;text-transform:uppercase;letter-spacing:.5px;font-weight:600}
 .card .sub{font-size:10px;color:var(--text2);margin-top:2px}
-.card .lbl{font-size:10px;color:var(--text2);margin-top:5px;text-transform:uppercase;letter-spacing:.5px}
-.card.blue .val{color:var(--blue)}.card.purple .val{color:var(--purple)}
-.card.green .val{color:var(--green)}.card.moon .val{color:var(--moon)}.card.white .val{color:var(--text1)}
-/* Section */
-.section{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:16px}
-.section h3{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--text2);margin-bottom:12px}
-/* Chips */
+
+/* ── SECTION ── */
+.section{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:16px}
+.sec-title{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;
+  color:var(--text2);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.sec-title::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* ── CHIPS (rodadas) ── */
 .tape{display:flex;flex-wrap:wrap;gap:4px}
-.chip{border-radius:5px;font-size:11px;font-weight:700;padding:3px 7px;white-space:nowrap}
-.chip.blue{background:rgba(79,163,224,.15);color:var(--blue);border:1px solid rgba(79,163,224,.28)}
-.chip.purple{background:rgba(168,85,247,.15);color:var(--purple);border:1px solid rgba(168,85,247,.28)}
-.chip.green{background:rgba(34,197,94,.15);color:var(--green);border:1px solid rgba(34,197,94,.28)}
-.chip.moon{background:rgba(249,115,22,.15);color:var(--moon);border:1px solid rgba(249,115,22,.28)}
-.chip.recent{border-color:var(--red)!important;box-shadow:0 0 5px rgba(239,68,68,.4)}
-/* Dots */
+.chip{
+  border-radius:6px;font-size:11px;font-weight:700;padding:4px 8px;
+  white-space:nowrap;cursor:default;transition:transform .1s;
+}
+.chip:hover{transform:scale(1.05)}
+.chip.blue{background:rgba(96,165,250,.12);color:var(--blue);border:1px solid rgba(96,165,250,.25)}
+.chip.purple{background:rgba(192,132,252,.12);color:var(--purple);border:1px solid rgba(192,132,252,.25)}
+.chip.green{background:rgba(74,222,128,.12);color:var(--green);border:1px solid rgba(74,222,128,.25)}
+.chip.moon{background:rgba(255,184,0,.12);color:var(--gold);border:1px solid rgba(255,184,0,.25)}
+.chip.now{border-color:var(--gold)!important;box-shadow:0 0 8px rgba(255,184,0,.3)}
+
+/* ── DOTS ── */
 .dot-grid{display:flex;flex-wrap:wrap;gap:4px}
-.dot{width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:7px;font-weight:900;color:#000}
-.dot.blue{background:var(--blue)}.dot.purple{background:var(--purple)}.dot.green{background:var(--green)}.dot.moon{background:var(--moon)}
-.dot.recent{outline:2px solid var(--red);outline-offset:2px}
-/* Dist bar */
-.dist-row{display:grid;grid-template-columns:110px 1fr 50px 50px;align-items:center;gap:8px;margin-bottom:7px}
-.dist-label{font-size:11px;color:var(--text2)}
-.dist-bar-wrap{height:7px;background:var(--bg3);border-radius:4px;overflow:hidden}
-.dist-bar{height:100%;border-radius:4px;transition:width .4s}
-.dist-count{font-size:12px;font-weight:700;text-align:right}
-.dist-pct{font-size:11px;color:var(--text2);text-align:right}
-/* Run tags */
-.run-timeline{display:flex;flex-wrap:wrap;gap:4px}
-.run-tag{display:inline-flex;align-items:center;gap:3px;border-radius:5px;padding:3px 7px;font-size:11px;font-weight:700;border:1px solid transparent}
-.run-tag.blue{background:rgba(79,163,224,.12);color:var(--blue);border-color:rgba(79,163,224,.22)}
-.run-tag.purple{background:rgba(168,85,247,.12);color:var(--purple);border-color:rgba(168,85,247,.22)}
-.run-tag.green{background:rgba(34,197,94,.12);color:var(--green);border-color:rgba(34,197,94,.22)}
-.run-tag.moon{background:rgba(249,115,22,.12);color:var(--moon);border-color:rgba(249,115,22,.22)}
-.run-tag.current{border-color:var(--red)!important;box-shadow:0 0 5px rgba(239,68,68,.3)}
-.rdot{width:7px;height:7px;border-radius:50%}
-.rdot.blue{background:var(--blue)}.rdot.purple{background:var(--purple)}.rdot.green{background:var(--green)}.rdot.moon{background:var(--moon)}
-/* Run list */
-.run-list{display:flex;flex-direction:column;gap:5px}
-.run-item{display:grid;grid-template-columns:50px 1fr 60px 80px;align-items:center;gap:8px;padding:8px 12px;border-radius:7px;background:var(--bg3);border:1px solid var(--border);font-size:12px}
-.run-item.cur{border-color:var(--red)}
-/* Transition table */
-.trans-table{width:100%;border-collapse:collapse;font-size:12px}
-.trans-table th,.trans-table td{border:1px solid var(--border);padding:8px 10px;text-align:center}
-.trans-table th{background:var(--bg3);color:var(--text2);font-weight:700}
-.trans-table td.dominant{font-weight:900}
-.trans-cell{display:flex;flex-direction:column;align-items:center;gap:1px}
-.trans-pct{font-size:10px;color:var(--text2)}
-/* Cycle items */
-.cycle-item{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;border-radius:7px;background:var(--bg3);border:1px solid var(--border);margin-bottom:5px}
-.cycle-dots{display:flex;gap:3px;align-items:center}
-.cycle-name{font-size:11px;color:var(--text2);margin-left:8px;flex:1}
-.cycle-count{font-size:13px;font-weight:900;color:var(--moon)}
-/* HV / Intervals */
-.hv-item{display:grid;grid-template-columns:55px 70px 1fr 70px;align-items:center;gap:8px;padding:8px 12px;border-radius:7px;background:var(--bg3);border:1px solid var(--border);margin-bottom:5px;font-size:12px}
-.hv-item.last{border-color:var(--red)}
-.alert-box{border-radius:10px;padding:16px;margin-bottom:16px;text-align:center}
-.alert-box.fire{background:rgba(249,115,22,.12);border:2px solid var(--moon)}
-.alert-box.danger{background:rgba(239,68,68,.1);border:2px solid var(--red)}
-.alert-box.ok{background:rgba(34,197,94,.08);border:2px solid var(--green)}
-.alert-box .icon{font-size:1.6rem}.alert-box .title{font-size:.95rem;font-weight:800;margin:4px 0 2px}
-.alert-box .desc{font-size:11px;color:var(--text2)}
-/* Prog */
-.prog-item{padding:10px 12px;border-radius:7px;background:var(--bg3);border:1px solid var(--border);margin-bottom:5px;font-size:12px}
-.prog-header{display:flex;justify-content:space-between;margin-bottom:3px}
-.prog-ratio{font-weight:900;color:var(--moon)}.prog-seq{color:var(--text2)}
-/* Trend */
-.trend-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.trend-card{background:var(--bg3);border-radius:8px;padding:12px;border:1px solid var(--border)}
-.t-label{font-size:10px;color:var(--text2);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px}
-.t-val{font-size:1.3rem;font-weight:900}
-.t-up{color:var(--green)}.t-down{color:var(--red)}.t-flat{color:var(--text2)}
-/* Color stats */
-.color-stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
-.color-stat-card{background:var(--bg3);border-radius:8px;padding:12px;border:1px solid var(--border)}
-.cs-header{display:flex;align-items:center;gap:8px;margin-bottom:10px}
-.cs-dot{width:12px;height:12px;border-radius:50%}
-.cs-dot.blue{background:var(--blue)}.cs-dot.purple{background:var(--purple)}.cs-dot.green{background:var(--green)}.cs-dot.moon{background:var(--moon)}
-.cs-title{font-size:12px;font-weight:700}
-.cs-row{display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px}
-.cs-key{color:var(--text2)}.cs-val{font-weight:700}
-/* Minute ranking */
-.min-item{display:grid;grid-template-columns:55px 1fr 45px 45px;align-items:center;gap:8px;padding:7px 12px;border-radius:7px;background:var(--bg3);border:1px solid var(--border);margin-bottom:4px;font-size:12px}
-/* Config / Capture */
-.config-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.config-row{display:flex;flex-direction:column;gap:4px}
-.config-row label{font-size:11px;color:var(--text2)}
-.config-row input[type=number],.config-row input[type=text]{background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text1);font-size:14px;padding:7px 10px;width:100%}
-.config-row input:focus{outline:1px solid var(--moon);border-color:var(--moon)}
-.btn{border:none;border-radius:7px;cursor:pointer;font-size:12px;font-weight:700;padding:8px 14px}
-.btn-apply{background:var(--moon);border:none;border-radius:7px;color:#000;cursor:pointer;font-size:13px;font-weight:800;margin-top:14px;padding:10px 26px}
-.btn-apply:hover{opacity:.85}
-.btn-add{background:var(--green);color:#000}.btn-undo{background:var(--bg3);color:var(--text2);border:1px solid var(--border)}
-.btn-clear{background:rgba(239,68,68,.12);color:var(--red);border:1px solid rgba(239,68,68,.25)}
-.btn-import{background:rgba(79,163,224,.12);color:var(--blue);border:1px solid rgba(79,163,224,.25)}
-.btn-refresh{background:rgba(249,115,22,.12);color:var(--moon);border:1px solid rgba(249,115,22,.25)}
-.capture-bar{display:flex;gap:7px;align-items:center;margin-bottom:10px;flex-wrap:wrap}
-.capture-bar input[type=number]{background:var(--bg3);border:1px solid var(--border);border-radius:7px;color:var(--text1);font-size:18px;padding:7px 12px;width:110px}
-.capture-bar input[type=text]{background:var(--bg3);border:1px solid var(--border);border-radius:7px;color:var(--text1);font-size:14px;padding:7px 10px;width:80px}
-.import-area{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:7px;color:var(--text1);font-size:12px;margin-top:8px;padding:9px;resize:vertical;min-height:70px}
-.import-area:focus{outline:1px solid var(--blue)}
-.empty{color:var(--text2);font-size:12px;text-align:center;padding:24px}
-.mt8{margin-top:8px}.mt12{margin-top:12px}
-.flex-between{display:flex;justify-content:space-between;align-items:center}
-.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-@media(max-width:600px){.two-col{grid-template-columns:1fr}.trend-grid{grid-template-columns:1fr}.config-grid{grid-template-columns:1fr}}
+.dot{width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;
+  justify-content:center;font-size:8px;font-weight:900;color:#000;flex-shrink:0}
+.dot.blue{background:var(--blue)}.dot.purple{background:var(--purple)}
+.dot.green{background:var(--green)}.dot.moon{background:var(--gold);color:#000}
+.dot.now{outline:2px solid var(--gold);outline-offset:2px}
+
+/* ── DIST BAR ── */
+.drow{display:grid;grid-template-columns:110px 1fr 48px 46px;align-items:center;gap:8px;margin-bottom:8px}
+.dlabel{font-size:11px;color:var(--text2);font-weight:600}
+.dbar-wrap{height:6px;background:var(--bg3);border-radius:3px;overflow:hidden}
+.dbar{height:100%;border-radius:3px;transition:width .5s}
+.dcount{font-size:12px;font-weight:800;text-align:right}
+.dpct{font-size:10px;color:var(--text2);text-align:right}
+
+/* ── RUN TAGS ── */
+.run-line{display:flex;flex-wrap:wrap;gap:4px}
+.rtag{display:inline-flex;align-items:center;gap:3px;border-radius:6px;
+  padding:4px 8px;font-size:11px;font-weight:700;border:1px solid transparent}
+.rtag.blue{background:rgba(96,165,250,.1);color:var(--blue);border-color:rgba(96,165,250,.2)}
+.rtag.purple{background:rgba(192,132,252,.1);color:var(--purple);border-color:rgba(192,132,252,.2)}
+.rtag.green{background:rgba(74,222,128,.1);color:var(--green);border-color:rgba(74,222,128,.2)}
+.rtag.moon{background:rgba(255,184,0,.1);color:var(--gold);border-color:rgba(255,184,0,.2)}
+.rtag.now{border-color:var(--gold)!important;box-shadow:0 0 6px rgba(255,184,0,.2)}
+.rd{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.rd.blue{background:var(--blue)}.rd.purple{background:var(--purple)}
+.rd.green{background:var(--green)}.rd.moon{background:var(--gold)}
+
+/* ── RUN LIST ── */
+.run-list{display:flex;flex-direction:column;gap:4px}
+.ri{display:grid;grid-template-columns:42px 1fr 50px 85px;align-items:center;
+  gap:8px;padding:9px 12px;border-radius:8px;background:var(--bg3);border:1px solid var(--border);font-size:12px}
+.ri.cur{border-color:var(--gold);background:rgba(255,184,0,.04)}
+
+/* ── TRANSITION TABLE ── */
+.ttable{width:100%;border-collapse:collapse;font-size:12px}
+.ttable th,.ttable td{border:1px solid var(--border);padding:9px 12px;text-align:center}
+.ttable th{background:var(--bg3);color:var(--text2);font-size:10px;text-transform:uppercase;letter-spacing:.5px;font-weight:700}
+.ttable .dom{font-weight:900}
+.tcell{display:flex;flex-direction:column;align-items:center;gap:1px}
+.tpct{font-size:9px;color:var(--text2)}
+
+/* ── CYCLE ── */
+.citem{display:flex;align-items:center;justify-content:space-between;
+  padding:10px 14px;border-radius:8px;background:var(--bg3);border:1px solid var(--border);margin-bottom:5px}
+.cdots{display:flex;gap:3px;align-items:center}
+.cname{font-size:11px;color:var(--text2);margin-left:8px;flex:1}
+.ccnt{font-size:13px;font-weight:900;color:var(--gold)}
+
+/* ── COLOR STAT CARD ── */
+.cs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(195px,1fr));gap:10px}
+.csc{background:var(--bg3);border-radius:10px;padding:14px;border:1px solid var(--border)}
+.csc-head{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.csc-dot{width:10px;height:10px;border-radius:50%}
+.csc-dot.blue{background:var(--blue)}.csc-dot.purple{background:var(--purple)}
+.csc-dot.green{background:var(--green)}.csc-dot.moon{background:var(--gold)}
+.csc-name{font-size:12px;font-weight:800}
+.crow{display:flex;justify-content:space-between;font-size:11px;margin-bottom:5px}
+.ckey{color:var(--text2)}.cval{font-weight:700}
+
+/* ── ALERT BOX ── */
+.abox{border-radius:10px;padding:16px;margin-bottom:16px;text-align:center}
+.abox.fire{background:rgba(255,184,0,.08);border:1px solid rgba(255,184,0,.35)}
+.abox.warn{background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.35)}
+.abox.ok{background:rgba(74,222,128,.06);border:1px solid rgba(74,222,128,.3)}
+.abox .ai{font-size:1.6rem}.abox .at{font-size:.95rem;font-weight:800;margin:5px 0 3px}
+.abox .ad{font-size:11px;color:var(--text2)}
+
+/* ── HV LIST ── */
+.hvi{display:grid;grid-template-columns:52px 68px 1fr 65px;align-items:center;
+  gap:8px;padding:8px 12px;border-radius:8px;background:var(--bg3);border:1px solid var(--border);margin-bottom:4px;font-size:12px}
+.hvi.last{border-color:var(--gold);background:rgba(255,184,0,.04)}
+
+/* ── PROG ── */
+.pi{padding:10px 14px;border-radius:8px;background:var(--bg3);border:1px solid var(--border);margin-bottom:5px;font-size:12px}
+.ph{display:flex;justify-content:space-between;margin-bottom:3px}
+.pr{font-weight:800;color:var(--gold)}.ps{color:var(--text2)}
+
+/* ── TREND ── */
+.tgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tc{background:var(--bg3);border-radius:8px;padding:12px;border:1px solid var(--border)}
+.tl{font-size:10px;color:var(--text2);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+.tv{font-size:1.25rem;font-weight:900}
+.tv.up{color:var(--green)}.tv.down{color:var(--red)}.tv.flat{color:var(--text2)}
+
+/* ── MINUTE ── */
+.mi{display:grid;grid-template-columns:52px 1fr 40px 40px;align-items:center;
+  gap:8px;padding:7px 12px;border-radius:7px;background:var(--bg3);border:1px solid var(--border);margin-bottom:4px;font-size:12px}
+
+/* ── CAPTURE / FORMS ── */
+.cbar{display:flex;gap:7px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
+.inp{background:var(--bg3);border:1px solid var(--border);border-radius:8px;
+  color:var(--text1);font-family:inherit;font-size:15px;padding:9px 14px;outline:none}
+.inp:focus{border-color:var(--gold)}
+.inp-num{width:115px;font-size:18px}
+.inp-time{width:80px;font-size:14px}
+.inp-big{width:100%;min-height:72px;resize:vertical;font-size:12px;padding:10px}
+.btn{background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text1);
+  cursor:pointer;font-family:inherit;font-size:12px;font-weight:700;padding:9px 16px;transition:all .15s}
+.btn:hover{border-color:var(--text2)}
+.btn-gold{background:var(--gold);border-color:var(--gold);color:#000}
+.btn-gold:hover{background:var(--gold2)}
+.btn-ghost-gold{background:rgba(255,184,0,.1);border-color:rgba(255,184,0,.3);color:var(--gold)}
+.btn-ghost-red{background:rgba(248,113,113,.08);border-color:rgba(248,113,113,.25);color:var(--red)}
+.btn-ghost-blue{background:rgba(96,165,250,.08);border-color:rgba(96,165,250,.25);color:var(--blue)}
+
+/* ── CONFIG ── */
+.cfg-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.cfg-row{display:flex;flex-direction:column;gap:5px}
+.cfg-row label{font-size:11px;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+
+/* ── TWO COL ── */
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.empty{color:var(--text2);font-size:12px;text-align:center;padding:28px}
+.mt12{margin-top:12px}.mt8{margin-top:8px}
+.between{display:flex;justify-content:space-between;align-items:center}
+@media(max-width:640px){.two{grid-template-columns:1fr}.tgrid{grid-template-columns:1fr}.cfg-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
+
 <header>
-  <h1>🛩 TH <span>100x</span></h1>
-  <div id="status-bar">Carregando...</div>
+  <div class="logo">
+    <div class="logo-icon">✈</div>
+    <div class="logo-text">TH <span>100x</span></div>
+  </div>
+  <div id="status-bar">
+    <span class="status-dot"></span>
+    <span id="sb-text">Conectando...</span>
+  </div>
 </header>
+
 <nav class="tab-nav">
-  <button class="tab-btn active" onclick="showTab('geral')">📊 Visão Geral</button>
-  <button class="tab-btn" onclick="showTab('seq')">🔗 Sequências</button>
-  <button class="tab-btn" onclick="showTab('ciclos')">🔄 Ciclos</button>
-  <button class="tab-btn" onclick="showTab('intervalos')">📏 Intervalos</button>
-  <button class="tab-btn" onclick="showTab('prog')">📈 P.A./P.G.</button>
-  <button class="tab-btn" onclick="showTab('capture')">✏️ Captura</button>
-  <button class="tab-btn" onclick="showTab('config')">⚙️ Config</button>
+  <button class="tab-btn active" onclick="show('geral')">Visão Geral</button>
+  <button class="tab-btn" onclick="show('seq')">Sequências</button>
+  <button class="tab-btn" onclick="show('ciclos')">Ciclos</button>
+  <button class="tab-btn" onclick="show('int')">Intervalos</button>
+  <button class="tab-btn" onclick="show('prog')">P.A. / P.G.</button>
+  <button class="tab-btn" onclick="show('cap')">Captura</button>
+  <button class="tab-btn" onclick="show('cfg')">Config</button>
 </nav>
+
 <main>
 
 <!-- VISÃO GERAL -->
 <div id="tab-geral" class="tab-pane active">
-  <div id="geral-cards" class="cards"></div>
+  <div id="g-cards" class="cards"></div>
   <div class="section">
-    <h3>Médias por Cor</h3>
-    <div id="color-stats" class="color-stats-grid"></div>
+    <div class="sec-title">Médias por Cor</div>
+    <div id="g-colorstats" class="cs-grid"></div>
   </div>
   <div class="section">
-    <h3>Fita de Histórico <small style="text-transform:none;letter-spacing:0;color:var(--text2)">(recente → antigo)</small></h3>
-    <div id="tape" class="tape"></div>
+    <div class="sec-title">Histórico de Rodadas <span style="color:var(--text2);font-weight:400;text-transform:none;letter-spacing:0;font-size:10px">recente → antigo</span></div>
+    <div id="g-tape" class="tape"></div>
   </div>
   <div class="section">
-    <h3>Distribuição por Faixa</h3>
-    <div id="dist"></div>
+    <div class="sec-title">Distribuição por Faixa</div>
+    <div id="g-dist"></div>
   </div>
 </div>
 
 <!-- SEQUÊNCIAS -->
 <div id="tab-seq" class="tab-pane">
   <div class="section">
-    <h3>Mapa de Cores <small style="text-transform:none;letter-spacing:0;color:var(--text2)">(recente → antigo)</small></h3>
-    <div id="dotgrid" class="dot-grid"></div>
+    <div class="sec-title">Mapa Visual <span style="color:var(--text2);font-weight:400;text-transform:none;letter-spacing:0;font-size:10px">recente → antigo</span></div>
+    <div id="s-dots" class="dot-grid"></div>
   </div>
   <div class="section">
-    <div class="flex-between" style="margin-bottom:12px">
-      <h3 style="margin:0">Runs Consecutivos</h3>
-      <span id="runs-total" style="font-size:11px;color:var(--text2)"></span>
+    <div class="between" style="margin-bottom:14px">
+      <div class="sec-title" style="margin:0">Runs Consecutivos</div>
+      <span id="s-total" style="font-size:11px;color:var(--text2)"></span>
     </div>
-    <div id="run-list" class="run-list"></div>
+    <div id="s-runs" class="run-list"></div>
   </div>
   <div class="section">
-    <h3>Distribuição de Comprimentos de Runs</h3>
-    <div id="run-dist"></div>
+    <div class="sec-title">Distribuição de Comprimentos</div>
+    <div id="s-rdist"></div>
   </div>
 </div>
 
 <!-- CICLOS -->
 <div id="tab-ciclos" class="tab-pane">
   <div class="section">
-    <h3>Estado Atual</h3>
-    <div id="cycle-state"></div>
+    <div class="sec-title">Estado Atual</div>
+    <div id="c-state"></div>
   </div>
   <div class="section">
-    <h3>Comprimento Médio e Mais Comum por Cor</h3>
-    <div id="run-len-by-color"></div>
+    <div class="sec-title">Comprimento por Cor</div>
+    <div id="c-runlen" class="cs-grid"></div>
   </div>
   <div class="section">
-    <h3>Tabela de Transições — após uma cor, o que vem a seguir?</h3>
-    <div id="trans-table"></div>
+    <div class="sec-title">Tabela de Transições</div>
+    <div id="c-trans" style="overflow-x:auto"></div>
   </div>
   <div class="section">
-    <h3>Padrões de Ciclo de Runs (sequência de cores que se repete)</h3>
-    <div id="run-cycles"></div>
+    <div class="sec-title">Padrões que se Repetem</div>
+    <div id="c-cycles"></div>
   </div>
   <div class="section">
-    <h3>Timeline de Runs (antigo → recente)</h3>
-    <div id="run-timeline" class="run-timeline"></div>
+    <div class="sec-title">Timeline (antigo → recente)</div>
+    <div id="c-timeline" class="run-line"></div>
   </div>
 </div>
 
 <!-- INTERVALOS -->
-<div id="tab-intervalos" class="tab-pane">
-  <div class="two-col">
+<div id="tab-int" class="tab-pane">
+  <div class="two">
     <div>
-      <div id="green-alert"></div>
+      <div id="i-g-alert"></div>
       <div class="section">
-        <h3>🟢 Verdes (≥ <span id="green-lbl">5</span>x e &lt; <span id="moon-lbl">10</span>x)</h3>
-        <div id="green-cards" class="cards" style="grid-template-columns:repeat(3,1fr)"></div>
-        <div id="green-list" style="margin-top:12px"></div>
+        <div class="sec-title">🟢 Verdes — ≥ <span id="lbl-g">5</span>x e &lt; <span id="lbl-m">10</span>x</div>
+        <div id="i-g-cards" class="cards" style="grid-template-columns:repeat(3,1fr)"></div>
+        <div id="i-g-list" class="mt8"></div>
       </div>
     </div>
     <div>
-      <div id="moon-alert"></div>
+      <div id="i-m-alert"></div>
       <div class="section">
-        <h3>🌙 Moons (≥ <span id="moon-lbl2">10</span>x)</h3>
-        <div id="moon-cards" class="cards" style="grid-template-columns:repeat(3,1fr)"></div>
-        <div id="moon-list" style="margin-top:12px"></div>
+        <div class="sec-title">🟡 Moons — ≥ <span id="lbl-m2">10</span>x</div>
+        <div id="i-m-cards" class="cards" style="grid-template-columns:repeat(3,1fr)"></div>
+        <div id="i-m-list" class="mt8"></div>
       </div>
     </div>
   </div>
@@ -233,564 +322,274 @@ main{padding:20px;max-width:1100px;margin:0 auto}
 <!-- P.A./P.G. -->
 <div id="tab-prog" class="tab-pane">
   <div class="section">
-    <h3>Tendência Recente (últimas 5 vs 5 anteriores)</h3>
-    <div id="trend"></div>
+    <div class="sec-title">Tendência Recente</div>
+    <div id="p-trend"></div>
   </div>
   <div class="section">
-    <h3>Progressões Aritméticas (P.A.)</h3>
-    <div id="pa-list"></div>
+    <div class="sec-title">Progressões Aritméticas (P.A.)</div>
+    <div id="p-pa"></div>
   </div>
   <div class="section">
-    <h3>Progressões Geométricas (P.G.)</h3>
-    <div id="pg-list"></div>
+    <div class="sec-title">Progressões Geométricas (P.G.)</div>
+    <div id="p-pg"></div>
   </div>
 </div>
 
 <!-- CAPTURA -->
-<div id="tab-capture" class="tab-pane">
+<div id="tab-cap" class="tab-pane">
   <div class="section">
-    <h3>Entrada Rápida</h3>
-    <div class="capture-bar">
-      <input type="number" id="inp-round" min="1.00" step="0.01" placeholder="2.50">
-      <input type="text" id="inp-time" placeholder="14:23" maxlength="5" title="Horário HH:MM (opcional)">
-      <button class="btn btn-add" onclick="addRound()">Add</button>
-      <button class="btn btn-undo" onclick="undoRound()">↩ Undo</button>
-      <button class="btn btn-clear" onclick="clearManual()">🗑 Limpar</button>
-      <button class="btn btn-refresh" onclick="fetchData()">🔄 Railway</button>
+    <div class="sec-title">Entrada</div>
+    <div class="cbar">
+      <input class="inp inp-num" type="number" id="inp-v" min="1" step="0.01" placeholder="2.50">
+      <input class="inp inp-time" type="text" id="inp-t" placeholder="14:23" maxlength="5" title="Horário HH:MM (opcional)">
+      <button class="btn btn-gold" onclick="addR()">Adicionar</button>
+      <button class="btn" onclick="undoR()">↩ Desfazer</button>
+      <button class="btn btn-ghost-red" onclick="clearR()">Limpar</button>
+      <button class="btn btn-ghost-gold" onclick="fetchData()">↻ Sincronizar</button>
     </div>
     <div style="font-size:11px;color:var(--text2)">
-      Railway: <b id="rw-count" style="color:var(--green)">0</b> &nbsp;|&nbsp;
-      Manuais: <b id="manual-count" style="color:var(--blue)">0</b>
+      Railway: <b id="rw-c" style="color:var(--green)">0</b> &nbsp;·&nbsp;
+      Manual: <b id="mn-c" style="color:var(--blue)">0</b>
     </div>
   </div>
   <div class="section">
-    <h3>Importar em Lote</h3>
-    <div style="font-size:11px;color:var(--text2);margin-bottom:6px">
-      Formato: valor espaço/vírgula valor... — aceita "x" no final (ex: 1.50x). Para incluir horário use "valor@HH:MM" (ex: 3.20@14:25).
-    </div>
-    <textarea id="import-area" class="import-area" placeholder="1.50, 2.30x, 5.00@14:13, 11.20@14:14, 1.09"></textarea>
-    <div style="margin-top:8px;display:flex;gap:8px;align-items:center">
-      <button class="btn btn-import" onclick="importBatch()">Importar</button>
-      <span id="import-msg" style="font-size:11px;color:var(--green)"></span>
+    <div class="sec-title">Importar Lote</div>
+    <div style="font-size:11px;color:var(--text2);margin-bottom:8px">Valores separados por espaço, vírgula ou nova linha. Formato com horário: <code style="color:var(--gold)">3.20@14:25</code></div>
+    <textarea class="inp inp-big" id="imp-a" placeholder="1.50, 2.30x, 5.00@14:13, 11.20@14:14 ..."></textarea>
+    <div style="display:flex;gap:8px;align-items:center;margin-top:8px">
+      <button class="btn btn-ghost-blue" onclick="importR()">Importar</button>
+      <span id="imp-msg" style="font-size:11px;color:var(--green)"></span>
     </div>
   </div>
-  <div class="section" id="minute-section">
-    <h3>⏱ Análise por Minuto / Hora</h3>
-    <div id="minute-stats"></div>
+  <div class="section">
+    <div class="sec-title">Análise por Minuto / Hora</div>
+    <div id="min-stats"></div>
   </div>
 </div>
 
 <!-- CONFIG -->
-<div id="tab-config" class="tab-pane">
+<div id="tab-cfg" class="tab-pane">
   <div class="section">
-    <h3>Limiares de Classificação</h3>
-    <div class="config-grid">
-      <div class="config-row"><label>🔵 Azul → 🟣 Roxa acima de (x)</label><input type="number" id="cfg-blue" min="1.01" step="0.01" value="2.00"></div>
-      <div class="config-row"><label>🟣 Roxa → 🟢 Verde acima de (x)</label><input type="number" id="cfg-purple" min="1.01" step="0.01" value="5.00"></div>
-      <div class="config-row"><label>🟢 Verde → 🌙 Moon acima de (x)</label><input type="number" id="cfg-green" min="1.01" step="0.01" value="10.00"></div>
+    <div class="sec-title">Limiares de Cor</div>
+    <div class="cfg-grid">
+      <div class="cfg-row"><label>🔵 Azul → Roxa acima de</label><input class="inp" type="number" id="c-blue" min="1.01" step="0.01" value="2.00"></div>
+      <div class="cfg-row"><label>🟣 Roxa → Verde acima de</label><input class="inp" type="number" id="c-purple" min="1.01" step="0.01" value="5.00"></div>
+      <div class="cfg-row"><label>🟢 Verde → Moon acima de</label><input class="inp" type="number" id="c-green" min="1.01" step="0.01" value="10.00"></div>
     </div>
-    <button class="btn-apply" onclick="applyConfig()">✓ Aplicar</button>
+    <button class="btn btn-gold mt12" onclick="applyC()">Aplicar</button>
   </div>
   <div class="section mt12">
-    <h3>Auto-atualização</h3>
-    <div style="font-size:12px;color:var(--text2);margin-bottom:10px">Dados do Railway atualizados a cada 30s.</div>
-    <button class="btn btn-refresh" onclick="fetchData()">🔄 Atualizar Agora</button>
-    <div id="last-fetch" style="font-size:11px;color:var(--text2);margin-top:8px"></div>
+    <div class="sec-title">Sincronização</div>
+    <p style="font-size:12px;color:var(--text2);margin-bottom:10px">Dados do Railway atualizados a cada 30s automaticamente.</p>
+    <button class="btn btn-ghost-gold" onclick="fetchData()">↻ Atualizar Agora</button>
+    <div id="last-sync" style="font-size:11px;color:var(--text2);margin-top:8px"></div>
   </div>
 </div>
 
 </main>
 <script>
-// ── State
-let rwRounds = [];      // {data, horario, roundId, maxMultiplier}
-let manualRounds = [];  // {mult, time}  (time = "HH:MM" or null)
-let cfg = { blue: 2.0, purple: 5.0, green: 10.0 };
+// ── STATE
+let rw = [];            // {data,horario,roundId,maxMultiplier}
+let manual = [];        // {mult,time}
+let cfg = {blue:2,purple:5,green:10};
 
-function getMults() {
-  return [...rwRounds.map(r => r.maxMultiplier), ...manualRounds.map(r => r.mult)];
-}
-function getAllRoundsWithTime() {
-  const rw = rwRounds.map(r => ({ mult: r.maxMultiplier, time: r.horario ? r.horario.substring(0,5) : null }));
-  return [...rw, ...manualRounds];
-}
+function mults(){ return [...rw.map(r=>r.maxMultiplier),...manual.map(r=>r.mult)]; }
+function allWT(){ return [...rw.map(r=>({mult:r.maxMultiplier,time:r.horario?r.horario.slice(0,5):null})),...manual]; }
 
-// ── Color
-function getColor(m) {
-  if (m < cfg.blue)   return 'blue';
-  if (m < cfg.purple) return 'purple';
-  if (m < cfg.green)  return 'green';
-  return 'moon';
-}
-const L    = { blue:'B', purple:'P', green:'G', moon:'L' };
-const LBL  = { blue:'Azul', purple:'Roxa', green:'Verde', moon:'Moon' };
-const CLR  = { blue:'var(--blue)', purple:'var(--purple)', green:'var(--green)', moon:'var(--moon)' };
-const EMOJI= { blue:'🔵', purple:'🟣', green:'🟢', moon:'🌙' };
+// ── COLOR
+function gc(m){ return m<cfg.blue?'blue':m<cfg.purple?'purple':m<cfg.green?'green':'moon'; }
+const SYM ={blue:'🔵',purple:'🟣',green:'🟢',moon:'🟡'};
+const LBL ={blue:'Azul',purple:'Roxa',green:'Verde',moon:'Moon'};
+const CLR ={blue:'var(--blue)',purple:'var(--purple)',green:'var(--green)',moon:'var(--gold)'};
+const LT  ={blue:'B',purple:'P',green:'G',moon:'L'};
 
-// ── Helpers
-function mode(arr) {
-  if (!arr.length) return 0;
-  const cnt = {}; arr.forEach(v => cnt[v] = (cnt[v]||0)+1);
-  return parseInt(Object.entries(cnt).sort((a,b)=>b[1]-a[1])[0][0]);
-}
-function avg(arr) { return arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : 0; }
-function calcMedian(arr) {
-  if (!arr.length) return 0;
-  const s=[...arr].sort((a,b)=>a-b), m=Math.floor(s.length/2);
-  return s.length%2 ? s[m] : (s[m-1]+s[m])/2;
+// ── MATH
+const sum  = a => a.reduce((s,v)=>s+v,0);
+const avg  = a => a.length?sum(a)/a.length:0;
+const med  = a =>{ if(!a.length) return 0; const s=[...a].sort((x,y)=>x-y),m=Math.floor(s.length/2); return s.length%2?s[m]:(s[m-1]+s[m])/2; };
+const mode = a =>{ if(!a.length) return 0; const c={}; a.forEach(v=>c[v]=(c[v]||0)+1); return +Object.entries(c).sort((x,y)=>y[1]-x[1])[0][0]; };
+
+// ── RUNS
+function runs(ms){ const r=[]; let i=0; while(i<ms.length){ const c=gc(ms[i]),g=[]; while(i<ms.length&&gc(ms[i])===c) g.push(ms[i++]); r.push({color:c,lt:LT[c],len:g.length,ms:g,avg:avg(g)}); } return r; }
+
+// ── COLOR STATS
+function cStats(ms,rs){
+  const v={blue:[],purple:[],green:[],moon:[]}, rl={blue:[],purple:[],green:[],moon:[]};
+  ms.forEach(m=>v[gc(m)].push(m)); rs.forEach(r=>rl[r.color].push(r.len));
+  return ['blue','purple','green','moon'].reduce((o,c)=>{ const a=v[c],b=rl[c]; o[c]={count:a.length,mean:avg(a),min:a.length?Math.min(...a):0,max:a.length?Math.max(...a):0,arl:avg(b).toFixed(1),mrl:mode(b),rc:b.length}; return o; },{});
 }
 
-// ── Runs
-function getRuns(mults) {
-  const runs=[]; let i=0;
-  while (i<mults.length) {
-    const c=getColor(mults[i]), g=[];
-    while (i<mults.length && getColor(mults[i])===c) g.push(mults[i++]);
-    runs.push({ color:c, letter:L[c], length:g.length, mults:g, avg:avg(g) });
-  }
-  return runs;
-}
+// ── TRANSITION TABLE
+function trans(rs){ const t={B:{B:0,P:0,G:0,L:0,n:0},P:{B:0,P:0,G:0,L:0,n:0},G:{B:0,P:0,G:0,L:0,n:0},L:{B:0,P:0,G:0,L:0,n:0}}; for(let i=0;i<rs.length-1;i++){const f=rs[i].lt,to=rs[i+1].lt;t[f][to]++;t[f].n++;} return t; }
 
-// ── Color stats
-function colorStats(mults, runs) {
-  const vals={blue:[],purple:[],green:[],moon:[]};
-  mults.forEach(m => vals[getColor(m)].push(m));
-  const runLens={blue:[],purple:[],green:[],moon:[]};
-  runs.forEach(r => runLens[r.color].push(r.length));
-  return ['blue','purple','green','moon'].reduce((o,c) => {
-    const v=vals[c], rl=runLens[c];
-    o[c]={ count:v.length, mean:avg(v), min:v.length?Math.min(...v):0, max:v.length?Math.max(...v):0,
-      avgRunLen:avg(rl).toFixed(1), modeRunLen:mode(rl), runCount:rl.length };
-    return o;
-  },{});
-}
+// ── CYCLES
+function cycles(rs){ const s=rs.map(r=>r.lt).join(''),c={}; for(let l=2;l<=6;l++) for(let i=0;i<=s.length-l*2;i++){const p=s.slice(i,i+l),n=s.slice(i+l,i+l*2);if(p===n)c[p]=(c[p]||0)+1;} return Object.entries(c).sort((a,b)=>b[1]-a[1]).slice(0,10); }
 
-// ── Transition table
-function transitionTable(runs) {
-  const tbl={B:{B:0,P:0,G:0,L:0,tot:0},P:{B:0,P:0,G:0,L:0,tot:0},G:{B:0,P:0,G:0,L:0,tot:0},L:{B:0,P:0,G:0,L:0,tot:0}};
-  for (let i=0; i<runs.length-1; i++) {
-    const f=runs[i].letter, t=runs[i+1].letter;
-    tbl[f][t]++; tbl[f].tot++;
-  }
-  return tbl;
-}
-
-// ── Run cycles (color sequence of runs)
-function findRunCycles(runs) {
-  const seq=runs.map(r=>r.letter).join('');
-  const cnt={};
-  for (let len=2;len<=6;len++)
-    for (let i=0;i<=seq.length-len*2;i++) {
-      const p=seq.substring(i,i+len), n=seq.substring(i+len,i+len*2);
-      if (p===n) cnt[p]=(cnt[p]||0)+1;
-    }
-  return Object.entries(cnt).sort((a,b)=>b[1]-a[1]).slice(0,10);
-}
-
-// ── Interval stats (parameterised)
-function intervalStats(mults, lo, hi=Infinity) {
-  const idxs=mults.reduce((a,m,i)=>{ if(m>=lo&&m<hi) a.push(i); return a; },[]);
-  const intervals=idxs.slice(1).map((v,i)=>v-idxs[i]);
-  const avgI=avg(intervals);
-  return {
-    count:idxs.length, idxs, intervals, avg:avgI.toFixed(1),
-    min:intervals.length?Math.min(...intervals):'-',
-    max:intervals.length?Math.max(...intervals):'-',
-    since:idxs.length?mults.length-1-idxs[idxs.length-1]:mults.length,
-    freq:(idxs.length/Math.max(mults.length,1)*100).toFixed(1)
-  };
-}
-
-// ── Minute / hour stats
-function minuteStats(rounds) {
-  const byMin={}, byHour={};
-  rounds.forEach(({mult,time})=>{
-    if (!time||!time.includes(':')) return;
-    const [h,m]=time.split(':');
-    const mk=h+':'+m;
-    if (!byMin[mk]) byMin[mk]={total:0,moon:0,green:0};
-    byMin[mk].total++;
-    if (mult>=cfg.green) byMin[mk].moon++;
-    else if (mult>=cfg.purple) byMin[mk].green++;
-    if (!byHour[h]) byHour[h]={total:0,moon:0,green:0};
-    byHour[h].total++;
-    if (mult>=cfg.green) byHour[h].moon++;
-    else if (mult>=cfg.purple) byHour[h].green++;
-  });
-  return { byMin, byHour };
-}
+// ── INTERVALS
+function ivl(ms,lo,hi=Infinity){ const idx=ms.reduce((a,m,i)=>{if(m>=lo&&m<hi)a.push(i);return a;},[]),iv=idx.slice(1).map((v,i)=>v-idx[i]),a=avg(iv); return {count:idx.length,idx,iv,avg:a.toFixed(1),min:iv.length?Math.min(...iv):'-',max:iv.length?Math.max(...iv):'-',since:idx.length?ms.length-1-idx[idx.length-1]:ms.length,freq:(idx.length/Math.max(ms.length,1)*100).toFixed(1)}; }
 
 // ── PA / PG
-function findPA(mults) {
-  const src=mults.slice(-500),res=[];
-  for (let len=3;len<=7;len++)
-    for (let s=0;s<=src.length-len;s++) {
-      const seq=src.slice(s,s+len),diffs=seq.slice(1).map((v,i)=>v-seq[i]);
-      const a=avg(diffs),maxD=Math.max(...diffs.map(d=>Math.abs(d-a)));
-      if (maxD<=0.15&&Math.abs(a)>=0.10) res.push({s,len,seq,ratio:a});
-    }
-  return res.sort((a,b)=>b.len-a.len).slice(0,10);
-}
-function findPG(mults) {
-  const src=mults.slice(-500),res=[];
-  for (let len=3;len<=7;len++)
-    for (let s=0;s<=src.length-len;s++) {
-      const seq=src.slice(s,s+len);
-      if (seq.some(v=>v<=0)) continue;
-      const ratios=seq.slice(1).map((v,i)=>v/seq[i]);
-      const a=avg(ratios),maxD=Math.max(...ratios.map(r=>Math.abs(r-a)/a));
-      if (maxD<=0.15&&(a>=1.08||a<=0.92)) res.push({s,len,seq,ratio:a});
-    }
-  return res.sort((a,b)=>b.len-a.len).slice(0,10);
+function pa(ms){ const src=ms.slice(-500),r=[]; for(let l=3;l<=7;l++) for(let s=0;s<=src.length-l;s++){const sq=src.slice(s,s+l),d=sq.slice(1).map((v,i)=>v-sq[i]),a=avg(d),mx=Math.max(...d.map(x=>Math.abs(x-a)));if(mx<=0.15&&Math.abs(a)>=0.1)r.push({s,l,sq,r:a});} return r.sort((a,b)=>b.l-a.l).slice(0,10); }
+function pg(ms){ const src=ms.slice(-500),r=[]; for(let l=3;l<=7;l++) for(let s=0;s<=src.length-l;s++){const sq=src.slice(s,s+l);if(sq.some(v=>v<=0))continue;const rt=sq.slice(1).map((v,i)=>v/sq[i]),a=avg(rt),mx=Math.max(...rt.map(x=>Math.abs(x-a)/a));if(mx<=0.15&&(a>=1.08||a<=0.92))r.push({s,l,sq,r:a});} return r.sort((a,b)=>b.l-a.l).slice(0,10); }
+
+// ── MINUTE STATS
+function minStats(all){ const bm={},bh={}; all.forEach(({mult:m,time:t})=>{ if(!t||!t.includes(':'))return; const[h,mn]=t.split(':'),mk=h+':'+mn; if(!bm[mk])bm[mk]={n:0,moon:0,green:0}; bm[mk].n++;if(m>=cfg.green)bm[mk].moon++;else if(m>=cfg.purple)bm[mk].green++; if(!bh[h])bh[h]={n:0,moon:0,green:0}; bh[h].n++;if(m>=cfg.green)bh[h].moon++;else if(m>=cfg.purple)bh[h].green++; }); return{bm,bh}; }
+
+// ── HTML HELPERS
+const chip=(m,now=false)=>`<span class="chip ${gc(m)}${now?' now':''}">${m.toFixed(2)}x</span>`;
+const dot=(c,now=false)=>`<span class="dot ${c}${now?' now':''}">${LT[c]}</span>`;
+const rtag=(r,cur=false)=>`<span class="rtag ${r.color}${cur?' now':''}"><span class="rd ${r.color}"></span>${r.len}${r.lt}</span>`;
+function alertBox(type,icon,title,desc){ return `<div class="abox ${type}"><div class="ai">${icon}</div><div class="at">${title}</div><div class="ad">${desc}</div></div>`; }
+function ivlAlert(v,label){
+  if(!v.count) return alertBox('ok','💤',`Nenhum ${label} registrado ainda`,'Aguardando ocorrências.');
+  if(v.since===0) return alertBox('fire','🟡',`AGORA — última rodada foi ${label}!`,'Acabou de ocorrer.');
+  if(v.avg>0&&v.since>parseFloat(v.avg)) return alertBox('warn','⚠️',`${v.since} rodadas sem ${label}`,`Média histórica: ${v.avg} rodadas de intervalo.`);
+  return alertBox('ok','✅',`Normal — ${v.since} rodadas desde o último ${label}`,`Média histórica: ${v.avg} rodadas.`);
 }
 
-// ── HTML helpers
-function chipHtml(m,recent=false){
-  return `<span class="chip ${getColor(m)}${recent?' recent':''}">${m.toFixed(2)}x</span>`;
-}
-function dotHtml(c,recent=false){
-  return `<span class="dot ${c}${recent?' recent':''}">${L[c]}</span>`;
-}
-function runTag(r,isCur=false){
-  return `<span class="run-tag ${r.color}${isCur?' current':''}"><span class="rdot ${r.color}"></span>${r.length}${r.letter}</span>`;
-}
-function alertHtml(type,icon,title,desc){
-  return `<div class="alert-box ${type}"><div class="icon">${icon}</div><div class="title">${title}</div><div class="desc">${desc}</div></div>`;
-}
-function intervalAlertHtml(hv, label) {
-  if (!hv.count) return alertHtml('ok','💤',`Nenhum ${label} ainda`,'Aguardando no histórico.');
-  if (hv.since===0) return alertHtml('fire','🔥',`AGORA — Última rodada foi ${label}!`,'Acabou de ocorrer.');
-  if (hv.avg>0&&hv.since>parseFloat(hv.avg))
-    return alertHtml('danger','⚠️',`ACIMA DA MÉDIA — ${hv.since} rodadas sem ${label}`,`Média histórica: ${hv.avg} rodadas.`);
-  return alertHtml('ok','✅',`Normal — ${hv.since} rodadas desde o último ${label}`,`Média histórica: ${hv.avg} rodadas.`);
-}
-
-// ── Render: Geral
-function renderGeral(mults,runs) {
-  if (!mults.length){ document.getElementById('geral-cards').innerHTML='<p class="empty">Sem dados. Aguarde a extensão ou adicione manualmente.</p>'; return; }
-  const mean=avg(mults), median=calcMedian(mults);
-  const cnt={blue:0,purple:0,green:0,moon:0}; mults.forEach(m=>cnt[getColor(m)]++);
-  const n=mults.length,last=mults[mults.length-1];
-  document.getElementById('geral-cards').innerHTML=`
-    <div class="card white"><div class="val">${n}</div><div class="lbl">Total</div></div>
-    <div class="card white"><div class="val">${mean.toFixed(2)}x</div><div class="lbl">Média</div></div>
-    <div class="card white"><div class="val">${median.toFixed(2)}x</div><div class="lbl">Mediana</div></div>
-    <div class="card blue"><div class="val">${cnt.blue}</div><div class="lbl">🔵 Azuis ${(cnt.blue/n*100).toFixed(0)}%</div></div>
-    <div class="card purple"><div class="val">${cnt.purple}</div><div class="lbl">🟣 Roxas ${(cnt.purple/n*100).toFixed(0)}%</div></div>
-    <div class="card green"><div class="val">${cnt.green}</div><div class="lbl">🟢 Verdes ${(cnt.green/n*100).toFixed(0)}%</div></div>
-    <div class="card moon"><div class="val">${cnt.moon}</div><div class="lbl">🌙 Moon ${(cnt.moon/n*100).toFixed(0)}%</div></div>
-    <div class="card ${getColor(last)}"><div class="val">${last.toFixed(2)}x</div><div class="lbl">Última</div></div>`;
-
-  // Color stats cards
-  const cs=colorStats(mults,runs);
-  document.getElementById('color-stats').innerHTML=['blue','purple','green','moon'].map(c=>{
-    const s=cs[c];
-    if (!s.count) return `<div class="color-stat-card"><div class="cs-header"><span class="cs-dot ${c}"></span><span class="cs-title" style="color:${CLR[c]}">${EMOJI[c]} ${LBL[c]}</span></div><div style="color:var(--text2);font-size:11px">Nenhuma rodada</div></div>`;
-    return `<div class="color-stat-card">
-      <div class="cs-header"><span class="cs-dot ${c}"></span><span class="cs-title" style="color:${CLR[c]}">${EMOJI[c]} ${LBL[c]}</span></div>
-      <div class="cs-row"><span class="cs-key">Média</span><span class="cs-val" style="color:${CLR[c]}">${s.mean.toFixed(2)}x</span></div>
-      <div class="cs-row"><span class="cs-key">Mín / Máx</span><span class="cs-val">${s.min.toFixed(2)}x / ${s.max.toFixed(2)}x</span></div>
-      <div class="cs-row"><span class="cs-key">Runs de seq. média</span><span class="cs-val">${s.avgRunLen} rodadas</span></div>
-      <div class="cs-row"><span class="cs-key">Seq. mais comum</span><span class="cs-val">${s.modeRunLen} seguidas</span></div>
-      <div class="cs-row"><span class="cs-key">Total de runs</span><span class="cs-val">${s.runCount}</span></div>
-    </div>`;
+// ── RENDER GERAL
+function rGeral(ms,rs){
+  if(!ms.length){document.getElementById('g-cards').innerHTML='<p class="empty">Sem dados — aguarde a extensão capturar rodadas.</p>';return;}
+  const cnt={blue:0,purple:0,green:0,moon:0},n=ms.length,last=ms[n-1]; ms.forEach(m=>cnt[gc(m)]++);
+  document.getElementById('g-cards').innerHTML=`
+    <div class="card"><div class="val">${n}</div><div class="lbl">Total</div></div>
+    <div class="card"><div class="val">${avg(ms).toFixed(2)}x</div><div class="lbl">Média</div></div>
+    <div class="card"><div class="val">${med(ms).toFixed(2)}x</div><div class="lbl">Mediana</div></div>
+    <div class="card blue"><div class="val">${cnt.blue}</div><div class="lbl">Azuis ${(cnt.blue/n*100).toFixed(0)}%</div></div>
+    <div class="card purple"><div class="val">${cnt.purple}</div><div class="lbl">Roxas ${(cnt.purple/n*100).toFixed(0)}%</div></div>
+    <div class="card green"><div class="val">${cnt.green}</div><div class="lbl">Verdes ${(cnt.green/n*100).toFixed(0)}%</div></div>
+    <div class="card gold"><div class="val">${cnt.moon}</div><div class="lbl">Moons ${(cnt.moon/n*100).toFixed(0)}%</div></div>
+    <div class="card ${gc(last)}"><div class="val">${last.toFixed(2)}x</div><div class="lbl">Última</div></div>`;
+  const cs=cStats(ms,rs);
+  document.getElementById('g-colorstats').innerHTML=['blue','purple','green','moon'].map(c=>{
+    const s=cs[c]; if(!s.count) return `<div class="csc"><div class="csc-head"><span class="csc-dot ${c}"></span><span class="csc-name" style="color:${CLR[c]}">${LBL[c]}</span></div><div class="empty" style="padding:8px">Sem rodadas</div></div>`;
+    return `<div class="csc"><div class="csc-head"><span class="csc-dot ${c}"></span><span class="csc-name" style="color:${CLR[c]}">${SYM[c]} ${LBL[c]}</span></div>
+      <div class="crow"><span class="ckey">Média</span><span class="cval" style="color:${CLR[c]}">${s.mean.toFixed(2)}x</span></div>
+      <div class="crow"><span class="ckey">Mín / Máx</span><span class="cval">${s.min.toFixed(2)}x / ${s.max.toFixed(2)}x</span></div>
+      <div class="crow"><span class="ckey">Seq. média</span><span class="cval">${s.arl} seguidas</span></div>
+      <div class="crow"><span class="ckey">Mais comum</span><span class="cval">${s.mrl} seguidas</span></div>
+      <div class="crow"><span class="ckey">Total runs</span><span class="cval">${s.rc}</span></div></div>`;
   }).join('');
-
-  // Tape
-  document.getElementById('tape').innerHTML=[...mults].reverse().map((m,i)=>chipHtml(m,i===0)).join('');
-
-  // Distribution
-  const bands=[{l:'1x–1.99x',lo:1,hi:2,c:'blue'},{l:'2x–4.99x',lo:2,hi:5,c:'purple'},
-    {l:'5x–9.99x',lo:5,hi:10,c:'green'},{l:'10x–19.99x',lo:10,hi:20,c:'moon'},{l:'20x+',lo:20,hi:Infinity,c:'moon'}];
-  const maxC=Math.max(...bands.map(b=>mults.filter(m=>m>=b.lo&&m<b.hi).length),1);
-  document.getElementById('dist').innerHTML=bands.map(b=>{
-    const c=mults.filter(m=>m>=b.lo&&m<b.hi).length, pct=(c/n*100).toFixed(1), w=(c/maxC*100).toFixed(1);
-    return `<div class="dist-row">
-      <div class="dist-label">${b.l}</div>
-      <div class="dist-bar-wrap"><div class="dist-bar" style="width:${w}%;background:${CLR[b.c]}"></div></div>
-      <div class="dist-count" style="color:${CLR[b.c]}">${c}</div>
-      <div class="dist-pct">${pct}%</div></div>`;
-  }).join('');
+  document.getElementById('g-tape').innerHTML=[...ms].reverse().map((m,i)=>chip(m,i===0)).join('');
+  const bands=[{l:'1x – 1.99x',lo:1,hi:2,c:'blue'},{l:'2x – 4.99x',lo:2,hi:5,c:'purple'},{l:'5x – 9.99x',lo:5,hi:10,c:'green'},{l:'10x – 19.99x',lo:10,hi:20,c:'moon'},{l:'20x +',lo:20,hi:Infinity,c:'moon'}];
+  const maxB=Math.max(...bands.map(b=>ms.filter(m=>m>=b.lo&&m<b.hi).length),1);
+  document.getElementById('g-dist').innerHTML=bands.map(b=>{const c=ms.filter(m=>m>=b.lo&&m<b.hi).length,p=(c/n*100).toFixed(1),w=(c/maxB*100).toFixed(1);return `<div class="drow"><div class="dlabel">${b.l}</div><div class="dbar-wrap"><div class="dbar" style="width:${w}%;background:${CLR[b.c]}"></div></div><div class="dcount" style="color:${CLR[b.c]}">${c}</div><div class="dpct">${p}%</div></div>`;}).join('');
 }
 
-// ── Render: Sequências
-function renderSeq(mults,runs) {
-  if (!mults.length){ document.getElementById('dotgrid').innerHTML='<p class="empty">Sem dados</p>'; return; }
-  document.getElementById('dotgrid').innerHTML=[...mults].reverse().map((m,i)=>dotHtml(getColor(m),i===0)).join('');
-  document.getElementById('runs-total').textContent=runs.length+' runs';
-  document.getElementById('run-list').innerHTML=[...runs].reverse().map((r,i)=>{
-    const isCur=i===0, num=runs.length-i;
-    return `<div class="run-item${isCur?' cur':''}">
-      <span style="color:var(--text2);font-size:10px">#${num}${isCur?'<b style="color:var(--red)"> ●</b>':''}</span>
-      <span style="font-weight:700;color:${CLR[r.color]}">${r.length}× ${LBL[r.color]}</span>
-      <span style="text-align:center;font-weight:900;color:${CLR[r.color]}">${r.length}</span>
-      <span style="text-align:right;color:var(--text2)">${r.avg.toFixed(2)}x avg</span></div>`;
-  }).join('');
-  const rd={}; runs.forEach(r=>{ const k=r.length+'x'+r.color; if(!rd[k]) rd[k]={r,cnt:0}; rd[k].cnt++; });
-  const srd=Object.values(rd).sort((a,b)=>b.cnt-a.cnt);
-  const maxRD=Math.max(...srd.map(d=>d.cnt),1);
-  document.getElementById('run-dist').innerHTML=srd.map(d=>{
-    const pct=(d.cnt/runs.length*100).toFixed(1), w=(d.cnt/maxRD*100).toFixed(1);
-    return `<div class="dist-row">
-      <div class="dist-label" style="color:${CLR[d.r.color]}">${d.r.length}× ${LBL[d.r.color]}</div>
-      <div class="dist-bar-wrap"><div class="dist-bar" style="width:${w}%;background:${CLR[d.r.color]}"></div></div>
-      <div class="dist-count" style="color:${CLR[d.r.color]}">${d.cnt}</div>
-      <div class="dist-pct">${pct}%</div></div>`;
-  }).join('');
+// ── RENDER SEQ
+function rSeq(ms,rs){
+  if(!ms.length){document.getElementById('s-dots').innerHTML='<p class="empty">Sem dados</p>';return;}
+  document.getElementById('s-dots').innerHTML=[...ms].reverse().map((m,i)=>dot(gc(m),i===0)).join('');
+  document.getElementById('s-total').textContent=rs.length+' runs';
+  document.getElementById('s-runs').innerHTML=[...rs].reverse().map((r,i)=>{const cur=i===0,num=rs.length-i;return `<div class="ri${cur?' cur':''}"><span style="color:var(--text2);font-size:10px">#${num}${cur?' <b style="color:var(--gold)">●</b>':''}</span><span style="font-weight:800;color:${CLR[r.color]}">${r.len}× ${LBL[r.color]}</span><span style="text-align:center;font-weight:900;color:${CLR[r.color]}">${r.len}</span><span style="text-align:right;color:var(--text2)">${r.avg.toFixed(2)}x avg</span></div>`;}).join('');
+  const rd={};rs.forEach(r=>{const k=r.len+'x'+r.color;if(!rd[k])rd[k]={r,n:0};rd[k].n++;});
+  const srd=Object.values(rd).sort((a,b)=>b.n-a.n),maxR=Math.max(...srd.map(d=>d.n),1);
+  document.getElementById('s-rdist').innerHTML=srd.map(d=>{const p=(d.n/rs.length*100).toFixed(1),w=(d.n/maxR*100).toFixed(1);return `<div class="drow"><div class="dlabel" style="color:${CLR[d.r.color]}">${d.r.len}× ${LBL[d.r.color]}</div><div class="dbar-wrap"><div class="dbar" style="width:${w}%;background:${CLR[d.r.color]}"></div></div><div class="dcount" style="color:${CLR[d.r.color]}">${d.n}</div><div class="dpct">${p}%</div></div>`;}).join('');
 }
 
-// ── Render: Ciclos
-function renderCiclos(mults,runs) {
-  if (!mults.length){ document.getElementById('cycle-state').innerHTML='<p class="empty">Sem dados</p>'; return; }
-  // Current state
-  const cur=runs[runs.length-1], prev=runs.length>1?runs[runs.length-2]:null;
-  document.getElementById('cycle-state').innerHTML=`<div style="display:flex;gap:10px;flex-wrap:wrap">
-    ${prev?`<div class="trend-card"><div class="t-label">Run Anterior</div><div class="t-val" style="color:${CLR[prev.color]}">${prev.length}× ${LBL[prev.color]}</div></div>`:''}
-    <div class="trend-card" style="border-color:var(--red)"><div class="t-label">Run Atual 🔴</div><div class="t-val" style="color:${CLR[cur.color]}">${cur.length}× ${LBL[cur.color]}</div></div>
-    <div class="trend-card"><div class="t-label">Total de Runs</div><div class="t-val">${runs.length}</div></div></div>`;
-
-  // Run length by color
-  const cs=colorStats(mults,runs);
-  document.getElementById('run-len-by-color').innerHTML=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px">
-    ${['blue','purple','green','moon'].map(c=>{
-      const s=cs[c];
-      if(!s.runCount) return `<div class="color-stat-card"><div class="cs-header"><span class="cs-dot ${c}"></span><span class="cs-title" style="color:${CLR[c]}">${LBL[c]}</span></div><div style="color:var(--text2);font-size:11px">Sem runs</div></div>`;
-      return `<div class="color-stat-card"><div class="cs-header"><span class="cs-dot ${c}"></span><span class="cs-title" style="color:${CLR[c]}">${EMOJI[c]} ${LBL[c]}</span></div>
-        <div class="cs-row"><span class="cs-key">Seq. média</span><span class="cs-val">${s.avgRunLen} seguidas</span></div>
-        <div class="cs-row"><span class="cs-key">Seq. mais comum</span><span class="cs-val" style="color:${CLR[c]}">${s.modeRunLen} seguidas</span></div>
-        <div class="cs-row"><span class="cs-key">Runs totais</span><span class="cs-val">${s.runCount}</span></div></div>`;
-    }).join('')}</div>`;
-
-  // Transition table
-  const tbl=transitionTable(runs);
-  const cmap={B:'blue',P:'purple',G:'green',L:'moon'};
-  document.getElementById('trans-table').innerHTML=`
-    <table class="trans-table">
-      <thead><tr><th>De ↓ / Para →</th><th style="color:${CLR.blue}">🔵 Azul</th><th style="color:${CLR.purple}">🟣 Roxa</th><th style="color:${CLR.green}">🟢 Verde</th><th style="color:${CLR.moon}">🌙 Moon</th></tr></thead>
-      <tbody>${['B','P','G','L'].map(from=>{
-        const row=tbl[from], total=row.tot||1;
-        const dom=['B','P','G','L'].reduce((a,b)=>row[a]>row[b]?a:b,'B');
-        return `<tr><td style="font-weight:700;color:${CLR[cmap[from]]}">${EMOJI[cmap[from]]} ${LBL[cmap[from]]}</td>
-          ${['B','P','G','L'].map(to=>{
-            const v=row[to], pct=(v/total*100).toFixed(0);
-            const isDom=to===dom&&v>0;
-            return `<td class="${isDom?'dominant':''}" style="${isDom?'background:rgba(255,255,255,.05)':''}">
-              <div class="trans-cell"><span style="color:${CLR[cmap[to]]};font-size:13px">${v}</span><span class="trans-pct">${pct}%</span></div></td>`;
-          }).join('')}</tr>`;
-      }).join('')}</tbody></table>`;
-
-  // Run cycles
-  const cycles=findRunCycles(runs);
-  const cmap2={B:'blue',P:'purple',G:'green',L:'moon'};
-  document.getElementById('run-cycles').innerHTML=cycles.length?cycles.map(([pat,cnt])=>{
-    const letters=pat.split('');
-    const dots=letters.map(l=>`<span class="dot ${cmap2[l]}" style="width:16px;height:16px;font-size:6px">${l}</span>`).join('');
-    const name=letters.map(l=>LBL[cmap2[l]]).join(' → ');
-    return `<div class="cycle-item"><div class="cycle-dots">${dots}</div><div class="cycle-name">${name}</div><div class="cycle-count">${cnt}× detectado</div></div>`;
-  }).join(''):'<p class="empty">Dados insuficientes para padrões. Continue coletando rodadas.</p>';
-
-  // Timeline
-  document.getElementById('run-timeline').innerHTML=runs.map((r,i)=>runTag(r,i===runs.length-1)).join('');
+// ── RENDER CICLOS
+function rCiclos(ms,rs){
+  if(!ms.length){document.getElementById('c-state').innerHTML='<p class="empty">Sem dados</p>';return;}
+  const cur=rs[rs.length-1],prev=rs.length>1?rs[rs.length-2]:null;
+  document.getElementById('c-state').innerHTML=`<div style="display:flex;gap:10px;flex-wrap:wrap">
+    ${prev?`<div class="tc"><div class="tl">Run Anterior</div><div class="tv" style="color:${CLR[prev.color]}">${prev.len}× ${LBL[prev.color]}</div></div>`:''}
+    <div class="tc" style="border-color:var(--gold)"><div class="tl">Run Atual ●</div><div class="tv" style="color:${CLR[cur.color]}">${cur.len}× ${LBL[cur.color]}</div></div>
+    <div class="tc"><div class="tl">Total Runs</div><div class="tv">${rs.length}</div></div></div>`;
+  const cs=cStats(ms,rs);
+  document.getElementById('c-runlen').innerHTML=['blue','purple','green','moon'].map(c=>{const s=cs[c];if(!s.rc)return `<div class="csc"><div class="csc-head"><span class="csc-dot ${c}"></span><span class="csc-name" style="color:${CLR[c]}">${LBL[c]}</span></div><div class="empty" style="padding:8px">Sem runs</div></div>`;return `<div class="csc"><div class="csc-head"><span class="csc-dot ${c}"></span><span class="csc-name" style="color:${CLR[c]}">${SYM[c]} ${LBL[c]}</span></div><div class="crow"><span class="ckey">Média</span><span class="cval">${s.arl} seguidas</span></div><div class="crow"><span class="ckey">Mais comum</span><span class="cval" style="color:${CLR[c]}">${s.mrl} seguidas</span></div><div class="crow"><span class="ckey">Runs</span><span class="cval">${s.rc}</span></div></div>`;}).join('');
+  const t=trans(rs);const cm={B:'blue',P:'purple',G:'green',L:'moon'};
+  document.getElementById('c-trans').innerHTML=`<table class="ttable"><thead><tr><th>De / Para</th>${['B','P','G','L'].map(l=>`<th style="color:${CLR[cm[l]]}">${SYM[cm[l]]} ${LBL[cm[l]]}</th>`).join('')}</tr></thead><tbody>${['B','P','G','L'].map(f=>{const row=t[f],tot=row.n||1,dom=['B','P','G','L'].reduce((a,b)=>row[a]>row[b]?a:b,'B');return `<tr><td style="font-weight:800;color:${CLR[cm[f]]}">${SYM[cm[f]]} ${LBL[cm[f]]}</td>${['B','P','G','L'].map(to=>{const v=row[to],p=(v/tot*100).toFixed(0),isd=to===dom&&v>0;return `<td class="${isd?'dom':''}" style="${isd?'background:rgba(255,184,0,.06)':''}"><div class="tcell"><span style="color:${CLR[cm[to]]}">${v}</span><span class="tpct">${p}%</span></div></td>`;}).join('')}</tr>`;}).join('')}</tbody></table>`;
+  const cy=cycles(rs);
+  document.getElementById('c-cycles').innerHTML=cy.length?cy.map(([p,n])=>{const ls=p.split('');const dts=ls.map(l=>`<span class="dot ${cm[l]}" style="width:16px;height:16px;font-size:6px">${l}</span>`).join('');const nm=ls.map(l=>LBL[cm[l]]).join(' → ');return `<div class="citem"><div class="cdots">${dts}</div><div class="cname">${nm}</div><div class="ccnt">${n}×</div></div>`;}).join(''):'<p class="empty">Dados insuficientes — continue coletando rodadas</p>';
+  document.getElementById('c-timeline').innerHTML=rs.map((r,i)=>rtag(r,i===rs.length-1)).join('');
 }
 
-// ── Render: Intervalos
-function renderIntervalos(mults) {
-  const gThresh=cfg.purple, gMax=cfg.green, mThresh=cfg.green;
-  // Update labels
-  ['green-lbl','moon-lbl'].forEach((id,i)=>{document.getElementById(id).textContent=i===0?gThresh:mThresh;});
-  document.getElementById('moon-lbl2').textContent=mThresh;
-
-  const green=intervalStats(mults,gThresh,mThresh);
-  const moon=intervalStats(mults,mThresh);
-
-  document.getElementById('green-alert').innerHTML=intervalAlertHtml(green,`Verde ≥${gThresh}x`);
-  document.getElementById('moon-alert').innerHTML=intervalAlertHtml(moon,`Moon ≥${mThresh}x`);
-
-  function mkCards(hv,color){
-    return `
-      <div class="card ${color}"><div class="val">${hv.count}</div><div class="lbl">Ocorrências</div></div>
-      <div class="card white"><div class="val">${hv.avg}</div><div class="lbl">Intervalo Médio</div></div>
-      <div class="card white"><div class="val">${hv.since}</div><div class="lbl">Desde Último</div></div>
-      <div class="card white"><div class="val">${hv.min}</div><div class="lbl">Mín Intervalo</div></div>
-      <div class="card white"><div class="val">${hv.max}</div><div class="lbl">Máx Intervalo</div></div>
-      <div class="card purple"><div class="val">${hv.freq}%</div><div class="lbl">Frequência</div></div>`;
-  }
-  document.getElementById('green-cards').innerHTML=mkCards(green,'green');
-  document.getElementById('moon-cards').innerHTML=mkCards(moon,'moon');
-
-  function mkList(hv,color){
-    if (!hv.count) return '<p class="empty">Nenhuma ocorrência registrada</p>';
-    const maxI=hv.intervals.length?Math.max(...hv.intervals):1;
-    return hv.idxs.map((idx,i)=>{
-      const m=mults[idx], intv=i===0?'—':hv.intervals[i-1], w=i===0?0:(hv.intervals[i-1]/maxI*100);
-      const isLast=i===hv.idxs.length-1;
-      return `<div class="hv-item${isLast?' last':''}">
-        <span style="color:var(--text2);font-size:10px">Rd ${idx+1}</span>
-        <span style="color:${CLR[color]};font-weight:900">${m.toFixed(2)}x</span>
-        <div style="display:flex;align-items:center;gap:6px">
-          <div class="dist-bar-wrap" style="flex:1"><div class="dist-bar" style="width:${w}%;background:${CLR[color]}"></div></div>
-          <span style="font-size:10px;color:var(--text2);width:50px;text-align:right">${intv==='—'?'—':intv+' rds'}</span>
-        </div>
-        <span style="font-size:10px;color:${isLast?'var(--red)':'var(--text2)'}">${isLast?'↑ último':''}</span></div>`;
-    }).join('');
-  }
-  document.getElementById('green-list').innerHTML=mkList(green,'green');
-  document.getElementById('moon-list').innerHTML=mkList(moon,'moon');
+// ── RENDER INTERVALOS
+function rIntervalos(ms){
+  const g=ivl(ms,cfg.purple,cfg.green),m=ivl(ms,cfg.green);
+  ['lbl-g','lbl-m','lbl-m2'].forEach((id,i)=>{document.getElementById(id).textContent=[cfg.purple,cfg.green,cfg.green][i];});
+  document.getElementById('i-g-alert').innerHTML=ivlAlert(g,`Verde ≥${cfg.purple}x`);
+  document.getElementById('i-m-alert').innerHTML=ivlAlert(m,`Moon ≥${cfg.green}x`);
+  function mkC(h,c){return `<div class="card ${c}"><div class="val">${h.count}</div><div class="lbl">Ocorrências</div></div><div class="card"><div class="val">${h.avg}</div><div class="lbl">Média Ivl.</div></div><div class="card"><div class="val">${h.since}</div><div class="lbl">Desde Último</div></div>`;}
+  document.getElementById('i-g-cards').innerHTML=mkC(g,'green');
+  document.getElementById('i-m-cards').innerHTML=mkC(m,'gold');
+  function mkL(h,c){if(!h.count)return '<p class="empty">Nenhuma ocorrência</p>';const mx=h.iv.length?Math.max(...h.iv):1;return h.idx.map((idx,i)=>{const val=ms[idx],iv=i===0?'—':h.iv[i-1],w=i===0?0:(h.iv[i-1]/mx*100),last=i===h.idx.length-1;return `<div class="hvi${last?' last':''}"><span style="color:var(--text2);font-size:10px">Rd ${idx+1}</span><span style="color:${CLR[c]};font-weight:900">${val.toFixed(2)}x</span><div style="display:flex;align-items:center;gap:6px"><div class="dbar-wrap" style="flex:1"><div class="dbar" style="width:${w}%;background:${CLR[c]}"></div></div><span style="font-size:10px;color:var(--text2);width:50px;text-align:right">${iv==='—'?'—':iv+' rds'}</span></div><span style="font-size:10px;color:${last?'var(--gold)':'var(--text2)'}">${last?'↑ último':''}</span></div>`;}).join('');}
+  document.getElementById('i-g-list').innerHTML=mkL(g,'green');
+  document.getElementById('i-m-list').innerHTML=mkL(m,'moon');
 }
 
-// ── Render: Prog
-function renderProg(mults) {
-  const last5=mults.slice(-5), prev5=mults.slice(-10,-5);
-  const avgL=avg(last5), avgP=avg(prev5);
-  let trend='→ Estável',tClass='t-flat';
-  if (prev5.length&&avgL>avgP*1.1){trend='↑ Alta';tClass='t-up';}
-  else if (prev5.length&&avgL<avgP*0.9){trend='↓ Queda';tClass='t-down';}
-  const blues5=last5.filter(m=>getColor(m)==='blue').length;
-  document.getElementById('trend').innerHTML=`<div class="trend-grid">
-    <div class="trend-card"><div class="t-label">Últimas 5</div>
-      <div style="font-size:11px;margin-bottom:5px">${last5.map(m=>`<span style="color:${CLR[getColor(m)]}">${m.toFixed(2)}x</span>`).join(' ')||'—'}</div>
-      <div class="t-val">${avgL.toFixed(2)}x</div></div>
-    <div class="trend-card"><div class="t-label">5 Anteriores</div>
-      <div style="font-size:11px;margin-bottom:5px">${prev5.map(m=>`<span style="color:${CLR[getColor(m)]}">${m.toFixed(2)}x</span>`).join(' ')||'—'}</div>
-      <div class="t-val">${avgP.toFixed(2)}x</div></div>
-    <div class="trend-card"><div class="t-label">Tendência</div><div class="t-val ${tClass}">${trend}</div></div>
-    <div class="trend-card"><div class="t-label">Azuis últimas 5</div><div class="t-val" style="color:var(--blue)">${blues5}/5</div></div></div>`;
-  const pas=findPA(mults);
-  document.getElementById('pa-list').innerHTML=pas.length?pas.map(p=>`
-    <div class="prog-item"><div class="prog-header">
-      <span style="color:var(--text2)">Rodadas ${p.s+1}–${p.s+p.len}</span>
-      <span class="prog-ratio">${p.ratio>=0?'+':''}${p.ratio.toFixed(2)} razão</span></div>
-      <div class="prog-seq">${p.seq.map(v=>v.toFixed(2)+'x').join(' → ')}</div></div>`)
-    .join(''):'<p class="empty">Nenhuma P.A. detectada</p>';
-  const pgs=findPG(mults);
-  document.getElementById('pg-list').innerHTML=pgs.length?pgs.map(p=>`
-    <div class="prog-item"><div class="prog-header">
-      <span style="color:var(--text2)">Rodadas ${p.s+1}–${p.s+p.len}</span>
-      <span class="prog-ratio">×${p.ratio.toFixed(2)} fator</span></div>
-      <div class="prog-seq">${p.seq.map(v=>v.toFixed(2)+'x').join(' → ')}</div></div>`)
-    .join(''):'<p class="empty">Nenhuma P.G. detectada</p>';
+// ── RENDER PROG
+function rProg(ms){
+  const l5=ms.slice(-5),p5=ms.slice(-10,-5),al=avg(l5),ap=avg(p5);
+  let trend='→ Estável',tc='flat';
+  if(p5.length&&al>ap*1.1){trend='↑ Alta';tc='up';}
+  else if(p5.length&&al<ap*0.9){trend='↓ Queda';tc='down';}
+  document.getElementById('p-trend').innerHTML=`<div class="tgrid">
+    <div class="tc"><div class="tl">Últimas 5</div><div style="font-size:11px;margin-bottom:5px">${l5.map(m=>`<span style="color:${CLR[gc(m)]}">${m.toFixed(2)}x</span>`).join(' ')||'—'}</div><div class="tv">${al.toFixed(2)}x</div></div>
+    <div class="tc"><div class="tl">5 Anteriores</div><div style="font-size:11px;margin-bottom:5px">${p5.map(m=>`<span style="color:${CLR[gc(m)]}">${m.toFixed(2)}x</span>`).join(' ')||'—'}</div><div class="tv">${ap.toFixed(2)}x</div></div>
+    <div class="tc"><div class="tl">Tendência</div><div class="tv ${tc}">${trend}</div></div>
+    <div class="tc"><div class="tl">Azuis nas últ. 5</div><div class="tv" style="color:var(--blue)">${l5.filter(m=>gc(m)==='blue').length}/5</div></div></div>`;
+  const pas=pa(ms); document.getElementById('p-pa').innerHTML=pas.length?pas.map(p=>`<div class="pi"><div class="ph"><span style="color:var(--text2)">Rodadas ${p.s+1}–${p.s+p.l}</span><span class="pr">${p.r>=0?'+':''}${p.r.toFixed(2)} razão</span></div><div class="ps">${p.sq.map(v=>v.toFixed(2)+'x').join(' → ')}</div></div>`).join(''):'<p class="empty">Nenhuma P.A. detectada no histórico atual</p>';
+  const pgs=pg(ms); document.getElementById('p-pg').innerHTML=pgs.length?pgs.map(p=>`<div class="pi"><div class="ph"><span style="color:var(--text2)">Rodadas ${p.s+1}–${p.s+p.l}</span><span class="pr">×${p.r.toFixed(2)} fator</span></div><div class="ps">${p.sq.map(v=>v.toFixed(2)+'x').join(' → ')}</div></div>`).join(''):'<p class="empty">Nenhuma P.G. detectada no histórico atual</p>';
 }
 
-// ── Render: Minute stats
-function renderMinuteStats() {
-  const all=getAllRoundsWithTime();
-  const withTime=all.filter(r=>r.time&&r.time.includes(':'));
-  const el=document.getElementById('minute-stats');
-  if (!withTime.length){
-    el.innerHTML='<p class="empty">Nenhuma rodada com horário. Preencha o campo HH:MM na entrada ou aguarde dados do Railway.</p>';
-    return;
-  }
-  const {byMin,byHour}=minuteStats(withTime);
-
-  // Top minutes by moon+green
-  const sortedMin=Object.entries(byMin)
-    .map(([k,v])=>({k,total:v.total,moon:v.moon,green:v.green,score:v.moon*3+v.green}))
-    .sort((a,b)=>b.score-a.score).slice(0,15);
-  const maxScore=Math.max(...sortedMin.map(r=>r.score),1);
-
-  // Top hours
-  const sortedHour=Object.entries(byHour)
-    .map(([k,v])=>({k,total:v.total,moon:v.moon,green:v.green}))
-    .sort((a,b)=>(b.moon+b.green)-(a.moon+a.green));
-
-  el.innerHTML=`
-    <div class="two-col">
-      <div>
-        <div style="font-size:11px;color:var(--text2);margin-bottom:8px;font-weight:700;text-transform:uppercase;letter-spacing:.5px">Top Minutos (🌙×3 + 🟢×1)</div>
-        ${sortedMin.map(r=>{
-          const w=(r.score/maxScore*100).toFixed(1);
-          return `<div class="min-item">
-            <span style="font-weight:700">${r.k}</span>
-            <div class="dist-bar-wrap"><div class="dist-bar" style="width:${w}%;background:var(--moon)"></div></div>
-            <span style="color:var(--moon);font-weight:700">🌙${r.moon}</span>
-            <span style="color:var(--green);font-weight:700">🟢${r.green}</span></div>`;
-        }).join('')}
-      </div>
-      <div>
-        <div style="font-size:11px;color:var(--text2);margin-bottom:8px;font-weight:700;text-transform:uppercase;letter-spacing:.5px">Por Hora do Dia</div>
-        ${sortedHour.map(r=>{
-          const maxH=Math.max(...sortedHour.map(x=>x.moon+x.green),1);
-          const w=((r.moon+r.green)/maxH*100).toFixed(1);
-          return `<div class="min-item">
-            <span style="font-weight:700">${r.k}h</span>
-            <div class="dist-bar-wrap"><div class="dist-bar" style="width:${w}%;background:var(--purple)"></div></div>
-            <span style="color:var(--moon);font-weight:700">🌙${r.moon}</span>
-            <span style="color:var(--green);font-weight:700">🟢${r.green}</span></div>`;
-        }).join('')}
-      </div>
-    </div>`;
+// ── RENDER MINUTES
+function rMin(){
+  const all=allWT(),wt=all.filter(r=>r.time&&r.time.includes(':'));
+  const el=document.getElementById('min-stats');
+  if(!wt.length){el.innerHTML='<p class="empty">Sem horários registrados. Use o campo HH:MM na entrada ou aguarde dados do Railway.</p>';return;}
+  const{bm,bh}=minStats(wt);
+  const sm=Object.entries(bm).map(([k,v])=>({k,...v,score:v.moon*3+v.green})).sort((a,b)=>b.score-a.score).slice(0,15);
+  const sh=Object.entries(bh).map(([k,v])=>({k,...v})).sort((a,b)=>(b.moon+b.green)-(a.moon+a.green));
+  const mx=Math.max(...sm.map(r=>r.score),1), mxh=Math.max(...sh.map(r=>r.moon+r.green),1);
+  el.innerHTML=`<div class="two">
+    <div><div style="font-size:10px;color:var(--text2);margin-bottom:8px;font-weight:700;text-transform:uppercase;letter-spacing:.5px">Top Minutos</div>
+    ${sm.map(r=>`<div class="mi"><b>${r.k}</b><div class="dbar-wrap"><div class="dbar" style="width:${(r.score/mx*100).toFixed(0)}%;background:var(--gold)"></div></div><span style="color:var(--gold);font-weight:700">🟡${r.moon}</span><span style="color:var(--green);font-weight:700">🟢${r.green}</span></div>`).join('')}</div>
+    <div><div style="font-size:10px;color:var(--text2);margin-bottom:8px;font-weight:700;text-transform:uppercase;letter-spacing:.5px">Por Hora</div>
+    ${sh.map(r=>`<div class="mi"><b>${r.k}h</b><div class="dbar-wrap"><div class="dbar" style="width:${((r.moon+r.green)/mxh*100).toFixed(0)}%;background:var(--purple)"></div></div><span style="color:var(--gold);font-weight:700">🟡${r.moon}</span><span style="color:var(--green);font-weight:700">🟢${r.green}</span></div>`).join('')}</div></div>`;
 }
 
-// ── Master render
-function renderAll() {
-  const mults=getMults(), runs=getRuns(mults);
-  document.getElementById('rw-count').textContent=rwRounds.length;
-  document.getElementById('manual-count').textContent=manualRounds.length;
-  renderGeral(mults,runs);
-  renderSeq(mults,runs);
-  renderCiclos(mults,runs);
-  renderIntervalos(mults);
-  renderProg(mults);
-  renderMinuteStats();
+// ── MASTER RENDER
+function renderAll(){
+  const ms=mults(),rs=runs(ms);
+  document.getElementById('rw-c').textContent=rw.length;
+  document.getElementById('mn-c').textContent=manual.length;
+  rGeral(ms,rs);rSeq(ms,rs);rCiclos(ms,rs);rIntervalos(ms);rProg(ms);rMin();
 }
 
-// ── Fetch
-async function fetchData() {
-  try {
-    const r=await fetch('/api/rounds');
-    rwRounds=await r.json();
-    const last=rwRounds.length?rwRounds[rwRounds.length-1]:null;
-    document.getElementById('status-bar').innerHTML=`<b>${rwRounds.length}</b> rodadas${last?` — última: <b>${last.maxMultiplier.toFixed(2)}x</b>`:''}`;
-    document.getElementById('last-fetch').textContent='Atualizado: '+new Date().toLocaleTimeString('pt-BR');
+// ── FETCH
+async function fetchData(){
+  try{
+    const r=await fetch('/api/rounds'); rw=await r.json();
+    const last=rw.length?rw[rw.length-1]:null;
+    document.getElementById('sb-text').innerHTML=`<b style="color:var(--text1)">${rw.length}</b> rodadas${last?` — última <b style="color:var(--gold)">${last.maxMultiplier.toFixed(2)}x</b>`:''}`;
+    document.getElementById('last-sync').textContent='Sincronizado '+new Date().toLocaleTimeString('pt-BR');
     renderAll();
-  } catch(e) {
-    document.getElementById('status-bar').textContent='Sem Railway — modo manual';
-  }
+  }catch(e){document.getElementById('sb-text').textContent='Sem conexão com Railway';}
 }
 
-// ── Capture
-function parseTime(s){ const t=s.trim(); return /^\d{1,2}:\d{2}$/.test(t)?t:null; }
-function addRound(){
-  const inp=document.getElementById('inp-round'), v=parseFloat(inp.value);
-  if(!v||v<1) return;
-  const t=parseTime(document.getElementById('inp-time').value);
-  manualRounds.push({mult:v,time:t});
-  inp.value=''; inp.focus(); renderAll();
+// ── CAPTURE
+const pt=s=>{const t=s.trim();return /^\d{1,2}:\d{2}$/.test(t)?t:null;};
+function addR(){const v=parseFloat(document.getElementById('inp-v').value);if(!v||v<1)return;const t=pt(document.getElementById('inp-t').value);manual.push({mult:v,time:t});document.getElementById('inp-v').value='';document.getElementById('inp-v').focus();renderAll();}
+function undoR(){if(!manual.length)return;manual.pop();renderAll();}
+function clearR(){if(!confirm('Apagar histórico manual?'))return;manual=[];renderAll();}
+function importR(){
+  const raw=document.getElementById('imp-a').value,toks=raw.split(/[\s,;\n]+/).filter(Boolean),added=[];
+  toks.forEach(tk=>{let v,t=null;if(tk.includes('@')){const[a,b]=tk.split('@');v=parseFloat(a.replace('x',''));t=pt(b||'');}else v=parseFloat(tk.replace('x',''));if(v>=1&&!isNaN(v))added.push({mult:v,time:t});});
+  if(!added.length)return;manual.push(...added);document.getElementById('imp-a').value='';
+  const m=document.getElementById('imp-msg');m.textContent=`✓ ${added.length} rodadas`;setTimeout(()=>m.textContent='',3000);renderAll();
 }
-function undoRound(){ if(!manualRounds.length) return; manualRounds.pop(); renderAll(); }
-function clearManual(){ if(!confirm('Apagar histórico manual?')) return; manualRounds=[]; renderAll(); }
-function importBatch(){
-  const raw=document.getElementById('import-area').value;
-  const tokens=raw.split(/[\s,;\n]+/).filter(Boolean);
-  const added=[];
-  tokens.forEach(tok=>{
-    let val,time=null;
-    if (tok.includes('@')){ const p=tok.split('@'); val=parseFloat(p[0].replace('x','')); time=parseTime(p[1]||''); }
-    else val=parseFloat(tok.replace('x',''));
-    if (val>=1&&!isNaN(val)) added.push({mult:val,time});
-  });
-  if(!added.length) return;
-  manualRounds.push(...added);
-  document.getElementById('import-area').value='';
-  const msg=document.getElementById('import-msg');
-  msg.textContent=`✓ ${added.length} rodadas importadas`; setTimeout(()=>msg.textContent='',3000);
-  renderAll();
-}
-document.getElementById('inp-round').addEventListener('keydown',e=>{ if(e.key==='Enter') addRound(); });
+document.getElementById('inp-v').addEventListener('keydown',e=>{if(e.key==='Enter')addR();});
 
-// ── Config
-function applyConfig(){
-  cfg.blue  =parseFloat(document.getElementById('cfg-blue').value)||2;
-  cfg.purple=parseFloat(document.getElementById('cfg-purple').value)||5;
-  cfg.green =parseFloat(document.getElementById('cfg-green').value)||10;
-  renderAll();
-}
+// ── CONFIG
+function applyC(){cfg.blue=parseFloat(document.getElementById('c-blue').value)||2;cfg.purple=parseFloat(document.getElementById('c-purple').value)||5;cfg.green=parseFloat(document.getElementById('c-green').value)||10;renderAll();}
 
-// ── Tab
-function showTab(id){
+// ── TABS
+function show(id){
   document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('tab-'+id).classList.add('active');
-  const idx=['geral','seq','ciclos','intervalos','prog','capture','config'].indexOf(id);
+  const idx=['geral','seq','ciclos','int','prog','cap','cfg'].indexOf(id);
   document.querySelectorAll('.tab-btn')[idx]?.classList.add('active');
 }
 
