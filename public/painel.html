@@ -8,6 +8,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{--gold:#FFB800;--gold2:#FFC933;--gd:rgba(255,184,0,.12);--gb:rgba(255,184,0,.25);
+  --pink:#FF6EB4;--pink2:#FF8EC4;--pd:rgba(255,110,180,.12);--pb:rgba(255,110,180,.25);
   --blue:#60A5FA;--purple:#C084FC;--green:#4ADE80;--red:#F87171;
   --bg:#080808;--bg1:#0e0e0e;--bg2:#161616;--bg3:#202020;
   --border:#252525;--text1:#FFF;--text2:#666;}
@@ -55,7 +56,7 @@ main{padding:18px 20px;max-width:1140px;margin:0 auto}
 .rn-chip.blue{background:rgba(96,165,250,.08);color:var(--blue);border-color:rgba(96,165,250,.2)}
 .rn-chip.purple{background:rgba(192,132,252,.08);color:var(--purple);border-color:rgba(192,132,252,.2)}
 .rn-chip.green{background:rgba(74,222,128,.08);color:var(--green);border-color:rgba(74,222,128,.2)}
-.rn-chip.moon{background:rgba(255,184,0,.08);color:var(--gold);border-color:rgba(255,184,0,.2)}
+.rn-chip.moon{background:rgba(255,110,180,.08);color:var(--pink);border-color:rgba(255,110,180,.2)}
 .rn-chip.warn{background:rgba(248,113,113,.08);color:var(--red);border-color:rgba(248,113,113,.2)}
 .rn-chip.neutral{background:var(--bg2);color:var(--text2);border-color:var(--border)}
 .rn-sub{font-size:10px;font-weight:400;opacity:.75}
@@ -79,11 +80,11 @@ main{padding:18px 20px;max-width:1140px;margin:0 auto}
 .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(125px,1fr));gap:8px;margin-bottom:14px}
 .card{background:var(--bg3);border:1px solid var(--border);border-radius:9px;padding:12px;text-align:center;position:relative;overflow:hidden}
 .card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
-.card.gold::before{background:var(--gold)}.card.blue::before{background:var(--blue)}
+.card.gold::before{background:var(--pink)}.card.pink::before{background:var(--pink)}.card.blue::before{background:var(--blue)}
 .card.purple::before{background:var(--purple)}.card.green::before{background:var(--green)}
 .card.red::before{background:var(--red)}
 .card .val{font-size:1.6rem;font-weight:900;line-height:1}
-.card.gold .val{color:var(--gold)}.card.blue .val{color:var(--blue)}
+.card.gold .val{color:var(--pink)}.card.pink .val{color:var(--pink)}.card.blue .val{color:var(--blue)}
 .card.purple .val{color:var(--purple)}.card.green .val{color:var(--green)}.card.red .val{color:var(--red)}
 .card .lbl{font-size:9px;color:var(--text2);margin-top:5px;text-transform:uppercase;letter-spacing:.5px;font-weight:700}
 
@@ -93,12 +94,12 @@ main{padding:18px 20px;max-width:1140px;margin:0 auto}
 .chip.blue{background:rgba(96,165,250,.1);color:var(--blue);border:1px solid rgba(96,165,250,.22)}
 .chip.purple{background:rgba(192,132,252,.1);color:var(--purple);border:1px solid rgba(192,132,252,.22)}
 .chip.green{background:rgba(74,222,128,.1);color:var(--green);border:1px solid rgba(74,222,128,.22)}
-.chip.moon{background:rgba(255,184,0,.1);color:var(--gold);border:1px solid rgba(255,184,0,.22)}
+.chip.moon{background:rgba(255,110,180,.1);color:var(--pink);border:1px solid rgba(255,110,180,.22)}
 .chip.now{border-color:var(--gold)!important;box-shadow:0 0 7px rgba(255,184,0,.3)}
 /* DOTS */
 .dgrid{display:flex;flex-wrap:wrap;gap:3px}
 .dot{width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:7px;font-weight:900;color:#000;flex-shrink:0}
-.dot.blue{background:var(--blue)}.dot.purple{background:var(--purple)}.dot.green{background:var(--green)}.dot.moon{background:var(--gold);color:#000}
+.dot.blue{background:var(--blue)}.dot.purple{background:var(--purple)}.dot.green{background:var(--green)}.dot.moon{background:var(--pink);color:#fff}
 .dot.now{outline:2px solid var(--gold);outline-offset:2px}
 /* DIST */
 .drow{display:grid;grid-template-columns:108px 1fr 46px 44px;align-items:center;gap:7px;margin-bottom:7px}
@@ -113,10 +114,10 @@ main{padding:18px 20px;max-width:1140px;margin:0 auto}
 .rtag.blue{background:rgba(96,165,250,.08);color:var(--blue);border-color:rgba(96,165,250,.2)}
 .rtag.purple{background:rgba(192,132,252,.08);color:var(--purple);border-color:rgba(192,132,252,.2)}
 .rtag.green{background:rgba(74,222,128,.08);color:var(--green);border-color:rgba(74,222,128,.2)}
-.rtag.moon{background:rgba(255,184,0,.08);color:var(--gold);border-color:rgba(255,184,0,.2)}
+.rtag.moon{background:rgba(255,110,180,.08);color:var(--pink);border-color:rgba(255,110,180,.2)}
 .rtag.now{border-color:var(--gold)!important;box-shadow:0 0 6px rgba(255,184,0,.2)}
 .rd{width:6px;height:6px;border-radius:50%;flex-shrink:0}
-.rd.blue{background:var(--blue)}.rd.purple{background:var(--purple)}.rd.green{background:var(--green)}.rd.moon{background:var(--gold)}
+.rd.blue{background:var(--blue)}.rd.purple{background:var(--purple)}.rd.green{background:var(--green)}.rd.moon{background:var(--pink)}
 /* RUN LIST */
 .rlist{display:flex;flex-direction:column;gap:4px}
 .ri{display:grid;grid-template-columns:42px 1fr 50px 82px;align-items:center;gap:7px;padding:8px 12px;border-radius:7px;background:var(--bg3);border:1px solid var(--border);font-size:12px}
@@ -136,13 +137,13 @@ main{padding:18px 20px;max-width:1140px;margin:0 auto}
 .csc{background:var(--bg3);border-radius:9px;padding:12px;border:1px solid var(--border)}
 .csh{display:flex;align-items:center;gap:7px;margin-bottom:9px}
 .csdot{width:9px;height:9px;border-radius:50%}
-.csdot.blue{background:var(--blue)}.csdot.purple{background:var(--purple)}.csdot.green{background:var(--green)}.csdot.moon{background:var(--gold)}
+.csdot.blue{background:var(--blue)}.csdot.purple{background:var(--purple)}.csdot.green{background:var(--green)}.csdot.moon{background:var(--pink)}
 .csnm{font-size:12px;font-weight:800}
 .cr{display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px}
 .ck{color:var(--text2)}.cv{font-weight:700}
 /* ALERT */
 .abox{border-radius:9px;padding:14px;margin-bottom:14px;text-align:center}
-.abox.fire{background:rgba(255,184,0,.07);border:1px solid rgba(255,184,0,.3)}
+.abox.fire{background:rgba(255,110,180,.07);border:1px solid rgba(255,110,180,.3)}
 .abox.warn{background:rgba(248,113,113,.07);border:1px solid rgba(248,113,113,.3)}
 .abox.ok{background:rgba(74,222,128,.05);border:1px solid rgba(74,222,128,.25)}
 .abox .ai{font-size:1.4rem}.abox .at{font-size:.9rem;font-weight:800;margin:4px 0 2px}.abox .ad{font-size:11px;color:var(--text2)}
@@ -155,7 +156,7 @@ main{padding:18px 20px;max-width:1140px;margin:0 auto}
 .pr{font-weight:800;color:var(--gold)}.ps{color:var(--text2);font-size:11px}
 .pi-next{display:inline-block;margin-top:5px;font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px}
 .pi-next.green{background:rgba(74,222,128,.12);color:var(--green)}
-.pi-next.moon{background:rgba(255,184,0,.12);color:var(--gold)}
+.pi-next.moon{background:rgba(255,110,180,.12);color:var(--pink)}
 /* TREND */
 .tg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .tc{background:var(--bg3);border-radius:8px;padding:11px;border:1px solid var(--border)}
@@ -384,7 +385,7 @@ const allWT=()=>[...rw.map(r=>({mult:r.maxMultiplier,time:r.horario?r.horario.sl
 const gc=m=>m<cfg.blue?'blue':m<cfg.purple?'purple':m<cfg.green?'green':'moon';
 const SYM={blue:'🔵',purple:'🟣',green:'🟢',moon:'🟡'};
 const LBL={blue:'Azul',purple:'Roxa',green:'Verde',moon:'Rosa'};
-const CLR={blue:'var(--blue)',purple:'var(--purple)',green:'var(--green)',moon:'var(--gold)'};
+const CLR={blue:'var(--blue)',purple:'var(--purple)',green:'var(--green)',moon:'var(--pink)'};
 const LT={blue:'B',purple:'P',green:'G',moon:'L'};
 
 // ── MATH
@@ -636,7 +637,7 @@ function renderInt(ms){
   document.getElementById('im-alert').innerHTML=ivlAbox(m,`Rosa ≥${cfg.green}x`);
   function mkC(h,c){return`<div class="card ${c}"><div class="val">${h.count}</div><div class="lbl">Total</div></div><div class="card"><div class="val">${h.avg}</div><div class="lbl">Ivl. Médio</div></div><div class="card"><div class="val">${h.since}</div><div class="lbl">Desde Últ.</div></div>`;}
   document.getElementById('ig-cards').innerHTML=mkC(g,'green');
-  document.getElementById('im-cards').innerHTML=mkC(m,'gold');
+  document.getElementById('im-cards').innerHTML=mkC(m,'pink');
   function mkL(h,c){if(!h.count)return'<p class="empty">Nenhuma ocorrência</p>';const mx=h.iv.length?Math.max(...h.iv):1;return h.idx.map((idx,i)=>{const val=ms[idx],iv=i===0?'—':h.iv[i-1],w=i===0?0:(h.iv[i-1]/mx*100),last=i===h.idx.length-1;return`<div class="hvi${last?' last':''}"><span style="color:var(--text2);font-size:10px">Rd ${idx+1}</span><span style="color:${CLR[c]};font-weight:900">${val.toFixed(2)}x</span><div style="display:flex;align-items:center;gap:5px"><div class="dbw" style="flex:1"><div class="db" style="width:${w}%;background:${CLR[c]}"></div></div><span style="font-size:10px;color:var(--text2);width:48px;text-align:right">${iv==='—'?'—':iv+' rds'}</span></div><span style="font-size:10px;color:${last?'var(--gold)':'var(--text2)'}">${last?'↑':''}</span></div>`;}).join('');}
   document.getElementById('ig-list').innerHTML=mkL(g,'green');
   document.getElementById('im-list').innerHTML=mkL(m,'moon');
