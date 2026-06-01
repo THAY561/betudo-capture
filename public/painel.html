@@ -25,24 +25,40 @@ header{background:var(--bg1);border-bottom:1px solid var(--border);padding:0 20p
 .sdot{width:6px;height:6px;border-radius:50%;background:var(--green);display:inline-block;margin-right:5px;box-shadow:0 0 5px var(--green)}
 
 /* FILTER BAR */
-.fbar{background:var(--bg1);border-bottom:1px solid var(--border);padding:0 20px;
-  display:flex;align-items:center;gap:4px;overflow-x:auto;height:46px;position:sticky;top:54px;z-index:190;flex-shrink:0}
-.fbar-sep{width:1px;height:20px;background:var(--border);flex-shrink:0;margin:0 4px}
-.ftog{border:1px solid var(--border);border-radius:20px;color:var(--text2);
-  cursor:pointer;font-family:inherit;font-size:11px;font-weight:700;padding:5px 12px;
-  background:none;white-space:nowrap;transition:all .15s}
+.fbar{background:var(--bg1);border-bottom:1px solid var(--border);padding:0 16px;
+  display:flex;align-items:center;gap:5px;overflow-x:auto;height:50px;position:sticky;top:54px;z-index:190;flex-shrink:0}
+.fbar-label{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:1.2px;color:var(--text2);white-space:nowrap;flex-shrink:0;margin-right:4px}
+.fbar-sep{width:1px;height:20px;background:var(--border);flex-shrink:0;margin:0 6px}
+.ftog{border:1px solid var(--border);border-radius:6px;color:var(--text2);
+  cursor:pointer;font-family:inherit;font-size:11px;font-weight:700;padding:5px 10px;
+  background:none;white-space:nowrap;transition:all .15s;display:inline-flex;align-items:center;gap:6px}
+.ftog-ck{display:inline-block;width:12px;height:12px;border-radius:3px;border:1.5px solid currentColor;flex-shrink:0;transition:all .15s;opacity:.4;position:relative}
 .ftog:hover{color:var(--text1);border-color:var(--text2)}
+.ftog:hover .ftog-ck{opacity:.7}
 .ftog.on{background:var(--gd);border-color:var(--gb);color:var(--gold)}
+.ftog.on .ftog-ck{background:var(--gold);border-color:var(--gold);opacity:1}
+.ftog.on .ftog-ck::after{content:'✓';position:absolute;top:-2px;left:1px;font-size:10px;color:#000;font-weight:900;line-height:1}
 .ftog.util{border-color:transparent;color:var(--text2)}
+.ftog.util .ftog-ck{display:none}
 .ftog.util:hover{color:var(--text1)}
 
 /* MAIN */
 main{padding:18px 20px;max-width:1140px;margin:0 auto}
 
-/* RESUMO (always on) */
+/* RESUMO */
 #resumo{background:linear-gradient(135deg,#111,#0e0e0e);border:1px solid var(--gb);
   border-radius:12px;padding:16px 20px;margin-bottom:16px}
-.res-title{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--gold);margin-bottom:12px}
+.res-title{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--gold);margin-bottom:10px}
+/* Narrative bar */
+.res-narrative{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.rn-chip{display:inline-flex;align-items:center;gap:6px;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:700;border:1px solid;white-space:nowrap}
+.rn-chip.blue{background:rgba(96,165,250,.08);color:var(--blue);border-color:rgba(96,165,250,.2)}
+.rn-chip.purple{background:rgba(192,132,252,.08);color:var(--purple);border-color:rgba(192,132,252,.2)}
+.rn-chip.green{background:rgba(74,222,128,.08);color:var(--green);border-color:rgba(74,222,128,.2)}
+.rn-chip.moon{background:rgba(255,184,0,.08);color:var(--gold);border-color:rgba(255,184,0,.2)}
+.rn-chip.warn{background:rgba(248,113,113,.08);color:var(--red);border-color:rgba(248,113,113,.2)}
+.rn-chip.neutral{background:var(--bg2);color:var(--text2);border-color:var(--border)}
+.rn-sub{font-size:10px;font-weight:400;opacity:.75}
 .res-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px}
 .res-item{display:flex;align-items:center;gap:10px;background:var(--bg2);border-radius:8px;padding:11px 14px;border:1px solid var(--border);min-width:0}
 .res-icon{font-size:1.2rem;flex-shrink:0}
@@ -181,13 +197,14 @@ main{padding:18px 20px;max-width:1140px;margin:0 auto}
 
 <!-- FILTER BAR -->
 <div class="fbar">
-  <button class="ftog on" data-sec="historico" onclick="tog(this)">📊 Histórico</button>
-  <button class="ftog on" data-sec="cores" onclick="tog(this)">🎨 Cores</button>
-  <button class="ftog on" data-sec="seq" onclick="tog(this)">🔗 Sequências</button>
-  <button class="ftog on" data-sec="ciclos" onclick="tog(this)">🔄 Ciclos</button>
-  <button class="ftog on" data-sec="int" onclick="tog(this)">📏 Intervalos</button>
-  <button class="ftog on" data-sec="prog" onclick="tog(this)">📈 P.A./P.G.</button>
-  <button class="ftog on" data-sec="min" onclick="tog(this)">⏱ Minutos</button>
+  <span class="fbar-label">Mostrar:</span>
+  <button class="ftog on" data-sec="historico" onclick="tog(this)"><span class="ftog-ck"></span>Histórico</button>
+  <button class="ftog on" data-sec="cores" onclick="tog(this)"><span class="ftog-ck"></span>Cores</button>
+  <button class="ftog on" data-sec="seq" onclick="tog(this)"><span class="ftog-ck"></span>Sequências</button>
+  <button class="ftog on" data-sec="ciclos" onclick="tog(this)"><span class="ftog-ck"></span>Ciclos</button>
+  <button class="ftog on" data-sec="int" onclick="tog(this)"><span class="ftog-ck"></span>Intervalos</button>
+  <button class="ftog on" data-sec="prog" onclick="tog(this)"><span class="ftog-ck"></span>P.A./P.G.</button>
+  <button class="ftog on" data-sec="min" onclick="tog(this)"><span class="ftog-ck"></span>Minutos</button>
   <div class="fbar-sep"></div>
   <button class="ftog util" data-sec="cap" onclick="tog(this)">✏️ Captura</button>
   <button class="ftog util" data-sec="cfg" onclick="tog(this)">⚙️ Config</button>
@@ -198,6 +215,7 @@ main{padding:18px 20px;max-width:1140px;margin:0 auto}
 <!-- RESUMO (sempre visível) -->
 <div id="resumo">
   <div class="res-title">Resumo do Gráfico</div>
+  <div id="res-narrative" class="res-narrative"></div>
   <div id="res-grid" class="res-grid"></div>
 </div>
 
@@ -256,7 +274,7 @@ main{padding:18px 20px;max-width:1140px;margin:0 auto}
     <div id="ci-trans" style="overflow-x:auto"></div>
   </div>
   <div class="sec">
-    <div class="stitle">Padrões Cíclicos (mín. 4 runs)</div>
+    <div class="stitle">Padrões Cíclicos (mín. 4 velas)</div>
     <div id="ci-cycles"></div>
   </div>
   <div class="sec">
@@ -279,7 +297,7 @@ main{padding:18px 20px;max-width:1140px;margin:0 auto}
     <div>
       <div id="im-alert"></div>
       <div class="sec">
-        <div class="stitle">🟡 Moons ≥ <span id="lbl-m2">10</span>x</div>
+        <div class="stitle">🟡 Rosas ≥ <span id="lbl-m2">10</span>x</div>
         <div id="im-cards" class="cards" style="grid-template-columns:repeat(3,1fr)"></div>
         <div id="im-list" class="mt8"></div>
       </div>
@@ -290,19 +308,19 @@ main{padding:18px 20px;max-width:1140px;margin:0 auto}
 <!-- PROGRESSÕES -->
 <div id="sblock-prog" class="sblock">
   <div class="sec" style="border-color:rgba(255,184,0,.2)">
-    <div class="stitle">Condição ativas</div>
-    <div style="font-size:12px;color:var(--text2);margin-bottom:4px">Somente sequências de 3–4 rodadas onde a <b style="color:var(--gold)">próxima vela foi ≥ <span id='pg-thresh'>5</span>x</b> são exibidas.</div>
+    <div class="stitle">Condição ativa</div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:4px">Exibe sequências de <b style="color:var(--gold)">3 ou 4 velas</b> onde a <b style="color:var(--gold)">próxima vela foi ≥ <span id='pg-thresh'>5</span>x</b>.</div>
   </div>
   <div class="sec">
     <div class="stitle">Tendência Recente</div>
     <div id="p-trend"></div>
   </div>
   <div class="sec">
-    <div class="stitle">P.A. — Seguidas de vela ≥5x</div>
+    <div class="stitle">P.A. — 3 ou 4 velas seguidas de ≥5x</div>
     <div id="p-pa"></div>
   </div>
   <div class="sec">
-    <div class="stitle">P.G. — Seguidas de vela ≥5x</div>
+    <div class="stitle">P.G. — 3 ou 4 velas seguidas de ≥5x</div>
     <div id="p-pg"></div>
   </div>
 </div>
@@ -349,7 +367,7 @@ main{padding:18px 20px;max-width:1140px;margin:0 auto}
     <div class="cfg-grid">
       <div class="cfg-row"><label>Azul → Roxa acima de</label><input class="inp" type="number" id="cb" min="1.01" step="0.01" value="2.00"></div>
       <div class="cfg-row"><label>Roxa → Verde acima de</label><input class="inp" type="number" id="cp" min="1.01" step="0.01" value="5.00"></div>
-      <div class="cfg-row"><label>Verde → Moon acima de</label><input class="inp" type="number" id="cg" min="1.01" step="0.01" value="10.00"></div>
+      <div class="cfg-row"><label>Verde → Rosa acima de</label><input class="inp" type="number" id="cg" min="1.01" step="0.01" value="10.00"></div>
     </div>
     <button class="btn btn-gold mt8" onclick="applyC()">Aplicar</button>
   </div>
@@ -365,7 +383,7 @@ const allWT=()=>[...rw.map(r=>({mult:r.maxMultiplier,time:r.horario?r.horario.sl
 // ── COLOR
 const gc=m=>m<cfg.blue?'blue':m<cfg.purple?'purple':m<cfg.green?'green':'moon';
 const SYM={blue:'🔵',purple:'🟣',green:'🟢',moon:'🟡'};
-const LBL={blue:'Azul',purple:'Roxa',green:'Verde',moon:'Moon'};
+const LBL={blue:'Azul',purple:'Roxa',green:'Verde',moon:'Rosa'};
 const CLR={blue:'var(--blue)',purple:'var(--purple)',green:'var(--green)',moon:'var(--gold)'};
 const LT={blue:'B',purple:'P',green:'G',moon:'L'};
 
@@ -388,10 +406,10 @@ function cStats(ms,rs){
 // ── TRANSITION
 function trans(rs){const t={B:{B:0,P:0,G:0,L:0,n:0},P:{B:0,P:0,G:0,L:0,n:0},G:{B:0,P:0,G:0,L:0,n:0},L:{B:0,P:0,G:0,L:0,n:0}};for(let i=0;i<rs.length-1;i++){const f=rs[i].lt,to=rs[i+1].lt;t[f][to]++;t[f].n++;}return t;}
 
-// ── CYCLES (min 4 runs)
+// ── CYCLES (mín. 4 velas)
 function cycles(rs){
   const s=rs.map(r=>r.lt).join(''),c={};
-  for(let l=4;l<=8;l++) // mínimo 4 runs
+  for(let l=4;l<=8;l++)
     for(let i=0;i<=s.length-l*2;i++){const p=s.slice(i,i+l),n=s.slice(i+l,i+l*2);if(p===n)c[p]=(c[p]||0)+1;}
   return Object.entries(c).sort((a,b)=>b[1]-a[1]).slice(0,10);
 }
@@ -411,20 +429,20 @@ function avgMins(rounds,lo,hi=Infinity){
   return diffs.length?avg(diffs).toFixed(1):null;
 }
 
-// ── PA filtered by 5x+ next
+// ── PA — apenas se próxima ≥5x
 function paFiltered(ms){
   const res=[];
   for(let l=3;l<=4;l++)
     for(let s=0;s<=ms.length-l-1;s++){
       const sq=ms.slice(s,s+l),next=ms[s+l];
-      if(next===undefined||next<cfg.purple)continue; // próxima < 5x: ignora
+      if(next===undefined||next<cfg.purple)continue;
       const d=sq.slice(1).map((v,i)=>v-sq[i]),a=avg(d),mx=Math.max(...d.map(x=>Math.abs(x-a)));
       if(mx<=0.2&&Math.abs(a)>=0.08)res.push({s,l,sq,ratio:a,next});
     }
   return res.sort((a,b)=>b.l-a.l).slice(0,12);
 }
 
-// ── PG filtered by 5x+ next
+// ── PG — apenas se próxima ≥5x
 function pgFiltered(ms){
   const res=[];
   for(let l=3;l<=4;l++)
@@ -460,13 +478,19 @@ function abox(type,icon,title,desc){return`<div class="abox ${type}"><div class=
 function ivlAbox(v,lbl){
   if(!v.count)return abox('ok','💤',`Nenhum ${lbl} ainda`,'Aguardando ocorrências.');
   if(v.since===0)return abox('fire','🟡',`AGORA — última rodada foi ${lbl}!`,'Acabou de ocorrer.');
-  if(v.avg>0&&v.since>parseFloat(v.avg))return abox('warn','⚠️',`${v.since} rodadas sem ${lbl}`,`Média: ${v.avg} rodadas.`);
-  return abox('ok','✅',`Normal — ${v.since} rodadas desde ${lbl}`,`Média: ${v.avg} rodadas.`);
+  if(v.avg>0&&v.since>parseFloat(v.avg))return abox('warn','⚠️',`${v.since} velas sem ${lbl}`,`Média: ${v.avg} velas.`);
+  return abox('ok','✅',`Normal — ${v.since} velas desde ${lbl}`,`Média: ${v.avg} velas.`);
 }
 
 // ── RESUMO
 function renderResumo(ms,rs){
-  if(!ms.length){document.getElementById('res-grid').innerHTML='<div class="res-item"><div class="res-body"><div class="rt">Sem dados</div><div class="rd">Aguardando captura de rodadas.</div></div></div>';return;}
+  const narEl=document.getElementById('res-narrative');
+  const gridEl=document.getElementById('res-grid');
+  if(!ms.length){
+    narEl.innerHTML='';
+    gridEl.innerHTML='<div class="res-item"><div class="res-body"><div class="rt">Sem dados</div><div class="rd">Clique em ↻ Sync ou adicione velas na Captura.</div></div></div>';
+    return;
+  }
   const cur=rs[rs.length-1],prev=rs.length>1?rs[rs.length-2]:null;
   const moonIvl=ivl(ms,cfg.green),greenIvl=ivl(ms,cfg.purple,cfg.green);
   const moonAvgM=avgMins(rw,cfg.green),greenAvgM=avgMins(rw,cfg.purple,cfg.green);
@@ -475,37 +499,71 @@ function renderResumo(ms,rs){
   if(prev5.length&&al>ap*1.1){trendTxt='Subindo ↑';trendCls='up';}
   else if(prev5.length&&al<ap*0.9){trendTxt='Caindo ↓';trendCls='dn';}
 
-  const items=[];
+  // ── NARRATIVE CHIPS
+  const seqWarn=cur.len>=3&&cur.color==='blue';
+  const seqChipCls=seqWarn?'warn':cur.color;
+  const seqTxt=`${SYM[cur.color]} Mantendo ${cur.len}× ${LBL[cur.color]}`;
+  const seqSub=prev?` (anterior: ${prev.len}× ${LBL[prev.color]})` :'';
 
-  // Run atual
+  let verdeTxt,verdeSub,verdeCls='green';
+  if(greenIvl.count>0){
+    const minPart=greenAvgM?` / ${greenAvgM} min`:'';
+    const s=greenIvl.since;
+    const over=parseFloat(greenIvl.avg)>0&&s>parseFloat(greenIvl.avg);
+    verdeCls=over?'warn':'green';
+    verdeTxt=`🟢 Verde ≥${cfg.purple}x a cada ${greenIvl.avg} casas${minPart}`;
+    verdeSub=`última há ${s} casa${s!==1?'s':''}${over?' ⚠ acima da média':''}`;
+  } else {
+    verdeTxt='🟢 Verde ≥'+cfg.purple+'x';verdeSub='Aguardando 1ª ocorrência';verdeCls='neutral';
+  }
+
+  let rosaTxt,rosaSub,rosaCls='moon';
+  if(moonIvl.count>0){
+    const minPart=moonAvgM?` / ${moonAvgM} min`:'';
+    const s=moonIvl.since;
+    const over=parseFloat(moonIvl.avg)>0&&s>parseFloat(moonIvl.avg);
+    rosaCls=over?'warn':'moon';
+    rosaTxt=`🟡 Rosa ≥${cfg.green}x a cada ${moonIvl.avg} casas${minPart}`;
+    rosaSub=`última há ${s} casa${s!==1?'s':''}${over?' ⚠ acima da média':''}`;
+  } else {
+    rosaTxt='🟡 Rosa ≥'+cfg.green+'x';rosaSub='Aguardando 1ª ocorrência';rosaCls='neutral';
+  }
+
+  const trendTxtFull=`📊 Tendência: ${trendTxt}`;
+  const trendSub=`méd. últ.5: ${al.toFixed(2)}x vs ant.: ${ap.toFixed(2)}x`;
+
+  narEl.innerHTML=`
+    <div class="rn-chip ${seqChipCls}">${seqTxt}<span class="rn-sub">${seqSub}</span></div>
+    <div class="rn-chip ${verdeCls}">${verdeTxt}<span class="rn-sub">${verdeSub}</span></div>
+    <div class="rn-chip ${rosaCls}">${rosaTxt}<span class="rn-sub">${rosaSub}</span></div>
+    <div class="rn-chip neutral">${trendTxtFull}<span class="rn-sub">${trendSub}</span></div>`;
+
+  // ── GRID ITEMS
+  const items=[];
   const runIcon={blue:'🔵',purple:'🟣',green:'🟢',moon:'🟡'}[cur.color];
   const prevTxt=prev?` (anterior: ${prev.len}× ${LBL[prev.color]})`:' ';
   items.push({icon:runIcon,title:`${cur.len}× ${LBL[cur.color]} em andamento`,desc:`Run atual${prevTxt}`,cls:''});
 
-  // Moon
   if(moonIvl.count>0){
     const minTxt=moonAvgM?` / ${moonAvgM} min`:'';
     const s=moonIvl.since,a=parseFloat(moonIvl.avg);
     const warn=a>0&&s>a;
-    items.push({icon:'🟡',title:`Moons a cada ${moonIvl.avg} rodadas${minTxt}`,desc:`Última há ${s} rodadas${warn?' ⚠ acima da média':''}`,cls:warn?'rw':'ro'});
-  } else items.push({icon:'🟡',title:'Nenhum Moon registrado','desc':'Aguardando 1ª ocorrência',cls:''});
+    items.push({icon:'🟡',title:`Rosas a cada ${moonIvl.avg} casas${minTxt}`,desc:`Última há ${s} casas${warn?' ⚠ acima da média':''}`,cls:warn?'rw':'ro'});
+  } else items.push({icon:'🟡',title:'Nenhuma Rosa registrada',desc:'Aguardando 1ª ocorrência',cls:''});
 
-  // Green
   if(greenIvl.count>0){
     const minTxt=greenAvgM?` / ${greenAvgM} min`:'';
     const s=greenIvl.since,a=parseFloat(greenIvl.avg);
     const warn=a>0&&s>a;
-    items.push({icon:'🟢',title:`Verdes a cada ${greenIvl.avg} rodadas${minTxt}`,desc:`Última há ${s} rodadas${warn?' ⚠ acima da média':''}`,cls:warn?'rw':'rg'});
+    items.push({icon:'🟢',title:`Verdes a cada ${greenIvl.avg} casas${minTxt}`,desc:`Última há ${s} casas${warn?' ⚠ acima da média':''}`,cls:warn?'rw':'rg'});
   } else items.push({icon:'🟢',title:'Nenhum Verde registrado',desc:'Aguardando 1ª ocorrência',cls:''});
 
-  // Tendência
   items.push({icon:'📊',title:`Tendência: <span class="tv ${trendCls}" style="font-size:12px">${trendTxt}</span>`,desc:`Média últ. 5: ${al.toFixed(2)}x vs anteriores: ${ap.toFixed(2)}x`,cls:''});
 
-  // Total
   const nonBlue=ms.filter(m=>m>=cfg.blue);
-  items.push({icon:'🗃',title:`${ms.length} rodadas no histórico`,desc:`Média (sem azuis): ${nonBlue.length?avg(nonBlue).toFixed(2):'—'}x · Mediana: ${med(ms).toFixed(2)}x`,cls:''});
+  items.push({icon:'🗃',title:`${ms.length} velas no histórico`,desc:`Média (sem azuis): ${nonBlue.length?avg(nonBlue).toFixed(2):'—'}x · Mediana: ${med(ms).toFixed(2)}x`,cls:''});
 
-  document.getElementById('res-grid').innerHTML=items.map(it=>`<div class="res-item"><div class="res-icon">${it.icon}</div><div class="res-body"><div class="rt">${it.title}</div><div class="rd ${it.cls}">${it.desc}</div></div></div>`).join('');
+  gridEl.innerHTML=items.map(it=>`<div class="res-item"><div class="res-icon">${it.icon}</div><div class="res-body"><div class="rt">${it.title}</div><div class="rd ${it.cls}">${it.desc}</div></div></div>`).join('');
 }
 
 // ── RENDER HISTÓRICO
@@ -520,7 +578,7 @@ function renderHist(ms){
     <div class="card blue"><div class="val">${cnt.blue}</div><div class="lbl">Azuis ${(cnt.blue/n*100).toFixed(0)}%</div></div>
     <div class="card purple"><div class="val">${cnt.purple}</div><div class="lbl">Roxas ${(cnt.purple/n*100).toFixed(0)}%</div></div>
     <div class="card green"><div class="val">${cnt.green}</div><div class="lbl">Verdes ${(cnt.green/n*100).toFixed(0)}%</div></div>
-    <div class="card gold"><div class="val">${cnt.moon}</div><div class="lbl">Moons ${(cnt.moon/n*100).toFixed(0)}%</div></div>
+    <div class="card gold"><div class="val">${cnt.moon}</div><div class="lbl">Rosas ${(cnt.moon/n*100).toFixed(0)}%</div></div>
     <div class="card ${gc(last)}"><div class="val">${last.toFixed(2)}x</div><div class="lbl">Última</div></div>`;
   document.getElementById('h-tape').innerHTML=[...ms].reverse().map((m,i)=>chip(m,i===0)).join('');
   const bands=[{l:'1x–1.99x',lo:1,hi:2,c:'blue'},{l:'2x–4.99x',lo:2,hi:5,c:'purple'},{l:'5x–9.99x',lo:5,hi:10,c:'green'},{l:'10x–19.99x',lo:10,hi:20,c:'moon'},{l:'20x+',lo:20,hi:Infinity,c:'moon'}];
@@ -532,7 +590,7 @@ function renderHist(ms){
 function renderCores(ms,rs){
   const cs=cStats(ms,rs);
   document.getElementById('c-grid').innerHTML=['blue','purple','green','moon'].map(c=>{
-    const s=cs[c];if(!s.count)return`<div class="csc"><div class="csh"><span class="csdot ${c}"></span><span class="csnm" style="color:${CLR[c]}">${LBL[c]}</span></div><p class="empty" style="padding:6px">Sem rodadas</p></div>`;
+    const s=cs[c];if(!s.count)return`<div class="csc"><div class="csh"><span class="csdot ${c}"></span><span class="csnm" style="color:${CLR[c]}">${LBL[c]}</span></div><p class="empty" style="padding:6px">Sem velas</p></div>`;
     return`<div class="csc"><div class="csh"><span class="csdot ${c}"></span><span class="csnm" style="color:${CLR[c]}">${SYM[c]} ${LBL[c]}</span></div>
       <div class="cr"><span class="ck">Média</span><span class="cv" style="color:${CLR[c]}">${s.mean.toFixed(2)}x</span></div>
       <div class="cr"><span class="ck">Mín / Máx</span><span class="cv">${s.min.toFixed(2)}x / ${s.max.toFixed(2)}x</span></div>
@@ -566,7 +624,7 @@ function renderCiclos(ms,rs){
   const t=trans(rs),cm={B:'blue',P:'purple',G:'green',L:'moon'};
   document.getElementById('ci-trans').innerHTML=`<table class="tt"><thead><tr><th>De / Para</th>${['B','P','G','L'].map(l=>`<th style="color:${CLR[cm[l]]}">${SYM[cm[l]]}</th>`).join('')}</tr></thead><tbody>${['B','P','G','L'].map(f=>{const row=t[f],tot=row.n||1,dom=['B','P','G','L'].reduce((a,b)=>row[a]>row[b]?a:b,'B');return`<tr><td style="font-weight:800;color:${CLR[cm[f]]}">${SYM[cm[f]]}</td>${['B','P','G','L'].map(to=>{const v=row[to],p=(v/tot*100).toFixed(0),id=to===dom&&v>0;return`<td class="${id?'dom':''}" style="${id?'background:rgba(255,184,0,.05)':''}"><div class="tcell"><span style="color:${CLR[cm[to]]}">${v}</span><span class="tpct">${p}%</span></div></td>`;}).join('')}</tr>`;}).join('')}</tbody></table>`;
   const cy=cycles(rs);
-  document.getElementById('ci-cycles').innerHTML=cy.length?cy.map(([p,n])=>{const ls=p.split('');const dts=ls.map(l=>`<span class="dot ${cm[l]}" style="width:15px;height:15px;font-size:6px">${l}</span>`).join('');const nm=ls.map(l=>LBL[cm[l]]).join('→');return`<div class="ci"><div class="cds">${dts}</div><div class="cname">${nm}</div><div class="ccnt">${n}×</div></div>`;}).join(''):`<p class="empty">Sem padrões de 4+ runs detectados — continue coletando dados</p>`;
+  document.getElementById('ci-cycles').innerHTML=cy.length?cy.map(([p,n])=>{const ls=p.split('');const dts=ls.map(l=>`<span class="dot ${cm[l]}" style="width:15px;height:15px;font-size:6px">${l}</span>`).join('');const nm=ls.map(l=>LBL[cm[l]]).join('→');return`<div class="ci"><div class="cds">${dts}</div><div class="cname">${nm}</div><div class="ccnt">${n}×</div></div>`;}).join(''):`<p class="empty">Sem padrões de 4+ velas detectados — continue coletando dados</p>`;
   document.getElementById('ci-timeline').innerHTML=rs.map((r,i)=>rtag(r,i===rs.length-1)).join('');
 }
 
@@ -575,7 +633,7 @@ function renderInt(ms){
   const g=ivl(ms,cfg.purple,cfg.green),m=ivl(ms,cfg.green);
   document.getElementById('lbl-g').textContent=cfg.purple;document.getElementById('lbl-m').textContent=cfg.green;document.getElementById('lbl-m2').textContent=cfg.green;
   document.getElementById('ig-alert').innerHTML=ivlAbox(g,`Verde ≥${cfg.purple}x`);
-  document.getElementById('im-alert').innerHTML=ivlAbox(m,`Moon ≥${cfg.green}x`);
+  document.getElementById('im-alert').innerHTML=ivlAbox(m,`Rosa ≥${cfg.green}x`);
   function mkC(h,c){return`<div class="card ${c}"><div class="val">${h.count}</div><div class="lbl">Total</div></div><div class="card"><div class="val">${h.avg}</div><div class="lbl">Ivl. Médio</div></div><div class="card"><div class="val">${h.since}</div><div class="lbl">Desde Últ.</div></div>`;}
   document.getElementById('ig-cards').innerHTML=mkC(g,'green');
   document.getElementById('im-cards').innerHTML=mkC(m,'gold');
@@ -597,11 +655,11 @@ function renderProg(ms){
     <div class="tc"><div class="tl">Azuis últ. 5</div><div class="tv" style="color:var(--blue)">${l5.filter(m=>gc(m)==='blue').length}/5</div></div></div>`;
 
   function progHtml(arr,tipo){
-    if(!arr.length)return`<p class="empty">Nenhuma ${tipo} detectada com vela ≥${cfg.purple}x após a sequência</p>`;
+    if(!arr.length)return`<p class="empty">Nenhuma ${tipo} de 3–4 velas com próxima ≥${cfg.purple}x detectada</p>`;
     return arr.map(p=>{
       const nc=gc(p.next),ncCls={blue:'blue',purple:'purple',green:'green',moon:'moon'}[nc];
       return`<div class="pi">
-        <div class="ph"><span style="color:var(--text2)">Rodadas ${p.s+1}–${p.s+p.l} (${p.l} velas)</span>
+        <div class="ph"><span style="color:var(--text2)">velas ${p.s+1}–${p.s+p.l} (${p.l} velas)</span>
           <span class="pr">${tipo==='PA'?(p.ratio>=0?'+':'')+p.ratio.toFixed(2)+' razão':'×'+p.ratio.toFixed(2)+' fator'}</span></div>
         <div class="ps">${p.sq.map(v=>v.toFixed(2)+'x').join(' → ')}</div>
         <span class="pi-next ${ncCls}">→ próxima: ${p.next.toFixed(2)}x ${SYM[nc]}</span>
@@ -642,9 +700,10 @@ async function fetchData(){
   try{
     const r=await fetch('/api/rounds');rw=await r.json();
     const last=rw.length?rw[rw.length-1]:null;
-    document.getElementById('sb-t').innerHTML=`<b style="color:var(--text1)">${rw.length}</b> rodadas${last?` — última <b style="color:var(--gold)">${last.maxMultiplier.toFixed(2)}x</b>`:''}`;
+    document.getElementById('sb-t').innerHTML=`<b style="color:var(--text1)">${rw.length}</b> velas${last?` — última <b style="color:var(--gold)">${last.maxMultiplier.toFixed(2)}x</b>`:''}`;
     renderAll();
   }catch(e){document.getElementById('sb-t').textContent='Sem Railway';}
+  startAutoFetch();
 }
 
 // ── FILTER TOGGLE
@@ -664,15 +723,17 @@ function importR(){
   const raw=document.getElementById('ia').value,toks=raw.split(/[\s,;\n]+/).filter(Boolean),added=[];
   toks.forEach(tk=>{let v,t=null;if(tk.includes('@')){const[a,b]=tk.split('@');v=parseFloat(a.replace('x',''));t=pt(b||'');}else v=parseFloat(tk.replace('x',''));if(v>=1&&!isNaN(v))added.push({mult:v,time:t});});
   if(!added.length)return;manual.push(...added);document.getElementById('ia').value='';
-  const m=document.getElementById('im-msg');m.textContent=`✓ ${added.length} rodadas`;setTimeout(()=>m.textContent='',3000);renderAll();
+  const m=document.getElementById('im-msg');m.textContent=`✔ ${added.length} velas`;setTimeout(()=>m.textContent='',3000);renderAll();
 }
 document.getElementById('iv').addEventListener('keydown',e=>{if(e.key==='Enter')addR();});
 
 // ── CONFIG
 function applyC(){cfg.blue=parseFloat(document.getElementById('cb').value)||2;cfg.purple=parseFloat(document.getElementById('cp').value)||5;cfg.green=parseFloat(document.getElementById('cg').value)||10;renderAll();}
 
-fetchData();
-setInterval(fetchData,30000);
+// ── INIT — começa vazio, sync é manual
+let autoFetch=false;
+function startAutoFetch(){if(!autoFetch){autoFetch=true;setInterval(fetchData,30000);}}
+renderAll();
 </script>
 </body>
 </html>
