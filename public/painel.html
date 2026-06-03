@@ -75,15 +75,18 @@ main{padding:18px 20px;max-width:1140px;margin:0 auto}
 .card .lbl{font-size:9px;color:var(--text2);margin-top:5px;text-transform:uppercase;letter-spacing:.5px;font-weight:700}
 
 /* CHIPS & TAPE */
-.tape{display:flex;flex-wrap:wrap;gap:3px;align-items:center}
+.tape{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start}
 .color-filter{display:flex;gap:4px;margin-left:auto}
 .color-btn{border:1px solid var(--border);border-radius:5px;background:none;color:var(--text2);
   cursor:pointer;font-size:10px;font-weight:700;padding:4px 8px;transition:all .15s}
 .color-btn:hover{border-color:var(--text1);color:var(--text1)}
 .color-btn.active{color:var(--text1);border-color:var(--text1);background:var(--bg3)}
-.chip{border-radius:5px;font-size:11px;font-weight:700;padding:3px 7px;white-space:nowrap}
-.chip.purple{background:rgba(192,132,252,.1);color:var(--purple);border:1px solid rgba(192,132,252,.22)}
-.chip.moon{background:rgba(255,110,180,.1);color:var(--pink);border:1px solid rgba(255,110,180,.22)}
+.chip{border-radius:6px;font-size:12px;font-weight:700;padding:6px 9px;white-space:nowrap;display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center}
+.chip.blue{background:rgba(96,165,250,.12);color:#60A5FA;border:1px solid rgba(96,165,250,.3)}
+.chip.purple{background:rgba(192,132,252,.12);color:var(--purple);border:1px solid rgba(192,132,252,.3)}
+.chip.moon{background:rgba(255,110,180,.12);color:var(--pink);border:1px solid rgba(255,110,180,.3)}
+.chip-val{font-size:13px;font-weight:900;line-height:1}
+.chip-time{font-size:9px;opacity:.7}
 .chip.now{border-color:var(--gold)!important;box-shadow:0 0 7px rgba(255,184,0,.3)}
 
 /* DOTS */
@@ -214,6 +217,7 @@ main{padding:18px 20px;max-width:1140px;margin:0 auto}
       <span>Histórico Visual <span style="text-transform:none;letter-spacing:0;font-weight:400;color:var(--text2);font-size:10px">recente → antigo</span></span>
       <div class="color-filter">
         <button class="color-btn active" onclick="filterColor(null)">Tudo</button>
+        <button class="color-btn" onclick="filterColor('blue')">Azuis</button>
         <button class="color-btn" onclick="filterColor('purple')">Roxas</button>
         <button class="color-btn" onclick="filterColor('moon')">Rosas</button>
       </div>
@@ -413,7 +417,7 @@ function minStats(all){
 }
 
 // ── HTML HELPERS
-const chip=(m,now=false)=>`<span class="chip ${gc(m)}${now?' now':''}">${m.toFixed(2)}x</span>`;
+const chip=(m,t='',now=false)=>`<span class="chip ${gc(m)}${now?' now':''}"><span class="chip-val">${m.toFixed(2)}x</span>${t?`<span class="chip-time">${t}</span>`:''}</span>`;
 const dot_=(c,now=false)=>`<span class="dot ${c}${now?' now':''}">${LT[c].charAt(0)}</span>`;
 function abox(type,icon,title,desc){return`<div class="abox ${type}"><div class="ai">${icon}</div><div class="at">${title}</div><div class="ad">${desc}</div></div>`;}
 function ivlAbox(v,lbl){
@@ -491,7 +495,8 @@ function renderHist(ms){
   if(!ms.length){document.getElementById('h-tape').innerHTML='<p class="empty">Sem dados</p>';return;}
 
   let filtered=ms;
-  if(colorFilter==='purple')filtered=ms.filter(m=>gc(m)==='purple');
+  if(colorFilter==='blue')filtered=ms.filter(m=>gc(m)==='blue');
+  else if(colorFilter==='purple')filtered=ms.filter(m=>gc(m)==='purple');
   else if(colorFilter==='moon')filtered=ms.filter(m=>gc(m)==='moon');
 
   const cnt={purple:0,moon:0},n=ms.length;
@@ -503,7 +508,12 @@ function renderHist(ms){
     <div class="card purple"><div class="val">${cnt.purple}</div><div class="lbl">Roxas ${(cnt.purple/n*100).toFixed(0)}%</div></div>
     <div class="card pink"><div class="val">${cnt.moon}</div><div class="lbl">Rosas ${(cnt.moon/n*100).toFixed(0)}%</div></div>`;
 
-  document.getElementById('h-tape').innerHTML=[...filtered].reverse().map((m,i)=>chip(m,i===0)).join('');
+  const wt=allWT();
+  const tapeHtml=[...filtered].reverse().map((m,i)=>{
+    const w=wt.find(x=>x.mult===m);
+    return chip(m,w?.time||'',i===0);
+  }).join('');
+  document.getElementById('h-tape').innerHTML=tapeHtml;
 
   const bands=[{l:'2x–4.99x',lo:2,hi:5,c:'purple'},{l:'5x–9.99x',lo:5,hi:10,c:'purple'},{l:'10x+',lo:10,hi:Infinity,c:'moon'}];
   const mx=Math.max(...bands.map(b=>ms.filter(m=>m>=b.lo&&m<b.hi).length),1);
