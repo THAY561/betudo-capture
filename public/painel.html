@@ -92,7 +92,7 @@ main{padding:18px 20px;max-width:1140px;margin:0 auto}
 /* DOTS */
 .dgrid{display:flex;flex-wrap:wrap;gap:3px}
 .dot{width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:7px;font-weight:900;color:#fff;flex-shrink:0}
-.dot.purple{background:var(--purple)}.dot.moon{background:var(--pink)}
+.dot.blue{background:#60A5FA}.dot.purple{background:var(--purple)}.dot.moon{background:var(--pink)}
 .dot.now{outline:2px solid var(--gold);outline-offset:2px}
 
 /* DIST */
@@ -292,7 +292,7 @@ main{padding:18px 20px;max-width:1140px;margin:0 auto}
     <div>
       <div id="im-alert"></div>
       <div class="sec">
-        <div class="stitle">🟡 Rosas ≥ 10x</div>
+        <div class="stitle">🌸 Rosas ≥ 10x</div>
         <div id="im-cards" class="cards" style="grid-template-columns:repeat(3,1fr)"></div>
         <div id="im-list" class="mt8"></div>
       </div>
@@ -356,7 +356,7 @@ const allWT=()=>[...rw.map(r=>({mult:r.maxMultiplier,time:r.horario?r.horario.sl
 
 // ── COLOR (azul, roxas e rosas)
 const gc=m=>m<cfg.purple?'blue':m<cfg.purple5?'purple':m<cfg.pink?'purple5':'moon';
-const SYM={blue:'🔵',purple:'🟣',purple5:'🟣',moon:'🟡'};
+const SYM={blue:'🔵',purple:'🟣',purple5:'🟣',moon:'🌸'};
 const LBL={blue:'Azul',purple:'Roxa',purple5:'Roxa 5x+',moon:'Rosa'};
 const CLR={blue:'var(--blue)',purple:'var(--purple)',purple5:'var(--purple)',moon:'var(--pink)'};
 const LT={blue:'B',purple:'P',purple5:'P5',moon:'L'};
@@ -422,7 +422,7 @@ const dot_=(c,now=false)=>`<span class="dot ${c}${now?' now':''}">${LT[c].charAt
 function abox(type,icon,title,desc){return`<div class="abox ${type}"><div class="ai">${icon}</div><div class="at">${title}</div><div class="ad">${desc}</div></div>`;}
 function ivlAbox(v,lbl){
   if(!v.count)return abox('ok','💤',`Nenhuma ${lbl} ainda`,'Aguardando ocorrências.');
-  if(v.since===0)return abox('fire','🟡',`AGORA — última foi ${lbl}!`,'Acabou de ocorrer.');
+  if(v.since===0)return abox('fire','🌸',`AGORA — última foi ${lbl}!`,'Acabou de ocorrer.');
   if(v.avg>0&&v.since>parseFloat(v.avg))return abox('warn','⚠️',`${v.since} casas sem ${lbl}`,`Média: ${v.avg} casas.`);
   return abox('ok','✅',`Normal — ${v.since} casas desde ${lbl}`,`Média: ${v.avg} casas.`);
 }
@@ -466,10 +466,10 @@ function renderResumo(ms,rs){
     const s=rosaIvl.since;
     const over=parseFloat(rosaIvl.avg)>0&&s>parseFloat(rosaIvl.avg);
     rosaCls=over?'warn':'moon';
-    rosaTxt=`🟡 Rosas ≥10x a cada ${rosaIvl.avg} casas${minPart}`;
+    rosaTxt=`🌸 Rosas ≥10x a cada ${rosaIvl.avg} casas${minPart}`;
     rosaSub=`última há ${s} casa${s!==1?'s':''}${over?' ⚠':''}`;
   } else {
-    rosaTxt='🟡 Rosas ≥10x';rosaSub='Aguardando 1ª';rosaCls='neutral';
+    rosaTxt='🌸 Rosas ≥10x';rosaSub='Aguardando 1ª';rosaCls='neutral';
   }
 
   narEl.innerHTML=`
@@ -484,8 +484,8 @@ function renderResumo(ms,rs){
   } else items.push({icon:'🟣',title:'Nenhuma Roxa',desc:'Aguardando 1ª',cls:''});
   if(rosaIvl.count>0){
     const s=rosaIvl.since,a=parseFloat(rosaIvl.avg);
-    items.push({icon:'🟡',title:`Rosas a cada ${rosaIvl.avg} casas`,desc:`Última há ${s} casas${a>0&&s>a?' ⚠':''}`,cls:a>0&&s>a?'rw':'ro'});
-  } else items.push({icon:'🟡',title:'Nenhuma Rosa',desc:'Aguardando 1ª',cls:''});
+    items.push({icon:'🌸',title:`Rosas a cada ${rosaIvl.avg} casas`,desc:`Última há ${s} casas${a>0&&s>a?' ⚠':''}`,cls:a>0&&s>a?'rw':'ro'});
+  } else items.push({icon:'🌸',title:'Nenhuma Rosa',desc:'Aguardando 1ª',cls:''});
   items.push({icon:'🗃',title:`${ms.length} velas`,desc:`Mediana: ${med(ms).toFixed(2)}x`,cls:''});
   gridEl.innerHTML=items.map(it=>`<div class="res-item"><div class="res-icon">${it.icon}</div><div class="res-body"><div class="rt">${it.title}</div><div class="rd ${it.cls}">${it.desc}</div></div></div>`).join('');
 }
@@ -580,9 +580,9 @@ function renderMin(){
   const el=document.getElementById('mn-stats');
   if(!wt.length){el.innerHTML='<p class="empty">Sem horários</p>';return;}
   const bm=minStats(wt);
-  const sm=Object.entries(bm).map(([k,v])=>({k:`M${k}`,n:v.n,moon:v.moon,p5:v.p5,score:v.moon*3+v.p5})).sort((a,b)=>b.score-a.score);
+  const sm=Object.entries(bm).map(([k,v])=>({k:`M${k}`,digit:Number(k),n:v.n,moon:v.moon,p5:v.p5,score:v.moon*3+v.p5})).sort((a,b)=>a.digit-b.digit);
   const mx=Math.max(...sm.map(r=>r.score),1);
-  el.innerHTML=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px">${sm.map(r=>`<div class="mi"><b style="color:var(--text2)">${r.k}</b><div class="dbw"><div class="db" style="width:${(r.score/mx*100).toFixed(0)}%;background:var(--purple)"></div></div><span style="color:var(--pink);font-weight:700">🟡${r.moon}</span><span style="color:var(--purple);font-weight:700">🟣${r.p5}</span></div>`).join('')}</div>`;
+  el.innerHTML=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px">${sm.map(r=>`<div class="mi"><b style="color:var(--text2)">${r.k}</b><div class="dbw"><div class="db" style="width:${(r.score/mx*100).toFixed(0)}%;background:var(--purple)"></div></div><span style="color:var(--pink);font-weight:700">🌸${r.moon}</span><span style="color:var(--purple);font-weight:700">🟣${r.p5}</span></div>`).join('')}</div>`;
 }
 
 // ── MASTER
