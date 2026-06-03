@@ -236,7 +236,7 @@ main{padding:18px 20px;max-width:1140px;margin:0 auto}
 </div>
 
 <!-- CORES -->
-<div id="sblock-cores" class="sblock">
+<div id="sblock-cores" class="sblock hidden">
   <div class="sec">
     <div class="stitle">Médias por Cor</div>
     <div id="c-grid" class="csgrid"></div>
@@ -248,7 +248,7 @@ main{padding:18px 20px;max-width:1140px;margin:0 auto}
 <div id="sblock-ciclos" class="sblock hidden"></div>
 
 <!-- INTERVALOS -->
-<div id="sblock-int" class="sblock">
+<div id="sblock-int" class="sblock hidden">
   <div class="two">
     <div>
       <div id="ig-alert"></div>
@@ -270,7 +270,7 @@ main{padding:18px 20px;max-width:1140px;margin:0 auto}
 </div>
 
 <!-- MINUTOS -->
-<div id="sblock-min" class="sblock">
+<div id="sblock-min" class="sblock hidden">
   <div class="sec">
     <div class="stitle">Minutos Pagantes</div>
     <div id="mn-stats"></div>
@@ -328,8 +328,19 @@ main{padding:18px 20px;max-width:1140px;margin:0 auto}
 <script>
 // ── STATE
 let rw=[],manual=[],cfg={purple:2,purple5:5,pink:10},colorFilter=null;
-const mults=()=>[...rw.map(r=>r.maxMultiplier),...manual.map(r=>r.mult)];
 const allWT=()=>[...rw.map(r=>({mult:r.maxMultiplier,time:r.horario?r.horario.slice(0,5):null,rid:r.roundId})),...manual.map(m=>({...m,rid:null}))];
+// Retorna só a sessão contínua mais recente (ignora dados com gap > 4 min)
+const toMin=t=>{if(!t||!t.includes(':'))return null;const[h,m]=t.split(':').map(Number);return h*60+m;};
+function currentSession(){
+  const wt=allWT();if(!wt.length)return wt;
+  let start=0;
+  for(let i=1;i<wt.length;i++){
+    const a=toMin(wt[i-1].time),b=toMin(wt[i].time);
+    if(a!==null&&b!==null&&b-a>4)start=i;
+  }
+  return wt.slice(start);
+}
+const mults=()=>currentSession().map(r=>r.mult);
 
 // ── COLOR (azul, roxas e rosas)
 const gc=m=>m<cfg.purple?'blue':m<cfg.purple5?'purple':m<cfg.pink?'purple5':'moon';
@@ -468,7 +479,7 @@ function renderResumo(ms,rs){
 function renderHist(ms){
   if(!ms.length){document.getElementById('h-tape').innerHTML='<p class="empty">Sem dados</p>';return;}
 
-  const wt=allWT();
+  const wt=currentSession();
   // Mapeia índices originais (posição em ms/wt) preservando o horário correto
   const allItems=ms.map((m,i)=>({m,i}));
   const filtItems=!colorFilter?allItems:allItems.filter(item=>{
@@ -495,24 +506,10 @@ function renderHist(ms){
     <div class="card purple"><div class="val">${cnt.purple}</div><div class="lbl">Roxas ${(cnt.purple/n*100).toFixed(0)}%</div></div>
     <div class="card pink"><div class="val">${cnt.moon}</div><div class="lbl">Rosas ${(cnt.moon/n*100).toFixed(0)}%</div></div>`;
 
-  // Função auxiliar: converte "HH:MM" em minutos
-  const toMin=t=>{if(!t||!t.includes(':'))return null;const[h,m]=t.split(':').map(Number);return h*60+m;};
-  const GAP_MIN=4; // gap >= 4 minutos = dados faltando
-  const gapChip=`<span style="display:inline-flex;flex-direction:column;align-items:center;justify-content:center;padding:4px 8px;border-radius:6px;background:rgba(248,113,113,.12);border:1px solid rgba(248,113,113,.35);color:#F87171;font-size:10px;font-weight:800;gap:1px;white-space:nowrap"><span>⚠ GAP</span><span style="font-size:8px;opacity:.7">dados faltando</span></span>`;
-
   // Renderiza chips do mais recente para o mais antigo usando índice original para horário correto
-  const reversed=[...filtItems].reverse();
-  const tapeHtml=reversed.map((item,idx)=>{
+  const tapeHtml=[...filtItems].reverse().map((item,idx)=>{
     const w=wt[item.i];
-    const t=w?.time||'';
-    let gap='';
-    if(idx<reversed.length-1){
-      const next=reversed[idx+1];
-      const nt=wt[next.i]?.time||'';
-      const tA=toMin(t),tB=toMin(nt);
-      if(tA!==null&&tB!==null&&tA-tB>GAP_MIN)gap=gapChip;
-    }
-    return chip(item.m,t,idx===0)+gap;
+    return chip(item.m,w?.time||'',idx===0);
   }).join('');
   document.getElementById('h-tape').innerHTML=tapeHtml;
 
@@ -586,7 +583,7 @@ function renderInt(ms){
 
 // ── RENDER MINUTOS
 function renderMin(){
-  const all=allWT(),wt=all.filter(r=>r.time&&r.time.includes(':'));
+  const all=currentSession(),wt=all.filter(r=>r.time&&r.time.includes(':'));
   const empty='<p class="empty">Sem horários</p>';
   if(!wt.length){
     document.getElementById('mn-stats').innerHTML=empty;
