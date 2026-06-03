@@ -83,7 +83,7 @@ main{padding:18px 20px;max-width:1140px;margin:0 auto}
 .color-btn.active{color:var(--text1);border-color:var(--text1);background:var(--bg3)}
 .chip{border-radius:6px;font-size:12px;font-weight:700;padding:6px 9px;white-space:nowrap;display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center}
 .chip.blue{background:rgba(96,165,250,.12);color:#60A5FA;border:1px solid rgba(96,165,250,.3)}
-.chip.purple{background:rgba(192,132,252,.12);color:var(--purple);border:1px solid rgba(192,132,252,.3)}
+.chip.purple,.chip.purple5{background:rgba(192,132,252,.12);color:var(--purple);border:1px solid rgba(192,132,252,.3)}
 .chip.moon{background:rgba(255,110,180,.12);color:var(--pink);border:1px solid rgba(255,110,180,.3)}
 .chip-val{font-size:13px;font-weight:900;line-height:1}
 .chip-time{font-size:9px;opacity:.7}
@@ -237,44 +237,9 @@ main{padding:18px 20px;max-width:1140px;margin:0 auto}
   </div>
 </div>
 
-<!-- SEQUÊNCIAS -->
-<div id="sblock-seq" class="sblock">
-  <div class="sec">
-    <div class="stitle">Mapa de Dots <span style="text-transform:none;letter-spacing:0;font-weight:400;color:var(--text2);font-size:10px">recente → antigo</span></div>
-    <div id="s-dots" class="dgrid"></div>
-  </div>
-  <div class="sec">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-      <div class="stitle" style="margin:0">Runs Consecutivos</div>
-      <span id="s-tot" style="font-size:11px;color:var(--text2)"></span>
-    </div>
-    <div id="s-runs" class="rlist"></div>
-  </div>
-  <div class="sec">
-    <div class="stitle">Distribuição de Comprimentos</div>
-    <div id="s-rdist"></div>
-  </div>
-</div>
-
-<!-- CICLOS -->
-<div id="sblock-ciclos" class="sblock">
-  <div class="sec">
-    <div class="stitle">Estado Atual</div>
-    <div id="ci-state"></div>
-  </div>
-  <div class="sec">
-    <div class="stitle">Comprimento por Cor</div>
-    <div id="ci-lens" class="csgrid"></div>
-  </div>
-  <div class="sec">
-    <div class="stitle">Tabela de Transições</div>
-    <div id="ci-trans" style="overflow-x:auto"></div>
-  </div>
-  <div class="sec">
-    <div class="stitle">Padrões Cíclicos (mín. 4 velas)</div>
-    <div id="ci-cycles"></div>
-  </div>
-</div>
+<!-- SEQUÊNCIAS / CICLOS (removidos) -->
+<div id="sblock-seq" class="sblock hidden"></div>
+<div id="sblock-ciclos" class="sblock hidden"></div>
 
 <!-- INTERVALOS -->
 <div id="sblock-int" class="sblock">
