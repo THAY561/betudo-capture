@@ -189,8 +189,6 @@ main{padding:18px 20px;max-width:1140px;margin:0 auto}
   <select class="menu-select" id="menu-select" onchange="changeFilter(this)">
     <option value="historico">Histórico</option>
     <option value="cores">Cores</option>
-    <option value="seq">Sequências</option>
-    <option value="ciclos">Ciclos</option>
     <option value="int">Intervalos</option>
     <option value="min">Minutos</option>
   </select>
@@ -486,7 +484,7 @@ function renderResumo(ms,rs){
     const s=rosaIvl.since,a=parseFloat(rosaIvl.avg);
     items.push({icon:'🌸',title:`Rosas a cada ${rosaIvl.avg} casas`,desc:`Última há ${s} casas${a>0&&s>a?' ⚠':''}`,cls:a>0&&s>a?'rw':'ro'});
   } else items.push({icon:'🌸',title:'Nenhuma Rosa',desc:'Aguardando 1ª',cls:''});
-  items.push({icon:'🗃',title:`${ms.length} velas`,desc:`Mediana: ${med(ms).toFixed(2)}x`,cls:''});
+  items.push({icon:'📊',title:`${ms.length} velas`,desc:`Mediana: ${med(ms).toFixed(2)}x`,cls:''});
   gridEl.innerHTML=items.map(it=>`<div class="res-item"><div class="res-icon">${it.icon}</div><div class="res-body"><div class="rt">${it.title}</div><div class="rd ${it.cls}">${it.desc}</div></div></div>`).join('');
 }
 
@@ -496,15 +494,21 @@ function renderHist(ms){
 
   let filtered=ms;
   if(colorFilter==='blue')filtered=ms.filter(m=>gc(m)==='blue');
-  else if(colorFilter==='purple')filtered=ms.filter(m=>gc(m)==='purple');
+  else if(colorFilter==='purple')filtered=ms.filter(m=>gc(m)==='purple'||gc(m)==='purple5');
   else if(colorFilter==='moon')filtered=ms.filter(m=>gc(m)==='moon');
 
-  const cnt={purple:0,moon:0},n=ms.length;
-  ms.forEach(m=>{const c=gc(m);if(c==='purple5')cnt.purple++;else cnt[c]++;});
+  // contagens do total geral (para %)
+  const cnt={purple:0,moon:0,blue:0},n=ms.length;
+  ms.forEach(m=>{const c=gc(m);if(c==='purple'||c==='purple5')cnt.purple++;else if(c==='moon')cnt.moon++;else cnt.blue++;});
+
+  // total e mediana do filtro atual
+  const nf=filtered.length;
+  const filtLbl=colorFilter==='blue'?'Azuis':colorFilter==='purple'?'Roxas':colorFilter==='moon'?'Rosas':'Total';
+  const totalLbl=colorFilter?`${filtLbl} (${nf})`:`Total`;
 
   document.getElementById('h-cards').innerHTML=`
-    <div class="card"><div class="val">${n}</div><div class="lbl">Total</div></div>
-    <div class="card"><div class="val">${med(ms).toFixed(2)}x</div><div class="lbl">Mediana</div></div>
+    <div class="card"><div class="val">${nf}</div><div class="lbl">${totalLbl}</div></div>
+    <div class="card"><div class="val">${nf?med(filtered).toFixed(2)+'x':'—'}</div><div class="lbl">Mediana ${colorFilter?filtLbl:''}</div></div>
     <div class="card purple"><div class="val">${cnt.purple}</div><div class="lbl">Roxas ${(cnt.purple/n*100).toFixed(0)}%</div></div>
     <div class="card pink"><div class="val">${cnt.moon}</div><div class="lbl">Rosas ${(cnt.moon/n*100).toFixed(0)}%</div></div>`;
 
