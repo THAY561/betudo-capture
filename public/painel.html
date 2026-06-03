@@ -227,6 +227,10 @@ main{padding:18px 20px;max-width:1140px;margin:0 auto}
     <div id="h-dist"></div>
   </div>
   <div id="h-cards" class="cards"></div>
+  <div class="sec" style="margin-top:12px">
+    <div class="stitle">Minutos Pagantes</div>
+    <div id="h-mn-stats"></div>
+  </div>
 </div>
 
 <!-- CORES -->
@@ -409,15 +413,13 @@ function renderResumo(ms,rs){
   }
   const cur=rs[rs.length-1];
   const roxaIvl=ivl(ms,cfg.purple,cfg.pink),rosaIvl=ivl(ms,cfg.pink);
-  const roxaAvgM=avgMins(rw,cfg.purple,cfg.pink),rosaAvgM=avgMins(rw,cfg.pink);
 
   let roxaTxt,roxaSub,roxaCls='purple';
   if(roxaIvl.count>0){
-    const minPart=roxaAvgM?` / ${roxaAvgM} min`:'';
     const s=roxaIvl.since;
     const over=parseFloat(roxaIvl.avg)>0&&s>parseFloat(roxaIvl.avg);
     roxaCls=over?'warn':'purple';
-    roxaTxt=`🟣 Roxas ≥2x a cada ${roxaIvl.avg} casas${minPart}`;
+    roxaTxt=`🟣 Roxas ≥2x a cada ${roxaIvl.avg} casas`;
     roxaSub=`última há ${s} casa${s!==1?'s':''}${over?' ⚠':''}`;
   } else {
     roxaTxt='🟣 Roxas ≥2x';roxaSub='Aguardando 1ª';roxaCls='neutral';
@@ -425,11 +427,10 @@ function renderResumo(ms,rs){
 
   let rosaTxt,rosaSub,rosaCls='moon';
   if(rosaIvl.count>0){
-    const minPart=rosaAvgM?` / ${rosaAvgM} min`:'';
     const s=rosaIvl.since;
     const over=parseFloat(rosaIvl.avg)>0&&s>parseFloat(rosaIvl.avg);
     rosaCls=over?'warn':'moon';
-    rosaTxt=`🌸 Rosas ≥10x a cada ${rosaIvl.avg} casas${minPart}`;
+    rosaTxt=`🌸 Rosas ≥10x a cada ${rosaIvl.avg} casas`;
     rosaSub=`última há ${s} casa${s!==1?'s':''}${over?' ⚠':''}`;
   } else {
     rosaTxt='🌸 Rosas ≥10x';rosaSub='Aguardando 1ª';rosaCls='neutral';
@@ -546,12 +547,18 @@ function renderInt(ms){
 // ── RENDER MINUTOS
 function renderMin(){
   const all=allWT(),wt=all.filter(r=>r.time&&r.time.includes(':'));
-  const el=document.getElementById('mn-stats');
-  if(!wt.length){el.innerHTML='<p class="empty">Sem horários</p>';return;}
+  const empty='<p class="empty">Sem horários</p>';
+  if(!wt.length){
+    document.getElementById('mn-stats').innerHTML=empty;
+    document.getElementById('h-mn-stats').innerHTML=empty;
+    return;
+  }
   const bm=minStats(wt);
   const sm=Object.entries(bm).map(([k,v])=>({k:`M${k}`,digit:Number(k),n:v.n,moon:v.moon,p5:v.p5,score:v.moon*3+v.p5})).sort((a,b)=>a.digit-b.digit);
   const mx=Math.max(...sm.map(r=>r.score),1);
-  el.innerHTML=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px">${sm.map(r=>`<div class="mi"><b style="color:var(--text2)">${r.k}</b><div class="dbw"><div class="db" style="width:${(r.score/mx*100).toFixed(0)}%;background:var(--purple)"></div></div><span style="color:var(--pink);font-weight:700">🌸${r.moon}</span><span style="color:var(--purple);font-weight:700">🟣${r.p5}</span></div>`).join('')}</div>`;
+  const html=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px">${sm.map(r=>`<div class="mi"><b style="color:var(--text2)">${r.k}</b><div class="dbw"><div class="db" style="width:${(r.score/mx*100).toFixed(0)}%;background:var(--purple)"></div></div><span style="color:var(--pink);font-weight:700">🌸${r.moon}</span><span style="color:var(--purple);font-weight:700">🟣${r.p5}</span></div>`).join('')}</div>`;
+  document.getElementById('mn-stats').innerHTML=html;
+  document.getElementById('h-mn-stats').innerHTML=html;
 }
 
 // ── MASTER
