@@ -458,29 +458,35 @@ function renderResumo(ms,rs){
 function renderHist(ms){
   if(!ms.length){document.getElementById('h-tape').innerHTML='<p class="empty">Sem dados</p>';return;}
 
-  let filtered=ms;
-  if(colorFilter==='blue')filtered=ms.filter(m=>gc(m)==='blue');
-  else if(colorFilter==='purple')filtered=ms.filter(m=>gc(m)==='purple'||gc(m)==='purple5');
-  else if(colorFilter==='moon')filtered=ms.filter(m=>gc(m)==='moon');
+  const wt=allWT();
+  // Mapeia índices originais (posição em ms/wt) preservando o horário correto
+  const allItems=ms.map((m,i)=>({m,i}));
+  const filtItems=!colorFilter?allItems:allItems.filter(item=>{
+    const c=gc(item.m);
+    if(colorFilter==='blue')return c==='blue';
+    if(colorFilter==='purple')return c==='purple'||c==='purple5';
+    if(colorFilter==='moon')return c==='moon';
+    return true;
+  });
+  const filtVals=filtItems.map(x=>x.m);
 
   // contagens do total geral (para %)
   const cnt={purple:0,moon:0,blue:0},n=ms.length;
   ms.forEach(m=>{const c=gc(m);if(c==='purple'||c==='purple5')cnt.purple++;else if(c==='moon')cnt.moon++;else cnt.blue++;});
 
   // total e mediana do filtro atual
-  const nf=filtered.length;
+  const nf=filtVals.length;
   const filtLbl=colorFilter==='blue'?'Azuis':colorFilter==='purple'?'Roxas':colorFilter==='moon'?'Rosas':'Total';
   const totalLbl=colorFilter?`${filtLbl} (${nf})`:`Total`;
 
   document.getElementById('h-cards').innerHTML=`
     <div class="card"><div class="val">${nf}</div><div class="lbl">${totalLbl}</div></div>
-    <div class="card"><div class="val">${nf?med(filtered).toFixed(2)+'x':'—'}</div><div class="lbl">Mediana ${colorFilter?filtLbl:''}</div></div>
+    <div class="card"><div class="val">${nf?med(filtVals).toFixed(2)+'x':'—'}</div><div class="lbl">Mediana ${colorFilter?filtLbl:''}</div></div>
     <div class="card purple"><div class="val">${cnt.purple}</div><div class="lbl">Roxas ${(cnt.purple/n*100).toFixed(0)}%</div></div>
     <div class="card pink"><div class="val">${cnt.moon}</div><div class="lbl">Rosas ${(cnt.moon/n*100).toFixed(0)}%</div></div>`;
 
-  const wt=allWT();
-  const indices=filtered.map((m,i)=>({m,i})).reverse();
-  const tapeHtml=indices.map((item,idx)=>{
+  // Renderiza chips do mais recente para o mais antigo usando índice original para horário correto
+  const tapeHtml=[...filtItems].reverse().map((item,idx)=>{
     const w=wt[item.i];
     return chip(item.m,w?.time||'',idx===0);
   }).join('');
