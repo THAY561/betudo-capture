@@ -130,7 +130,7 @@ main{padding:18px 20px;max-width:1140px;margin:0 auto}
 .csc{background:var(--bg3);border-radius:9px;padding:12px;border:1px solid var(--border)}
 .csh{display:flex;align-items:center;gap:7px;margin-bottom:9px}
 .csdot{width:9px;height:9px;border-radius:50%}
-.csdot.purple{background:var(--purple)}.csdot.moon{background:var(--pink)}
+.csdot.blue{background:#60A5FA}.csdot.purple{background:var(--purple)}.csdot.moon{background:var(--pink)}
 .csnm{font-size:12px;font-weight:800}
 .cr{display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px}
 .ck{color:var(--text2)}.cv{font-weight:700}
@@ -350,12 +350,12 @@ let rw=[],manual=[],cfg={purple:2,purple5:5,pink:10},colorFilter=null;
 const mults=()=>[...rw.map(r=>r.maxMultiplier),...manual.map(r=>r.mult)];
 const allWT=()=>[...rw.map(r=>({mult:r.maxMultiplier,time:r.horario?r.horario.slice(0,5):null})),...manual];
 
-// ── COLOR (apenas roxas e rosas)
-const gc=m=>m<cfg.purple5?'purple':m<cfg.pink?'purple5':'moon';
-const SYM={purple:'🟣',purple5:'🟣',moon:'🟡'};
-const LBL={purple:'Roxa',purple5:'Roxa 5x+',moon:'Rosa'};
-const CLR={purple:'var(--purple)',purple5:'var(--purple)',moon:'var(--pink)'};
-const LT={purple:'P',purple5:'P5',moon:'L'};
+// ── COLOR (azul, roxas e rosas)
+const gc=m=>m<cfg.purple?'blue':m<cfg.purple5?'purple':m<cfg.pink?'purple5':'moon';
+const SYM={blue:'🔵',purple:'🟣',purple5:'🟣',moon:'🟡'};
+const LBL={blue:'Azul',purple:'Roxa',purple5:'Roxa 5x+',moon:'Rosa'};
+const CLR={blue:'var(--blue)',purple:'var(--purple)',purple5:'var(--purple)',moon:'var(--pink)'};
+const LT={blue:'B',purple:'P',purple5:'P5',moon:'L'};
 
 // ── MATH
 const sum=a=>a.reduce((s,v)=>s+v,0);
@@ -368,14 +368,14 @@ function getRuns(ms){const r=[];let i=0;while(i<ms.length){const c=gc(ms[i]),g=[
 
 // ── COLOR STATS
 function cStats(ms,rs){
-  const v={purple:[],moon:[]},rl={purple:[],moon:[]};
-  ms.forEach(m=>{const c=gc(m)===('purple5')?'purple':gc(m);v[c].push(m);});
+  const v={blue:[],purple:[],moon:[]},rl={blue:[],purple:[],moon:[]};
+  ms.forEach(m=>{const c=gc(m);if(c==='purple5')v.purple.push(m);else v[c].push(m);});
   rs.forEach(r=>{const c=r.color==='purple5'?'purple':r.color;rl[c].push(r.len);});
-  return['purple','moon'].reduce((o,c)=>{const a=v[c],b=rl[c];o[c]={count:a.length,mean:avg(a),min:a.length?Math.min(...a):0,max:a.length?Math.max(...a):0,arl:avg(b).toFixed(1),mrl:mode(b),rc:b.length};return o;},{});
+  return['blue','purple','moon'].reduce((o,c)=>{const a=v[c],b=rl[c];o[c]={count:a.length,mean:avg(a),min:a.length?Math.min(...a):0,max:a.length?Math.max(...a):0,arl:avg(b).toFixed(1),mrl:mode(b),rc:b.length};return o;},{});
 }
 
 // ── TRANSITION
-function trans(rs){const t={P:{P:0,L:0,n:0},L:{P:0,L:0,n:0}};for(let i=0;i<rs.length-1;i++){const f=rs[i].lt.charAt(0),to=rs[i+1].lt.charAt(0);t[f][to]++;t[f].n++;}return t;}
+function trans(rs){const t={B:{B:0,P:0,L:0,n:0},P:{B:0,P:0,L:0,n:0},L:{B:0,P:0,L:0,n:0}};for(let i=0;i<rs.length-1;i++){const f=rs[i].lt.charAt(0),to=rs[i+1].lt.charAt(0);if(t[f]&&t[f][to]!==undefined){t[f][to]++;t[f].n++;}}return t;}
 
 // ── CYCLES (mín. 4)
 function cycles(rs){
@@ -513,7 +513,7 @@ function renderHist(ms){
 // ── RENDER CORES
 function renderCores(ms,rs){
   const cs=cStats(ms,rs);
-  document.getElementById('c-grid').innerHTML=['purple','moon'].map(c=>{
+  document.getElementById('c-grid').innerHTML=['blue','purple','moon'].map(c=>{
     const s=cs[c];if(!s.count)return`<div class="csc"><div class="csh"><span class="csdot ${c}"></span><span class="csnm" style="color:${CLR[c]}">${LBL[c]}</span></div><p class="empty" style="padding:6px">Sem velas</p></div>`;
     return`<div class="csc"><div class="csh"><span class="csdot ${c}"></span><span class="csnm" style="color:${CLR[c]}">${SYM[c]} ${LBL[c]}</span></div>
       <div class="cr"><span class="ck">Média</span><span class="cv" style="color:${CLR[c]}">${s.mean.toFixed(2)}x</span></div>
@@ -543,9 +543,9 @@ function renderCiclos(ms,rs){
     <div class="tc" style="border-color:var(--gold)"><div class="tl">Atual ●</div><div class="tv" style="color:${CLR[cur.color]}">${cur.len}× ${LBL[cur.color]}</div></div>
     <div class="tc"><div class="tl">Total Runs</div><div class="tv">${rs.length}</div></div></div>`;
   const cs=cStats(ms,rs);
-  document.getElementById('ci-lens').innerHTML=['purple','moon'].map(c=>{const s=cs[c];if(!s.rc)return`<div class="csc"><div class="csh"><span class="csdot ${c}"></span><span class="csnm" style="color:${CLR[c]}">${LBL[c]}</span></div><p class="empty">Sem runs</p></div>`;return`<div class="csc"><div class="csh"><span class="csdot ${c}"></span><span class="csnm" style="color:${CLR[c]}">${SYM[c]} ${LBL[c]}</span></div><div class="cr"><span class="ck">Média</span><span class="cv">${s.arl} seg</span></div><div class="cr"><span class="ck">Runs</span><span class="cv">${s.rc}</span></div></div>`;}).join('');
-  const t=trans(rs),cm={P:'purple',L:'moon'};
-  document.getElementById('ci-trans').innerHTML=`<table class="tt"><thead><tr><th>De / Para</th>${['P','L'].map(l=>`<th style="color:${CLR[cm[l]]}">${SYM[cm[l]]}</th>`).join('')}</tr></thead><tbody>${['P','L'].map(f=>{const row=t[f],tot=row.n||1;return`<tr><td style="font-weight:800;color:${CLR[cm[f]]}">${SYM[cm[f]]}</td>${['P','L'].map(to=>{const v=row[to],p=(v/tot*100).toFixed(0);return`<td><div class="tcell"><span style="color:${CLR[cm[to]]}">${v}</span><span class="tpct">${p}%</span></div></td>`;}).join('')}</tr>`;}).join('')}</tbody></table>`;
+  document.getElementById('ci-lens').innerHTML=['blue','purple','moon'].map(c=>{const s=cs[c];if(!s.rc)return`<div class="csc"><div class="csh"><span class="csdot ${c}"></span><span class="csnm" style="color:${CLR[c]}">${LBL[c]}</span></div><p class="empty">Sem runs</p></div>`;return`<div class="csc"><div class="csh"><span class="csdot ${c}"></span><span class="csnm" style="color:${CLR[c]}">${SYM[c]} ${LBL[c]}</span></div><div class="cr"><span class="ck">Média</span><span class="cv">${s.arl} seg</span></div><div class="cr"><span class="ck">Runs</span><span class="cv">${s.rc}</span></div></div>`;}).join('');
+  const t=trans(rs),cm={B:'blue',P:'purple',L:'moon'};
+  document.getElementById('ci-trans').innerHTML=`<table class="tt"><thead><tr><th>De / Para</th>${['B','P','L'].map(l=>`<th style="color:${CLR[cm[l]]}">${SYM[cm[l]]}</th>`).join('')}</tr></thead><tbody>${['B','P','L'].map(f=>{const row=t[f],tot=row.n||1;return`<tr><td style="font-weight:800;color:${CLR[cm[f]]}">${SYM[cm[f]]}</td>${['B','P','L'].map(to=>{const v=row[to],p=(v/tot*100).toFixed(0);return`<td><div class="tcell"><span style="color:${CLR[cm[to]]}">${v}</span><span class="tpct">${p}%</span></div></td>`;}).join('')}</tr>`;}).join('')}</tbody></table>`;
   const cy=cycles(rs);
   document.getElementById('ci-cycles').innerHTML=cy.length?cy.map(([p,n])=>{const ls=p.split('');const dts=ls.map(l=>`<span class="dot ${cm[l]}" style="width:15px;height:15px;font-size:6px">${l}</span>`).join('');const nm=ls.map(l=>LBL[cm[l]]).join('→');return`<div class="ci"><div class="cds">${dts}</div><div class="cname">${nm}</div><div class="ccnt">${n}×</div></div>`;}).join(''):`<p class="empty">Sem padrões</p>`;
 }
