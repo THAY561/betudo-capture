@@ -251,7 +251,7 @@ main{padding:18px 20px;max-width:1140px;margin:0 auto}
     <div>
       <div id="ig-alert"></div>
       <div class="sec">
-        <div class="stitle">🟣 Roxas ≥ 5x &lt; 10x</div>
+        <div class="stitle">🟣 Velas ≥ 5x</div>
         <div id="ig-cards" class="cards" style="grid-template-columns:repeat(3,1fr)"></div>
         <div id="ig-list" class="mt8"></div>
       </div>
@@ -319,7 +319,7 @@ main{padding:18px 20px;max-width:1140px;margin:0 auto}
 // ── STATE
 let rw=[],manual=[],cfg={purple:2,purple5:5,pink:10},colorFilter=null;
 const mults=()=>[...rw.map(r=>r.maxMultiplier),...manual.map(r=>r.mult)];
-const allWT=()=>[...rw.map(r=>({mult:r.maxMultiplier,time:r.horario?r.horario.slice(0,5):null})),...manual];
+const allWT=()=>[...rw.map(r=>({mult:r.maxMultiplier,time:r.horario?r.horario.slice(0,5):null,rid:r.roundId})),...manual.map(m=>({...m,rid:null}))];
 
 // ── COLOR (azul, roxas e rosas)
 const gc=m=>m<cfg.purple?'blue':m<cfg.purple5?'purple':m<cfg.pink?'purple5':'moon';
@@ -539,13 +539,23 @@ function renderCiclos(ms,rs){
 
 // ── RENDER INTERVALOS
 function renderInt(ms){
-  const g=ivl(ms,cfg.purple5,cfg.pink),m=ivl(ms,cfg.pink);
-  document.getElementById('ig-alert').innerHTML=ivlAbox(g,`Roxa 5x+`);
+  const wt=allWT();
+  const g=ivl(ms,cfg.purple5),m=ivl(ms,cfg.pink);
+  document.getElementById('ig-alert').innerHTML=ivlAbox(g,`Vela 5x+`);
   document.getElementById('im-alert').innerHTML=ivlAbox(m,`Rosa`);
   function mkC(h,c){return`<div class="card ${c}"><div class="val">${h.count}</div><div class="lbl">Total</div></div><div class="card"><div class="val">${h.avg}</div><div class="lbl">Ivl</div></div><div class="card"><div class="val">${h.since}</div><div class="lbl">Desde</div></div>`;}
   document.getElementById('ig-cards').innerHTML=mkC(g,'purple');
   document.getElementById('im-cards').innerHTML=mkC(m,'pink');
-  function mkL(h,c){if(!h.count)return'<p class="empty">Nenhuma</p>';const mx=h.iv.length?Math.max(...h.iv):1;return h.idx.map((idx,i)=>{const val=ms[idx],iv=i===0?'—':h.iv[i-1],w=i===0?0:(h.iv[i-1]/mx*100),last=i===h.idx.length-1;return`<div class="hvi${last?' last':''}"><span style="color:var(--text2);font-size:10px">Rd ${idx+1}</span><span style="color:${CLR[c]};font-weight:900">${val.toFixed(2)}x</span><div style="display:flex;align-items:center;gap:5px;flex:1"><div class="dbw"><div class="db" style="width:${w}%;background:${CLR[c]}"></div></div><span style="font-size:10px;color:var(--text2);width:40px;text-align:right">${iv==='—'?'—':iv+' rds'}</span></div></div>`;}).join('');}
+  function mkL(h,c){
+    if(!h.count)return'<p class="empty">Nenhuma</p>';
+    const mx=h.iv.length?Math.max(...h.iv):1;
+    return h.idx.map((idx,i)=>{
+      const val=ms[idx],iv=i===0?'—':h.iv[i-1],w=i===0?0:(h.iv[i-1]/mx*100),last=i===h.idx.length-1;
+      const rid=wt[idx]?.rid;
+      const rdLbl=rid?String(rid).slice(-2):`#${idx+1}`;
+      return`<div class="hvi${last?' last':''}"><span style="color:var(--text2);font-size:10px">...${rdLbl}</span><span style="color:${CLR[c]};font-weight:900">${val.toFixed(2)}x</span><div style="display:flex;align-items:center;gap:5px;flex:1"><div class="dbw"><div class="db" style="width:${w}%;background:${CLR[c]}"></div></div><span style="font-size:10px;color:var(--text2);width:40px;text-align:right">${iv==='—'?'—':iv+' rds'}</span></div></div>`;
+    }).join('');
+  }
   document.getElementById('ig-list').innerHTML=mkL(g,'purple');
   document.getElementById('im-list').innerHTML=mkL(m,'moon');
 }
