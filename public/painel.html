@@ -338,7 +338,7 @@ function cStats(ms,rs){
   const v={blue:[],purple:[],moon:[]},rl={blue:[],purple:[],moon:[]};
   ms.forEach(m=>{const c=gc(m);if(c==='purple5')v.purple.push(m);else v[c].push(m);});
   rs.forEach(r=>{const c=r.color==='purple5'?'purple':r.color;rl[c].push(r.len);});
-  return['blue','purple','moon'].reduce((o,c)=>{const a=v[c],b=rl[c];o[c]={count:a.length,mean:avg(a),min:a.length?Math.min(...a):0,max:a.length?Math.max(...a):0,arl:avg(b).toFixed(1),mrl:mode(b),rc:b.length};return o;},{});
+  return['blue','purple','moon'].reduce((o,c)=>{const a=v[c],b=rl[c];o[c]={count:a.length,mean:avg(a),median:med(a),min:a.length?Math.min(...a):0,max:a.length?Math.max(...a):0,arl:avg(b).toFixed(1),mrl:mode(b),rc:b.length};return o;},{});
 }
 
 // ── TRANSITION
@@ -496,7 +496,7 @@ function renderCores(ms,rs){
   document.getElementById('c-grid').innerHTML=['blue','purple','moon'].map(c=>{
     const s=cs[c];if(!s.count)return`<div class="csc"><div class="csh"><span class="csdot ${c}"></span><span class="csnm" style="color:${CLR[c]}">${LBL[c]}</span></div><p class="empty" style="padding:6px">Sem velas</p></div>`;
     return`<div class="csc"><div class="csh"><span class="csdot ${c}"></span><span class="csnm" style="color:${CLR[c]}">${SYM[c]} ${LBL[c]}</span></div>
-      <div class="cr"><span class="ck">Média</span><span class="cv" style="color:${CLR[c]}">${s.mean.toFixed(2)}x</span></div>
+      <div class="cr"><span class="ck">Mediana</span><span class="cv" style="color:${CLR[c]}">${s.median.toFixed(2)}x</span></div>
       <div class="cr"><span class="ck">Mín / Máx</span><span class="cv">${s.min.toFixed(2)}x / ${s.max.toFixed(2)}x</span></div>
       <div class="cr"><span class="ck">Seq. média</span><span class="cv">${s.arl} seg</span></div>
       <div class="cr"><span class="ck">Total runs</span><span class="cv">${s.rc}</span></div></div>`;
@@ -532,7 +532,7 @@ function renderCiclos(ms,rs){
 
 // ── RENDER INTERVALOS
 function renderInt(ms){
-  const g=ivl(ms,cfg.purple,cfg.pink),m=ivl(ms,cfg.pink);
+  const g=ivl(ms,cfg.purple5,cfg.pink),m=ivl(ms,cfg.pink);
   document.getElementById('ig-alert').innerHTML=ivlAbox(g,`Roxa 5x+`);
   document.getElementById('im-alert').innerHTML=ivlAbox(m,`Rosa`);
   function mkC(h,c){return`<div class="card ${c}"><div class="val">${h.count}</div><div class="lbl">Total</div></div><div class="card"><div class="val">${h.avg}</div><div class="lbl">Ivl</div></div><div class="card"><div class="val">${h.since}</div><div class="lbl">Desde</div></div>`;}
@@ -559,8 +559,7 @@ function renderAll(){
   const ms=mults(),rs=getRuns(ms);
   document.getElementById('rw-c').textContent=rw.length;
   document.getElementById('mn-c').textContent=manual.length;
-  renderResumo(ms,rs);renderHist(ms);renderCores(ms,rs);renderSeq(ms,rs);
-  renderCiclos(ms,rs);renderInt(ms);renderMin();
+  renderResumo(ms,rs);renderHist(ms);renderCores(ms,rs);renderInt(ms);renderMin();
 }
 
 // ── FETCH
