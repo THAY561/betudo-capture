@@ -629,7 +629,7 @@ document.getElementById('iv').addEventListener('keydown',e=>{if(e.key==='Enter')
 // ── INIT
 let autoFetch=false;
 function startAutoFetch(){if(!autoFetch){autoFetch=true;setInterval(fetchData,30000);}}
-renderAll();
+fetchData();
 </script>
 </body>
 </html>
