@@ -27,13 +27,14 @@ header{background:var(--bg1);border-bottom:1px solid var(--border);padding:0 20p
 
 /* MENU BAR */
 .mbar{background:var(--bg1);border-bottom:1px solid var(--border);padding:12px 20px;
-  display:flex;align-items:center;gap:8px;position:sticky;top:54px;z-index:190;flex-wrap:wrap}
+  display:flex;align-items:center;gap:12px;position:sticky;top:54px;z-index:190}
 .menu-label{font-size:10px;font-weight:800;text-transform:uppercase;color:var(--text2);letter-spacing:.8px;white-space:nowrap}
-.menu-btn{border:1px solid var(--border);border-radius:6px;background:none;color:var(--text2);
-  cursor:pointer;font-size:11px;font-weight:700;padding:6px 12px;transition:all .15s}
-.menu-btn:hover{color:var(--text1);border-color:var(--text2)}
-.menu-btn.active{background:var(--gd);border-color:var(--gb);color:var(--gold)}
-.menu-sep{width:1px;height:20px;background:var(--border)}
+.menu-select{border:1px solid var(--border);border-radius:6px;background:var(--bg2);color:var(--text1);
+  cursor:pointer;font-size:12px;font-weight:700;padding:8px 12px;transition:all .15s;font-family:inherit}
+.menu-select:hover{border-color:var(--text2)}
+.menu-select:focus{outline:none;border-color:var(--gold)}
+.menu-sep{width:1px;height:20px;background:var(--border);margin-left:auto}
+.util-btns{display:flex;gap:8px}
 
 /* MAIN */
 main{padding:18px 20px;max-width:1140px;margin:0 auto}
@@ -181,16 +182,20 @@ main{padding:18px 20px;max-width:1140px;margin:0 auto}
 
 <!-- MENU BAR -->
 <div class="mbar">
-  <span class="menu-label">Filtros:</span>
-  <button class="menu-btn active" data-sec="historico" onclick="togMenu(this)">Histórico</button>
-  <button class="menu-btn active" data-sec="cores" onclick="togMenu(this)">Cores</button>
-  <button class="menu-btn active" data-sec="seq" onclick="togMenu(this)">Sequências</button>
-  <button class="menu-btn active" data-sec="ciclos" onclick="togMenu(this)">Ciclos</button>
-  <button class="menu-btn active" data-sec="int" onclick="togMenu(this)">Intervalos</button>
-  <button class="menu-btn active" data-sec="min" onclick="togMenu(this)">Minutos</button>
+  <span class="menu-label">Filtro:</span>
+  <select class="menu-select" id="menu-select" onchange="changeFilter(this)">
+    <option value="historico">Histórico</option>
+    <option value="cores">Cores</option>
+    <option value="seq">Sequências</option>
+    <option value="ciclos">Ciclos</option>
+    <option value="int">Intervalos</option>
+    <option value="min">Minutos</option>
+  </select>
   <div class="menu-sep"></div>
-  <button class="menu-btn" data-sec="cap" onclick="togMenu(this)">✏️ Captura</button>
-  <button class="menu-btn" data-sec="cfg" onclick="togMenu(this)">⚙️ Config</button>
+  <div class="util-btns">
+    <button class="menu-btn" data-sec="cap" onclick="togMenu(this)">✏️ Captura</button>
+    <button class="menu-btn" data-sec="cfg" onclick="togMenu(this)">⚙️ Config</button>
+  </div>
 </div>
 
 <main>
@@ -589,7 +594,18 @@ async function fetchData(){
   startAutoFetch();
 }
 
-// ── MENU TOGGLE
+// ── MENU CHANGE
+function changeFilter(select){
+  const value=select.value;
+  // Esconder todos
+  ['historico','cores','seq','ciclos','int','min'].forEach(sec=>{
+    document.getElementById('sblock-'+sec).classList.add('hidden');
+  });
+  // Mostrar selecionado
+  document.getElementById('sblock-'+value).classList.remove('hidden');
+}
+
+// ── MENU TOGGLE (para Captura e Config)
 function togMenu(btn){
   const sec=btn.dataset.sec,el=document.getElementById('sblock-'+sec);
   if(!el)return;
