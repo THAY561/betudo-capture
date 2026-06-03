@@ -233,6 +233,10 @@ main{padding:18px 20px;max-width:1140px;margin:0 auto}
     <div class="stitle">Minutos Pagantes</div>
     <div id="h-mn-stats"></div>
   </div>
+  <div class="sec" style="margin-top:12px">
+    <div class="stitle">Rodadas Pagantes <span style="text-transform:none;letter-spacing:0;font-weight:400;color:var(--text2);font-size:10px">últimos 2 dígitos do ID</span></div>
+    <div id="h-rnd-stats"></div>
+  </div>
 </div>
 
 <!-- CORES -->
@@ -614,7 +618,9 @@ function renderRnd(){
   const sm=Object.entries(bm).map(([k,v])=>({k,digit:Number(k),n:v.n,moon:v.moon,p5:v.p5,total5:v.moon+v.p5})).sort((a,b)=>a.digit-b.digit);
   if(!sm.length){el.innerHTML='<p class="empty">Sem dados</p>';return;}
   const mxMoon=Math.max(...sm.map(r=>r.moon),1);
-  el.innerHTML=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px">${sm.map(r=>`<div class="mi"><b style="color:var(--text2)">R${r.k}</b><div class="dbw" style="margin:3px 0"><div class="db" style="width:${(r.moon/mxMoon*100).toFixed(0)}%;background:var(--pink)"></div></div><span style="color:var(--pink);font-weight:800;font-size:13px">🌸${r.moon}</span></div>`).join('')}</div>`;
+  const html=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px">${sm.map(r=>`<div class="mi"><b style="color:var(--text2)">R${r.k}</b><div class="dbw" style="margin:3px 0"><div class="db" style="width:${(r.moon/mxMoon*100).toFixed(0)}%;background:var(--pink)"></div></div><span style="color:var(--pink);font-weight:800;font-size:13px">🌸${r.moon}</span></div>`).join('')}</div>`;
+  el.innerHTML=html;
+  const hEl=document.getElementById('h-rnd-stats');if(hEl)hEl.innerHTML=html;
 }
 
 // ── MASTER
