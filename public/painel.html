@@ -509,9 +509,10 @@ function renderHist(ms){
     <div class="card pink"><div class="val">${cnt.moon}</div><div class="lbl">Rosas ${(cnt.moon/n*100).toFixed(0)}%</div></div>`;
 
   const wt=allWT();
-  const tapeHtml=[...filtered].reverse().map((m,i)=>{
-    const w=wt.find(x=>x.mult===m);
-    return chip(m,w?.time||'',i===0);
+  const indices=filtered.map((m,i)=>({m,i})).reverse();
+  const tapeHtml=indices.map((item,idx)=>{
+    const w=wt[item.i];
+    return chip(item.m,w?.time||'',idx===0);
   }).join('');
   document.getElementById('h-tape').innerHTML=tapeHtml;
 
