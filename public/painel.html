@@ -56,6 +56,7 @@ main{padding:18px 20px;max-width:1140px;margin:0 auto}
 .res-body{min-width:0;flex:1}
 .res-body .rt{font-size:12px;font-weight:700;color:var(--text1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .res-body .rd{font-size:10px;color:var(--text2);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.res-desc{font-size:10px;color:var(--text2);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
 /* SECTION */
 .sblock{margin-bottom:16px}
@@ -191,6 +192,7 @@ main{padding:18px 20px;max-width:1140px;margin:0 auto}
     <option value="cores">Cores</option>
     <option value="int">Intervalos</option>
     <option value="min">Minutos</option>
+    <option value="rnd">Rodadas</option>
   </select>
   <div class="menu-sep"></div>
   <div class="util-btns">
@@ -272,6 +274,14 @@ main{padding:18px 20px;max-width:1140px;margin:0 auto}
   <div class="sec">
     <div class="stitle">Minutos Pagantes</div>
     <div id="mn-stats"></div>
+  </div>
+</div>
+
+<!-- RODADAS -->
+<div id="sblock-rnd" class="sblock hidden">
+  <div class="sec">
+    <div class="stitle">Rodadas Pagantes <span style="text-transform:none;letter-spacing:0;font-weight:400;color:var(--text2);font-size:10px">últimos 2 dígitos do ID</span></div>
+    <div id="rnd-stats"></div>
   </div>
 </div>
 
@@ -451,7 +461,7 @@ function renderResumo(ms,rs){
     items.push({icon:'🌸',title:`Rosas a cada ${rosaIvl.avg} casas`,desc:`Última há ${s} casas${a>0&&s>a?' ⚠':''}`,cls:a>0&&s>a?'rw':'ro'});
   } else items.push({icon:'🌸',title:'Nenhuma Rosa',desc:'Aguardando 1ª',cls:''});
   items.push({icon:'📊',title:`${ms.length} velas`,desc:`Mediana: ${med(ms).toFixed(2)}x`,cls:''});
-  gridEl.innerHTML=items.map(it=>`<div class="res-item"><div class="res-icon">${it.icon}</div><div class="res-body"><div class="rt">${it.title}</div><div class="rd ${it.cls}">${it.desc}</div></div></div>`).join('');
+  gridEl.innerHTML=items.map(it=>`<div class="res-item"><div class="res-icon">${it.icon}</div><div class="res-body"><div class="rt">${it.title}</div></div></div>`).join('');
 }
 
 // ── RENDER HISTÓRICO
@@ -586,9 +596,28 @@ function renderMin(){
   const bm=minStats(wt);
   const sm=Object.entries(bm).map(([k,v])=>({k:`M${k}`,digit:Number(k),n:v.n,moon:v.moon,p5:v.p5,score:v.moon*3+v.p5})).sort((a,b)=>a.digit-b.digit);
   const mx=Math.max(...sm.map(r=>r.score),1);
-  const html=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px">${sm.map(r=>`<div class="mi"><b style="color:var(--text2)">${r.k}</b><div class="dbw"><div class="db" style="width:${(r.score/mx*100).toFixed(0)}%;background:var(--purple)"></div></div><span style="color:var(--pink);font-weight:700">🌸${r.moon}</span><span style="color:var(--purple);font-weight:700">🟣${r.p5}</span></div>`).join('')}</div>`;
+  const html=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px">${sm.map(r=>`<div class="mi"><b style="color:var(--text2)">${r.k}</b><div class="dbw" style="margin:3px 0"><div class="db" style="width:${(r.moon/Math.max(...sm.map(x=>x.moon),1)*100).toFixed(0)}%;background:var(--pink)"></div></div><span style="color:var(--pink);font-weight:800;font-size:13px">🌸${r.moon}</span></div>`).join('')}</div>`;
   document.getElementById('mn-stats').innerHTML=html;
   document.getElementById('h-mn-stats').innerHTML=html;
+}
+
+// ── RENDER RODADAS
+function renderRnd(){
+  const el=document.getElementById('rnd-stats');
+  if(!rw.length){el.innerHTML='<p class="empty">Sem dados Railway</p>';return;}
+  const bm={};
+  rw.forEach(r=>{
+    if(!r.roundId)return;
+    const k=String(r.roundId).slice(-2);
+    if(!bm[k])bm[k]={n:0,moon:0,p5:0};
+    bm[k].n++;
+    if(r.maxMultiplier>=cfg.pink)bm[k].moon++;
+    else if(r.maxMultiplier>=cfg.purple5)bm[k].p5++;
+  });
+  const sm=Object.entries(bm).map(([k,v])=>({k,digit:Number(k),n:v.n,moon:v.moon,p5:v.p5,total5:v.moon+v.p5})).sort((a,b)=>a.digit-b.digit);
+  if(!sm.length){el.innerHTML='<p class="empty">Sem dados</p>';return;}
+  const mxMoon=Math.max(...sm.map(r=>r.moon),1);
+  el.innerHTML=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px">${sm.map(r=>`<div class="mi"><b style="color:var(--text2)">...${r.k}</b><div class="dbw" style="margin:3px 0"><div class="db" style="width:${(r.moon/mxMoon*100).toFixed(0)}%;background:var(--pink)"></div></div><span style="color:var(--pink);font-weight:800;font-size:13px">🌸${r.moon}</span></div>`).join('')}</div>`;
 }
 
 // ── MASTER
@@ -596,7 +625,7 @@ function renderAll(){
   const ms=mults(),rs=getRuns(ms);
   document.getElementById('rw-c').textContent=rw.length;
   document.getElementById('mn-c').textContent=manual.length;
-  renderResumo(ms,rs);renderHist(ms);renderCores(ms,rs);renderInt(ms);renderMin();
+  renderResumo(ms,rs);renderHist(ms);renderCores(ms,rs);renderInt(ms);renderMin();renderRnd();
 }
 
 // ── FETCH
@@ -614,7 +643,7 @@ async function fetchData(){
 function changeFilter(select){
   const value=select.value;
   // Esconder todos
-  ['historico','cores','seq','ciclos','int','min'].forEach(sec=>{
+  ['historico','cores','seq','ciclos','int','min','rnd'].forEach(sec=>{
     document.getElementById('sblock-'+sec).classList.add('hidden');
   });
   // Mostrar selecionado
