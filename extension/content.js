@@ -1,4 +1,4 @@
-// Betudo Aviator Collector v3.2 — request-response entre frames
+// Betudo Aviator Collector v3.3 — fila de rounds até confirmar o jogo
 (function () {
     if (window.__aviatorBotInstalled) return;
     window.__aviatorBotInstalled = true;
@@ -6,46 +6,48 @@
     const RAILWAY_URL = 'https://betudo-capture-production.up.railway.app/collect';
     const API_KEY = 'betudo2024';
     const seenRounds = new Set();
-    let gameType = null;
+    let gameType = null;          // null = ainda não confirmado
+    const queue = [];             // rounds aguardando confirmação do jogo
 
     const isTop = (window === window.top);
 
-    // ── Frame PAI (betudo.bet): detecta o jogo pela URL ──────────────────
-    if (isTop) {
-        gameType = window.location.href.includes('aviator-vip') ? 'vip' : 'aviator';
-
-        // Responde pedidos dos iframes filhos
-        window.addEventListener('message', function(e) {
-            if (e.data && e.data.__aviatorBotRequest) {
-                try { e.source.postMessage({ __aviatorBotGame: gameType }, '*'); } catch(err) {}
-            }
-        });
-
-    // ── Frame FILHO (Spribe iframe): pede o jogo ao pai ──────────────────
-    } else {
-        // Recebe a resposta do pai
-        window.addEventListener('message', function(e) {
-            if (e.data && e.data.__aviatorBotGame && !gameType) {
-                gameType = e.data.__aviatorBotGame;
-                console.info('[AviatorBot] jogo confirmado pelo pai: ' + gameType);
-            }
-        });
-
-        // Pede ao pai — repete algumas vezes para garantir
-        function askParent() {
-            try { window.parent.postMessage({ __aviatorBotRequest: true }, '*'); } catch(err) {}
-        }
-        [0, 200, 500, 1000, 2000].forEach(t => setTimeout(askParent, t));
+    // ── Confirma o jogo e libera a fila ──────────────────────────────────
+    function confirmarJogo(game) {
+        if (gameType !== null) return; // já confirmado
+        gameType = game;
+        console.info('[AviatorBot] ✓ jogo confirmado: ' + game + ' (' + queue.length + ' na fila)');
+        queue.splice(0).forEach(({ id, mult }) => enviarNow(id, mult, game));
     }
 
-    function getGame() { return gameType || 'aviator'; }
+    // ── Frame PAI: detecta o jogo pela URL ───────────────────────────────
+    if (isTop) {
+        const g = window.location.href.includes('aviator-vip') ? 'vip' : 'aviator';
+        confirmarJogo(g);
 
-    // ── Enviar round ──────────────────────────────────────────────────────
-    function enviarRound(roundId, maxMultiplier) {
-        const id = Number(roundId);
-        const mult = Number(maxMultiplier);
-        if (!id || !mult || mult <= 0) return;
-        const game = getGame();
+        // Responde pedidos dos iframes filhos
+        window.addEventListener('message', function (e) {
+            if (e.data && e.data.__aviatorBotRequest) {
+                try { e.source.postMessage({ __aviatorBotGame: gameType }, '*'); } catch (err) {}
+            }
+        });
+
+    // ── Frame FILHO: pede o jogo ao pai ──────────────────────────────────
+    } else {
+        window.addEventListener('message', function (e) {
+            if (e.data && e.data.__aviatorBotGame) {
+                confirmarJogo(e.data.__aviatorBotGame);
+            }
+        });
+
+        // Pede ao pai — repete algumas vezes para garantia
+        function askParent() {
+            try { window.parent.postMessage({ __aviatorBotRequest: true }, '*'); } catch (err) {}
+        }
+        [0, 150, 400, 800, 1500, 3000].forEach(t => setTimeout(askParent, t));
+    }
+
+    // ── Envia round imediatamente (jogo já confirmado) ────────────────────
+    function enviarNow(id, mult, game) {
         const key = game + ':' + id;
         if (seenRounds.has(key)) return;
         seenRounds.add(key);
@@ -58,6 +60,18 @@
         .then(r => r.json())
         .then(() => console.info('[AviatorBot] ✓ Round ' + id + ' | ' + mult + 'x | ' + game))
         .catch(() => {});
+    }
+
+    // ── Captura round (coloca na fila se jogo ainda não confirmado) ───────
+    function enviarRound(roundId, maxMultiplier) {
+        const id = Number(roundId);
+        const mult = Number(maxMultiplier);
+        if (!id || !mult || mult <= 0) return;
+        if (gameType === null) {
+            queue.push({ id, mult });  // aguarda confirmação
+        } else {
+            enviarNow(id, mult, gameType);
+        }
     }
 
     function verificarDados(a) {
@@ -103,11 +117,11 @@
         }
         PatchedWS.prototype = OrigWS.prototype;
         PatchedWS.CONNECTING = OrigWS.CONNECTING;
-        PatchedWS.OPEN       = OrigWS.OPEN;
-        PatchedWS.CLOSING    = OrigWS.CLOSING;
-        PatchedWS.CLOSED     = OrigWS.CLOSED;
+        PatchedWS.OPEN = OrigWS.OPEN;
+        PatchedWS.CLOSING = OrigWS.CLOSING;
+        PatchedWS.CLOSED = OrigWS.CLOSED;
         window.WebSocket = PatchedWS;
     }
 
-    console.info('[AviatorBot] v3.2 | ' + (isTop ? 'pai jogo:' + getGame() : 'filho, aguardando jogo...'));
+    console.info('[AviatorBot] v3.3 | ' + (isTop ? 'pai' : 'filho aguardando jogo...'));
 })();
