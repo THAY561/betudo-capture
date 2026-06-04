@@ -1,4 +1,4 @@
-// Betudo Aviator Collector v3.1 — Aviator 1 e Aviator VIP via postMessage
+// Betudo Aviator Collector v3.2 — request-response entre frames
 (function () {
     if (window.__aviatorBotInstalled) return;
     window.__aviatorBotInstalled = true;
@@ -8,37 +8,39 @@
     const seenRounds = new Set();
     let gameType = null;
 
-    // ── Detecta pelo URL do próprio frame
-    const selfUrl = window.location.href;
-    if (selfUrl.includes('aviator-vip')) gameType = 'vip';
-    else if (selfUrl.includes('aviator')) gameType = 'aviator';
+    const isTop = (window === window.top);
 
-    // ── Recebe tipo de jogo do frame pai (caso seja iframe cross-origin)
-    window.addEventListener('message', function(e) {
-        if (e.data && typeof e.data === 'object' && e.data.__aviatorBotGame) {
-            gameType = e.data.__aviatorBotGame;
-            console.info('[AviatorBot] jogo recebido do pai: ' + gameType);
+    // ── Frame PAI (betudo.bet): detecta o jogo pela URL ──────────────────
+    if (isTop) {
+        gameType = window.location.href.includes('aviator-vip') ? 'vip' : 'aviator';
+
+        // Responde pedidos dos iframes filhos
+        window.addEventListener('message', function(e) {
+            if (e.data && e.data.__aviatorBotRequest) {
+                try { e.source.postMessage({ __aviatorBotGame: gameType }, '*'); } catch(err) {}
+            }
+        });
+
+    // ── Frame FILHO (Spribe iframe): pede o jogo ao pai ──────────────────
+    } else {
+        // Recebe a resposta do pai
+        window.addEventListener('message', function(e) {
+            if (e.data && e.data.__aviatorBotGame && !gameType) {
+                gameType = e.data.__aviatorBotGame;
+                console.info('[AviatorBot] jogo confirmado pelo pai: ' + gameType);
+            }
+        });
+
+        // Pede ao pai — repete algumas vezes para garantir
+        function askParent() {
+            try { window.parent.postMessage({ __aviatorBotRequest: true }, '*'); } catch(err) {}
         }
-    });
-
-    // ── Se for o frame principal, informa os iframes filhos
-    if (window === window.top) {
-        const topGame = selfUrl.includes('aviator-vip') ? 'vip' : 'aviator';
-        gameType = topGame;
-
-        function tellChildren() {
-            document.querySelectorAll('iframe').forEach(f => {
-                try { f.contentWindow.postMessage({ __aviatorBotGame: topGame }, '*'); } catch(e) {}
-            });
-        }
-        // Dispara múltiplas vezes para pegar iframes que ainda estão carregando
-        [200, 500, 1000, 2000, 4000].forEach(t => setTimeout(tellChildren, t));
-        // Também avisa ao carregar novos iframes
-        new MutationObserver(tellChildren).observe(document, { childList: true, subtree: true });
+        [0, 200, 500, 1000, 2000].forEach(t => setTimeout(askParent, t));
     }
 
     function getGame() { return gameType || 'aviator'; }
 
+    // ── Enviar round ──────────────────────────────────────────────────────
     function enviarRound(roundId, maxMultiplier) {
         const id = Number(roundId);
         const mult = Number(maxMultiplier);
@@ -74,12 +76,14 @@
         }
     }
 
+    // ── Interceptar console.log ───────────────────────────────────────────
     const _log = console.log.bind(console);
     console.log = function () {
         _log.apply(console, arguments);
         try { Array.prototype.slice.call(arguments).forEach(verificarDados); } catch (e) {}
     };
 
+    // ── Interceptar WebSocket ─────────────────────────────────────────────
     const OrigWS = window.WebSocket;
     if (OrigWS) {
         function PatchedWS(url, protocols) {
@@ -105,5 +109,5 @@
         window.WebSocket = PatchedWS;
     }
 
-    console.info('[AviatorBot] v3.1 | frame: ' + (window === window.top ? 'pai' : 'filho') + ' | jogo: ' + getGame());
+    console.info('[AviatorBot] v3.2 | ' + (isTop ? 'pai jogo:' + getGame() : 'filho, aguardando jogo...'));
 })();
