@@ -23,6 +23,10 @@ header{background:var(--bg1);border-bottom:1px solid var(--border);padding:0 20p
 .logo-text{font-size:1rem;font-weight:900;letter-spacing:-.3px}
 .logo-text span{color:var(--gold)}
 #sb{font-size:11px;color:var(--text2)}
+.game-tabs{display:flex;gap:4px;margin-left:14px}
+.gtab{background:none;border:1px solid var(--border);border-radius:6px;color:var(--text2);cursor:pointer;font-family:inherit;font-size:11px;font-weight:700;padding:4px 10px;transition:all .15s}
+.gtab:hover{border-color:var(--text1);color:var(--text1)}
+.gtab.active{background:var(--purple);border-color:var(--purple);color:#fff}
 .sdot{width:6px;height:6px;border-radius:50%;background:var(--purple);display:inline-block;margin-right:5px;box-shadow:0 0 5px var(--purple)}
 
 /* MENU BAR */
@@ -180,6 +184,10 @@ main{padding:18px 20px;max-width:1140px;margin:0 auto}
   <div class="logo">
     <div class="logo-icon">✈</div>
     <div class="logo-text">TH <span>100x</span></div>
+    <div class="game-tabs">
+      <button class="gtab active" id="gtab-aviator" onclick="switchGame('aviator')">Aviator 1</button>
+      <button class="gtab" id="gtab-vip" onclick="switchGame('vip')">Aviator VIP</button>
+    </div>
   </div>
   <div id="sb"><span class="sdot"></span><span id="sb-t">Conectando...</span></div>
 </header>
@@ -331,7 +339,7 @@ main{padding:18px 20px;max-width:1140px;margin:0 auto}
 </main>
 <script>
 // ── STATE
-let rw=[],manual=[],cfg={purple:2,purple5:5,pink:10},colorFilter=null;
+let rw=[],manual=[],cfg={purple:2,purple5:5,pink:10},colorFilter=null,activeGame='aviator';
 const allWT=()=>[...rw.map(r=>({mult:r.maxMultiplier,time:r.horario?r.horario.slice(0,5):null,rid:r.roundId})),...manual.map(m=>({...m,rid:null}))];
 // Retorna só a sessão contínua mais recente (ignora dados com gap > 4 min)
 const toMin=t=>{if(!t||!t.includes(':'))return null;const[h,m]=t.split(':').map(Number);return h*60+m;};
@@ -631,10 +639,19 @@ function renderAll(){
   renderResumo(ms,rs);renderHist(ms);renderCores(ms,rs);renderInt(ms);renderMin();renderRnd();
 }
 
+// ── SWITCH GAME
+function switchGame(game){
+  activeGame=game;
+  manual=[];
+  document.querySelectorAll('.gtab').forEach(b=>b.classList.remove('active'));
+  document.getElementById('gtab-'+game).classList.add('active');
+  fetchData();
+}
+
 // ── FETCH
 async function fetchData(){
   try{
-    const r=await fetch('/api/rounds');rw=await r.json();
+    const r=await fetch('/api/rounds?game='+activeGame);rw=await r.json();
     const last=rw.length?rw[rw.length-1]:null;
     document.getElementById('sb-t').innerHTML=`<b style="color:var(--text1)">${rw.length}</b> velas${last?` — última <b style="color:var(--pink)">${last.maxMultiplier.toFixed(2)}x</b>`:''}`;
     renderAll();

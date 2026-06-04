@@ -1,6 +1,4 @@
-// Betudo Aviator Collector v2 — roda no contexto REAL da página (world: MAIN)
-// Intercepta console.log E WebSocket para capturar dados de qualquer frame
-
+// Betudo Aviator Collector v3 — suporte a Aviator 1 e Aviator VIP
 (function () {
     if (window.__aviatorBotInstalled) return;
     window.__aviatorBotInstalled = true;
@@ -9,58 +7,52 @@
     const API_KEY = 'betudo2024';
     const seenRounds = new Set();
 
+    // Detecta qual jogo pela URL
+    function getGame() {
+        return window.location.href.includes('aviator-vip') ? 'vip' : 'aviator';
+    }
+
     function enviarRound(roundId, maxMultiplier) {
         const id = Number(roundId);
         const mult = Number(maxMultiplier);
         if (!id || !mult || mult <= 0) return;
-        if (seenRounds.has(id)) return;
-        seenRounds.add(id);
+        const game = getGame();
+        const key = game + ':' + id;
+        if (seenRounds.has(key)) return;
+        seenRounds.add(key);
 
         fetch(RAILWAY_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ key: API_KEY, roundId: id, maxMultiplier: mult })
+            body: JSON.stringify({ key: API_KEY, roundId: id, maxMultiplier: mult, game })
         })
         .then(r => r.json())
-        .then(() => console.info('[AviatorBot] ✓ Round ' + id + ' | ' + mult + 'x enviado'))
+        .then(() => console.info('[AviatorBot] ✓ Round ' + id + ' | ' + mult + 'x | ' + game))
         .catch(() => {});
     }
 
     function verificarDados(a) {
         if (!a) return;
-
-        // Objeto direto com roundId + maxMultiplier
         if (typeof a === 'object' && 'maxMultiplier' in a && 'roundId' in a) {
-            enviarRound(a.roundId, a.maxMultiplier);
-            return;
+            enviarRound(a.roundId, a.maxMultiplier); return;
         }
-
-        // String JSON
         if (typeof a === 'string' && a.includes('maxMultiplier')) {
             try {
                 const p = JSON.parse(a);
-                if ('maxMultiplier' in p && 'roundId' in p) {
-                    enviarRound(p.roundId, p.maxMultiplier);
-                    return;
-                }
+                if ('maxMultiplier' in p && 'roundId' in p) { enviarRound(p.roundId, p.maxMultiplier); return; }
             } catch (e) {}
-            // Regex como fallback
             const mr = a.match(/roundId[^\d]*(\d+)/);
             const mm = a.match(/maxMultiplier[^\d]*([\d.]+)/);
             if (mr && mm) enviarRound(mr[1], mm[1]);
         }
     }
 
-    // ── 1. Intercepta console.log da página real ───────────────────────────
     const _log = console.log.bind(console);
     console.log = function () {
         _log.apply(console, arguments);
-        try {
-            Array.prototype.slice.call(arguments).forEach(verificarDados);
-        } catch (e) {}
+        try { Array.prototype.slice.call(arguments).forEach(verificarDados); } catch (e) {}
     };
 
-    // ── 2. Intercepta WebSocket (canal principal do jogo Spribe) ───────────
     const OrigWS = window.WebSocket;
     if (OrigWS) {
         function PatchedWS(url, protocols) {
@@ -69,9 +61,7 @@
                 try {
                     if (typeof event.data !== 'string') return;
                     if (!event.data.includes('maxMultiplier') && !event.data.includes('roundId')) return;
-
                     const data = JSON.parse(event.data);
-                    // Verifica objeto raiz e campos aninhados
                     verificarDados(data);
                     if (data && data.data)    verificarDados(data.data);
                     if (data && data.payload) verificarDados(data.payload);
@@ -88,5 +78,5 @@
         window.WebSocket = PatchedWS;
     }
 
-    console.info('[AviatorBot] v2.1 ativo em ' + window.location.href);
+    console.info('[AviatorBot] v3.0 | jogo: ' + getGame() + ' | ' + window.location.href);
 })();
