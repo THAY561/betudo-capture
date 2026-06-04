@@ -489,7 +489,14 @@ function renderResumo(ms,rs){
 
 // ── RENDER HISTÓRICO
 function renderHist(ms){
-  if(!ms.length){document.getElementById('h-tape').innerHTML='<p class="empty">Sem dados</p>';return;}
+  if(!ms.length){
+    document.getElementById('h-tape').innerHTML='<p class="empty">Sem dados</p>';
+    document.getElementById('h-cards').innerHTML='';
+    document.getElementById('h-dist').innerHTML='';
+    document.getElementById('h-mn-stats').innerHTML='';
+    document.getElementById('h-rnd-stats').innerHTML='';
+    return;
+  }
 
   const wt=currentSession();
   // Mapeia índices originais (posição em ms/wt) preservando o horário correto
