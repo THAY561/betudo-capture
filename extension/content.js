@@ -1,4 +1,4 @@
-// Betudo Aviator Collector v3 — suporte a Aviator 1 e Aviator VIP
+// Betudo Aviator Collector v3.1 — Aviator 1 e Aviator VIP via postMessage
 (function () {
     if (window.__aviatorBotInstalled) return;
     window.__aviatorBotInstalled = true;
@@ -6,16 +6,38 @@
     const RAILWAY_URL = 'https://betudo-capture-production.up.railway.app/collect';
     const API_KEY = 'betudo2024';
     const seenRounds = new Set();
+    let gameType = null;
 
-    // Detecta qual jogo verificando URL atual, da página pai e do referrer
-    function getGame() {
-        const urls = [
-            window.location.href,
-            document.referrer || '',
-            (() => { try { return window.top.location.href; } catch(e) { return ''; } })()
-        ];
-        return urls.some(u => u.includes('aviator-vip')) ? 'vip' : 'aviator';
+    // ── Detecta pelo URL do próprio frame
+    const selfUrl = window.location.href;
+    if (selfUrl.includes('aviator-vip')) gameType = 'vip';
+    else if (selfUrl.includes('aviator')) gameType = 'aviator';
+
+    // ── Recebe tipo de jogo do frame pai (caso seja iframe cross-origin)
+    window.addEventListener('message', function(e) {
+        if (e.data && typeof e.data === 'object' && e.data.__aviatorBotGame) {
+            gameType = e.data.__aviatorBotGame;
+            console.info('[AviatorBot] jogo recebido do pai: ' + gameType);
+        }
+    });
+
+    // ── Se for o frame principal, informa os iframes filhos
+    if (window === window.top) {
+        const topGame = selfUrl.includes('aviator-vip') ? 'vip' : 'aviator';
+        gameType = topGame;
+
+        function tellChildren() {
+            document.querySelectorAll('iframe').forEach(f => {
+                try { f.contentWindow.postMessage({ __aviatorBotGame: topGame }, '*'); } catch(e) {}
+            });
+        }
+        // Dispara múltiplas vezes para pegar iframes que ainda estão carregando
+        [200, 500, 1000, 2000, 4000].forEach(t => setTimeout(tellChildren, t));
+        // Também avisa ao carregar novos iframes
+        new MutationObserver(tellChildren).observe(document, { childList: true, subtree: true });
     }
+
+    function getGame() { return gameType || 'aviator'; }
 
     function enviarRound(roundId, maxMultiplier) {
         const id = Number(roundId);
@@ -83,5 +105,5 @@
         window.WebSocket = PatchedWS;
     }
 
-    console.info('[AviatorBot] v3.0 | jogo: ' + getGame() + ' | ' + window.location.href);
+    console.info('[AviatorBot] v3.1 | frame: ' + (window === window.top ? 'pai' : 'filho') + ' | jogo: ' + getGame());
 })();
