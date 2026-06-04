@@ -7,9 +7,14 @@
     const API_KEY = 'betudo2024';
     const seenRounds = new Set();
 
-    // Detecta qual jogo pela URL
+    // Detecta qual jogo verificando URL atual, da página pai e do referrer
     function getGame() {
-        return window.location.href.includes('aviator-vip') ? 'vip' : 'aviator';
+        const urls = [
+            window.location.href,
+            document.referrer || '',
+            (() => { try { return window.top.location.href; } catch(e) { return ''; } })()
+        ];
+        return urls.some(u => u.includes('aviator-vip')) ? 'vip' : 'aviator';
     }
 
     function enviarRound(roundId, maxMultiplier) {
