@@ -1,4 +1,4 @@
-// Betudo Aviator Collector v3.3 — fila de rounds até confirmar o jogo
+// Betudo Aviator Collector v3.4 — pai lê URL em tempo real (fix SPA navigation)
 (function () {
     if (window.__aviatorBotInstalled) return;
     window.__aviatorBotInstalled = true;
@@ -11,6 +11,11 @@
 
     const isTop = (window === window.top);
 
+    // Lê a URL atual do pai em tempo real (evita cache em SPA)
+    function getGameFromURL() {
+        return window.location.href.includes('aviator-vip') ? 'vip' : 'aviator';
+    }
+
     // ── Confirma o jogo e libera a fila ──────────────────────────────────
     function confirmarJogo(game) {
         if (gameType !== null) return; // já confirmado
@@ -21,13 +26,11 @@
 
     // ── Frame PAI: detecta o jogo pela URL ───────────────────────────────
     if (isTop) {
-        const g = window.location.href.includes('aviator-vip') ? 'vip' : 'aviator';
-        confirmarJogo(g);
-
-        // Responde pedidos dos iframes filhos
+        // Responde pedidos dos iframes filhos — sempre lê URL atual (SPA pode mudar href sem reload)
         window.addEventListener('message', function (e) {
             if (e.data && e.data.__aviatorBotRequest) {
-                try { e.source.postMessage({ __aviatorBotGame: gameType }, '*'); } catch (err) {}
+                const g = getGameFromURL(); // em tempo real, não cache
+                try { e.source.postMessage({ __aviatorBotGame: g }, '*'); } catch (err) {}
             }
         });
 
@@ -123,5 +126,5 @@
         window.WebSocket = PatchedWS;
     }
 
-    console.info('[AviatorBot] v3.3 | ' + (isTop ? 'pai' : 'filho aguardando jogo...'));
+    console.info('[AviatorBot] v3.4 | ' + (isTop ? 'pai (SPA-safe)' : 'filho aguardando jogo...'));
 })();

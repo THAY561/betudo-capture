@@ -306,8 +306,9 @@ main{padding:18px 20px;max-width:1140px;margin:0 auto}
       <input class="inp inp-time" type="text" id="it" placeholder="14:23" maxlength="5">
       <button class="btn btn-gold" onclick="addR()">Adicionar</button>
       <button class="btn" onclick="undoR()">↩</button>
-      <button class="btn btn-gr" onclick="clearR()">Limpar</button>
+      <button class="btn btn-gr" onclick="clearR()">Limpar manual</button>
       <button class="btn btn-gg" onclick="fetchData()">↻ Sync</button>
+      <button class="btn" style="background:rgba(239,68,68,.15);border-color:#EF4444;color:#EF4444" onclick="limparCSV()">🗑 Zerar dados</button>
     </div>
     <div style="font-size:11px;color:var(--text2)">
       Railway: <b id="rw-c" style="color:var(--purple)">0</b> &nbsp;·&nbsp; Manual: <b id="mn-c" style="color:var(--pink)">0</b>
@@ -690,7 +691,15 @@ function togMenu(btn){
 const pt=s=>{const t=s.trim();return/^\d{1,2}:\d{2}$/.test(t)?t:null;};
 function addR(){const v=parseFloat(document.getElementById('iv').value);if(!v||v<1)return;const t=pt(document.getElementById('it').value);manual.push({mult:v,time:t});document.getElementById('iv').value='';document.getElementById('iv').focus();renderAll();}
 function undoR(){if(!manual.length)return;manual.pop();renderAll();}
-function clearR(){if(!confirm('Apagar histórico?'))return;manual=[];renderAll();}
+function clearR(){if(!confirm('Apagar histórico manual?'))return;manual=[];renderAll();}
+async function limparCSV(){
+  if(!confirm('⚠️ Zerar TODOS os dados do '+activeGame+' no servidor? Isso não tem desfazer!'))return;
+  try{
+    const r=await fetch('/api/clear',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({key:'betudo2024',game:activeGame})});
+    const j=await r.json();
+    if(j.ok){rw=[];manual=[];renderAll();alert('✅ Dados do '+activeGame+' zerados!');}
+  }catch(e){alert('Erro ao zerar dados');}
+}
 function importR(){
   const raw=document.getElementById('ia').value,toks=raw.split(/[\s,;\n]+/).filter(Boolean),added=[];
   toks.forEach(tk=>{let v,t=null;if(tk.includes('@')){const[a,b]=tk.split('@');v=parseFloat(a.replace('x',''));t=pt(b||'');}else v=parseFloat(tk.replace('x',''));if(v>=1&&!isNaN(v))added.push({mult:v,time:t});});

@@ -70,4 +70,15 @@ app.get('/baixar', (req, res) => {
     res.download(ARQUIVOS[game] || ARQUIVOS.aviator);
 });
 
+app.post('/api/clear', (req, res) => {
+    const { key, game } = req.body || {};
+    if (key !== API_KEY) return res.status(401).json({ error: 'chave invalida' });
+    const arquivo = ARQUIVOS[game] || ARQUIVOS.aviator;
+    fs.writeFileSync(arquivo, 'Data,Horario,RoundID,MaxMultiplier\n');
+    // Limpa seenRounds do arquivo correspondente
+    for (const k of seenRounds.keys()) { if (k.startsWith(arquivo + ':')) seenRounds.delete(k); }
+    console.log('[CLEAR] ' + arquivo + ' limpo');
+    res.json({ ok: true, game: game || 'aviator' });
+});
+
 app.listen(PORT, () => console.log('Servidor rodando na porta ' + PORT));
