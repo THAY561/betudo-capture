@@ -70,6 +70,15 @@ app.get('/', (req, res) => {
 
 app.get('/baixar', (req, res) => { res.download(ARQUIVO); });
 
+app.post('/api/clear', (req, res) => {
+    const { key } = req.body || {};
+    if (key !== API_KEY) return res.status(401).json({ error: 'chave invalida' });
+    fs.writeFileSync(ARQUIVO, 'Data,Horario,RoundID,MaxMultiplier\n');
+    seenRounds.clear();
+    console.log('[CLEAR] dados.csv zerado');
+    res.json({ ok: true });
+});
+
 app.get('/dados', (req, res) => {
     const d = fs.readFileSync(ARQUIVO, 'utf8');
     res.type('text/plain').send(d.trim().split('\n').slice(-21).join('\n'));
