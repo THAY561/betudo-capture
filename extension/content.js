@@ -1,7 +1,10 @@
-// Betudo Aviator Collector v2 — roda no contexto REAL da página (world: MAIN)
-// Intercepta console.log E WebSocket para capturar dados de qualquer frame
+// Betudo Aviator Collector v2.2 — só captura no Aviator 1 (bloqueia VIP)
 
 (function () {
+    // Bloqueia se for VIP (tanto no frame pai quanto no iframe)
+    const topHref = (() => { try { return window.top.location.href; } catch(e) { return document.referrer; } })();
+    if (topHref.includes('aviator-vip')) return;
+
     if (window.__aviatorBotInstalled) return;
     window.__aviatorBotInstalled = true;
 
@@ -88,5 +91,5 @@
         window.WebSocket = PatchedWS;
     }
 
-    console.info('[AviatorBot] v2.1 ativo em ' + window.location.href);
+    console.info('[AviatorBot] v2.2 ativo em ' + window.location.href);
 })();
