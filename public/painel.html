@@ -343,12 +343,13 @@ let rw=[],manual=[],cfg={purple:2,purple5:5,pink:10},colorFilter=null,activeGame
 const allWT=()=>[...rw.map(r=>({mult:r.maxMultiplier,time:r.horario?r.horario.slice(0,5):null,rid:r.roundId})),...manual.map(m=>({...m,rid:null}))];
 // Retorna só a sessão contínua mais recente (ignora dados com gap > 4 min)
 const toMin=t=>{if(!t||!t.includes(':'))return null;const[h,m]=t.split(':').map(Number);return h*60+m;};
+function gapMin(a,b){if(a===null||b===null)return 0;let d=b-a;if(d<-720)d+=1440;return d;}// trata virada meia-noite
 function currentSession(){
   const wt=allWT();if(!wt.length)return wt;
   let start=0;
   for(let i=1;i<wt.length;i++){
     const a=toMin(wt[i-1].time),b=toMin(wt[i].time);
-    if(a!==null&&b!==null&&b-a>4)start=i;
+    if(gapMin(a,b)>4)start=i;
   }
   return wt.slice(start);
 }
