@@ -1,4 +1,6 @@
-// Betudo Aviator Collector v3.4 — pai lê URL em tempo real (fix SPA navigation)
+// Betudo Aviator Collector v2 — roda no contexto REAL da página (world: MAIN)
+// Intercepta console.log E WebSocket para capturar dados de qualquer frame
+
 (function () {
     if (window.__aviatorBotInstalled) return;
     window.__aviatorBotInstalled = true;
@@ -6,101 +8,59 @@
     const RAILWAY_URL = 'https://betudo-capture-production.up.railway.app/collect';
     const API_KEY = 'betudo2024';
     const seenRounds = new Set();
-    let gameType = null;          // null = ainda não confirmado
-    const queue = [];             // rounds aguardando confirmação do jogo
 
-    const isTop = (window === window.top);
-
-    // Lê a URL atual do pai em tempo real (evita cache em SPA)
-    function getGameFromURL() {
-        return window.location.href.includes('aviator-vip') ? 'vip' : 'aviator';
-    }
-
-    // ── Confirma o jogo e libera a fila ──────────────────────────────────
-    function confirmarJogo(game) {
-        if (gameType !== null) return; // já confirmado
-        gameType = game;
-        console.info('[AviatorBot] ✓ jogo confirmado: ' + game + ' (' + queue.length + ' na fila)');
-        queue.splice(0).forEach(({ id, mult }) => enviarNow(id, mult, game));
-    }
-
-    // ── Frame PAI: detecta o jogo pela URL ───────────────────────────────
-    if (isTop) {
-        // Responde pedidos dos iframes filhos — sempre lê URL atual (SPA pode mudar href sem reload)
-        window.addEventListener('message', function (e) {
-            if (e.data && e.data.__aviatorBotRequest) {
-                const g = getGameFromURL(); // em tempo real, não cache
-                try { e.source.postMessage({ __aviatorBotGame: g }, '*'); } catch (err) {}
-            }
-        });
-
-    // ── Frame FILHO: pede o jogo ao pai ──────────────────────────────────
-    } else {
-        window.addEventListener('message', function (e) {
-            if (e.data && e.data.__aviatorBotGame) {
-                confirmarJogo(e.data.__aviatorBotGame);
-            }
-        });
-
-        // Pede ao pai — repete algumas vezes para garantia
-        function askParent() {
-            try { window.parent.postMessage({ __aviatorBotRequest: true }, '*'); } catch (err) {}
-        }
-        [0, 150, 400, 800, 1500, 3000].forEach(t => setTimeout(askParent, t));
-    }
-
-    // ── Envia round imediatamente (jogo já confirmado) ────────────────────
-    function enviarNow(id, mult, game) {
-        const key = game + ':' + id;
-        if (seenRounds.has(key)) return;
-        seenRounds.add(key);
-
-        fetch(RAILWAY_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ key: API_KEY, roundId: id, maxMultiplier: mult, game })
-        })
-        .then(r => r.json())
-        .then(() => console.info('[AviatorBot] ✓ Round ' + id + ' | ' + mult + 'x | ' + game))
-        .catch(() => {});
-    }
-
-    // ── Captura round (coloca na fila se jogo ainda não confirmado) ───────
     function enviarRound(roundId, maxMultiplier) {
         const id = Number(roundId);
         const mult = Number(maxMultiplier);
         if (!id || !mult || mult <= 0) return;
-        if (gameType === null) {
-            queue.push({ id, mult });  // aguarda confirmação
-        } else {
-            enviarNow(id, mult, gameType);
-        }
+        if (seenRounds.has(id)) return;
+        seenRounds.add(id);
+
+        fetch(RAILWAY_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ key: API_KEY, roundId: id, maxMultiplier: mult })
+        })
+        .then(r => r.json())
+        .then(() => console.info('[AviatorBot] ✓ Round ' + id + ' | ' + mult + 'x enviado'))
+        .catch(() => {});
     }
 
     function verificarDados(a) {
         if (!a) return;
+
+        // Objeto direto com roundId + maxMultiplier
         if (typeof a === 'object' && 'maxMultiplier' in a && 'roundId' in a) {
-            enviarRound(a.roundId, a.maxMultiplier); return;
+            enviarRound(a.roundId, a.maxMultiplier);
+            return;
         }
+
+        // String JSON
         if (typeof a === 'string' && a.includes('maxMultiplier')) {
             try {
                 const p = JSON.parse(a);
-                if ('maxMultiplier' in p && 'roundId' in p) { enviarRound(p.roundId, p.maxMultiplier); return; }
+                if ('maxMultiplier' in p && 'roundId' in p) {
+                    enviarRound(p.roundId, p.maxMultiplier);
+                    return;
+                }
             } catch (e) {}
+            // Regex como fallback
             const mr = a.match(/roundId[^\d]*(\d+)/);
             const mm = a.match(/maxMultiplier[^\d]*([\d.]+)/);
             if (mr && mm) enviarRound(mr[1], mm[1]);
         }
     }
 
-    // ── Interceptar console.log ───────────────────────────────────────────
+    // ── 1. Intercepta console.log da página real ───────────────────────────
     const _log = console.log.bind(console);
     console.log = function () {
         _log.apply(console, arguments);
-        try { Array.prototype.slice.call(arguments).forEach(verificarDados); } catch (e) {}
+        try {
+            Array.prototype.slice.call(arguments).forEach(verificarDados);
+        } catch (e) {}
     };
 
-    // ── Interceptar WebSocket ─────────────────────────────────────────────
+    // ── 2. Intercepta WebSocket (canal principal do jogo Spribe) ───────────
     const OrigWS = window.WebSocket;
     if (OrigWS) {
         function PatchedWS(url, protocols) {
@@ -109,7 +69,9 @@
                 try {
                     if (typeof event.data !== 'string') return;
                     if (!event.data.includes('maxMultiplier') && !event.data.includes('roundId')) return;
+
                     const data = JSON.parse(event.data);
+                    // Verifica objeto raiz e campos aninhados
                     verificarDados(data);
                     if (data && data.data)    verificarDados(data.data);
                     if (data && data.payload) verificarDados(data.payload);
@@ -120,11 +82,11 @@
         }
         PatchedWS.prototype = OrigWS.prototype;
         PatchedWS.CONNECTING = OrigWS.CONNECTING;
-        PatchedWS.OPEN = OrigWS.OPEN;
-        PatchedWS.CLOSING = OrigWS.CLOSING;
-        PatchedWS.CLOSED = OrigWS.CLOSED;
+        PatchedWS.OPEN       = OrigWS.OPEN;
+        PatchedWS.CLOSING    = OrigWS.CLOSING;
+        PatchedWS.CLOSED     = OrigWS.CLOSED;
         window.WebSocket = PatchedWS;
     }
 
-    console.info('[AviatorBot] v3.4 | ' + (isTop ? 'pai (SPA-safe)' : 'filho aguardando jogo...'));
+    console.info('[AviatorBot] v2.1 ativo em ' + window.location.href);
 })();

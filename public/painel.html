@@ -23,10 +23,6 @@ header{background:var(--bg1);border-bottom:1px solid var(--border);padding:0 20p
 .logo-text{font-size:1rem;font-weight:900;letter-spacing:-.3px}
 .logo-text span{color:var(--gold)}
 #sb{font-size:11px;color:var(--text2)}
-.game-tabs{display:flex;gap:4px;margin-left:14px}
-.gtab{background:none;border:1px solid var(--border);border-radius:6px;color:var(--text2);cursor:pointer;font-family:inherit;font-size:11px;font-weight:700;padding:4px 10px;transition:all .15s}
-.gtab:hover{border-color:var(--text1);color:var(--text1)}
-.gtab.active{background:var(--purple);border-color:var(--purple);color:#fff}
 .sdot{width:6px;height:6px;border-radius:50%;background:var(--purple);display:inline-block;margin-right:5px;box-shadow:0 0 5px var(--purple)}
 
 /* MENU BAR */
@@ -184,10 +180,6 @@ main{padding:18px 20px;max-width:1140px;margin:0 auto}
   <div class="logo">
     <div class="logo-icon">✈</div>
     <div class="logo-text">TH <span>100x</span></div>
-    <div class="game-tabs">
-      <button class="gtab active" id="gtab-aviator" onclick="switchGame('aviator')">Aviator 1</button>
-      <button class="gtab" id="gtab-vip" onclick="switchGame('vip')">Aviator VIP</button>
-    </div>
   </div>
   <div id="sb"><span class="sdot"></span><span id="sb-t">Conectando...</span></div>
 </header>
@@ -306,9 +298,8 @@ main{padding:18px 20px;max-width:1140px;margin:0 auto}
       <input class="inp inp-time" type="text" id="it" placeholder="14:23" maxlength="5">
       <button class="btn btn-gold" onclick="addR()">Adicionar</button>
       <button class="btn" onclick="undoR()">↩</button>
-      <button class="btn btn-gr" onclick="clearR()">Limpar manual</button>
+      <button class="btn btn-gr" onclick="clearR()">Limpar</button>
       <button class="btn btn-gg" onclick="fetchData()">↻ Sync</button>
-      <button class="btn" style="background:rgba(239,68,68,.15);border-color:#EF4444;color:#EF4444" onclick="limparCSV()">🗑 Zerar dados</button>
     </div>
     <div style="font-size:11px;color:var(--text2)">
       Railway: <b id="rw-c" style="color:var(--purple)">0</b> &nbsp;·&nbsp; Manual: <b id="mn-c" style="color:var(--pink)">0</b>
@@ -340,11 +331,11 @@ main{padding:18px 20px;max-width:1140px;margin:0 auto}
 </main>
 <script>
 // ── STATE
-let rw=[],manual=[],cfg={purple:2,purple5:5,pink:10},colorFilter=null,activeGame='aviator';
+let rw=[],manual=[],cfg={purple:2,purple5:5,pink:10},colorFilter=null;
 const allWT=()=>[...rw.map(r=>({mult:r.maxMultiplier,time:r.horario?r.horario.slice(0,5):null,rid:r.roundId})),...manual.map(m=>({...m,rid:null}))];
 // Retorna só a sessão contínua mais recente (ignora dados com gap > 4 min)
 const toMin=t=>{if(!t||!t.includes(':'))return null;const[h,m]=t.split(':').map(Number);return h*60+m;};
-function gapMin(a,b){if(a===null||b===null)return 0;let d=b-a;if(d<-720)d+=1440;return d;}// trata virada meia-noite
+function gapMin(a,b){if(a===null||b===null)return 0;let d=b-a;if(d<-720)d+=1440;return d;}
 function currentSession(){
   const wt=allWT();if(!wt.length)return wt;
   let start=0;
@@ -491,14 +482,7 @@ function renderResumo(ms,rs){
 
 // ── RENDER HISTÓRICO
 function renderHist(ms){
-  if(!ms.length){
-    document.getElementById('h-tape').innerHTML='<p class="empty">Sem dados</p>';
-    document.getElementById('h-cards').innerHTML='';
-    document.getElementById('h-dist').innerHTML='';
-    document.getElementById('h-mn-stats').innerHTML='';
-    document.getElementById('h-rnd-stats').innerHTML='';
-    return;
-  }
+  if(!ms.length){document.getElementById('h-tape').innerHTML='<p class="empty">Sem dados</p>';return;}
 
   const wt=currentSession();
   // Mapeia índices originais (posição em ms/wt) preservando o horário correto
@@ -648,19 +632,10 @@ function renderAll(){
   renderResumo(ms,rs);renderHist(ms);renderCores(ms,rs);renderInt(ms);renderMin();renderRnd();
 }
 
-// ── SWITCH GAME
-function switchGame(game){
-  activeGame=game;
-  manual=[];
-  document.querySelectorAll('.gtab').forEach(b=>b.classList.remove('active'));
-  document.getElementById('gtab-'+game).classList.add('active');
-  fetchData();
-}
-
 // ── FETCH
 async function fetchData(){
   try{
-    const r=await fetch('/api/rounds?game='+activeGame);rw=await r.json();
+    const r=await fetch('/api/rounds');rw=await r.json();
     const last=rw.length?rw[rw.length-1]:null;
     document.getElementById('sb-t').innerHTML=`<b style="color:var(--text1)">${rw.length}</b> velas${last?` — última <b style="color:var(--pink)">${last.maxMultiplier.toFixed(2)}x</b>`:''}`;
     renderAll();
@@ -691,15 +666,7 @@ function togMenu(btn){
 const pt=s=>{const t=s.trim();return/^\d{1,2}:\d{2}$/.test(t)?t:null;};
 function addR(){const v=parseFloat(document.getElementById('iv').value);if(!v||v<1)return;const t=pt(document.getElementById('it').value);manual.push({mult:v,time:t});document.getElementById('iv').value='';document.getElementById('iv').focus();renderAll();}
 function undoR(){if(!manual.length)return;manual.pop();renderAll();}
-function clearR(){if(!confirm('Apagar histórico manual?'))return;manual=[];renderAll();}
-async function limparCSV(){
-  if(!confirm('⚠️ Zerar TODOS os dados do '+activeGame+' no servidor? Isso não tem desfazer!'))return;
-  try{
-    const r=await fetch('/api/clear',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({key:'betudo2024',game:activeGame})});
-    const j=await r.json();
-    if(j.ok){rw=[];manual=[];renderAll();alert('✅ Dados do '+activeGame+' zerados!');}
-  }catch(e){alert('Erro ao zerar dados');}
-}
+function clearR(){if(!confirm('Apagar histórico?'))return;manual=[];renderAll();}
 function importR(){
   const raw=document.getElementById('ia').value,toks=raw.split(/[\s,;\n]+/).filter(Boolean),added=[];
   toks.forEach(tk=>{let v,t=null;if(tk.includes('@')){const[a,b]=tk.split('@');v=parseFloat(a.replace('x',''));t=pt(b||'');}else v=parseFloat(tk.replace('x',''));if(v>=1&&!isNaN(v))added.push({mult:v,time:t});});
