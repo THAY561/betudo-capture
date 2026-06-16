@@ -25,23 +25,24 @@ if (!fs.existsSync(ARQUIVO)) {
 
 const seenRounds = new Map();
 
-function salvarRound(roundId, maxMultiplier) {
+function salvarRound(roundId, maxMultiplier, clientTime, clientDate) {
     const agora = Date.now();
     if (seenRounds.has(roundId) && agora - seenRounds.get(roundId) < 15000) return false;
     seenRounds.set(roundId, agora);
     const now = new Date();
-    const data = now.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' });
-    const horario = now.toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo' });
+    // Usa horário do cliente (navegador) se disponível — mais preciso
+    const data = clientDate || now.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' });
+    const horario = clientTime || now.toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo' });
     fs.appendFileSync(ARQUIVO, data + ',' + horario + ',' + roundId + ',' + maxMultiplier + '\n');
     console.log('Round ' + roundId + ' | ' + maxMultiplier + 'x | ' + horario);
     return true;
 }
 
 app.post('/collect', (req, res) => {
-    const { key, roundId, maxMultiplier } = req.body || {};
+    const { key, roundId, maxMultiplier, clientTime, clientDate } = req.body || {};
     if (key !== API_KEY) return res.status(401).json({ error: 'chave invalida' });
     if (!roundId || maxMultiplier === undefined) return res.status(400).json({ error: 'dados incompletos' });
-    const saved = salvarRound(Number(roundId), Number(maxMultiplier));
+    const saved = salvarRound(Number(roundId), Number(maxMultiplier), clientTime, clientDate);
     res.json({ ok: true, saved });
 });
 

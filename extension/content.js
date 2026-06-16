@@ -19,13 +19,18 @@
         if (seenRounds.has(id)) return;
         seenRounds.add(id);
 
+        // Envia horário do navegador do cliente (mais preciso que o servidor)
+        const now = new Date();
+        const clientTime = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        const clientDate = now.toLocaleDateString('pt-BR');
+
         fetch(RAILWAY_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ key: API_KEY, roundId: id, maxMultiplier: mult })
+            body: JSON.stringify({ key: API_KEY, roundId: id, maxMultiplier: mult, clientTime, clientDate })
         })
         .then(r => r.json())
-        .then(() => console.info('[AviatorBot] ✓ Round ' + id + ' | ' + mult + 'x enviado'))
+        .then(() => console.info('[AviatorBot] ✓ Round ' + id + ' | ' + mult + 'x | ' + clientTime))
         .catch(() => {});
     }
 
