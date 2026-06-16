@@ -202,6 +202,13 @@ main{padding:18px 20px;max-width:1140px;margin:0 auto}
     <option value="min">Minutos</option>
     <option value="rnd">Rodadas</option>
   </select>
+  <span class="menu-label" style="margin-left:8px">Período:</span>
+  <select class="menu-select" id="period-select" onchange="changePeriod(this.value)">
+    <option value="0">Sessão atual</option>
+    <option value="60">Última 1h</option>
+    <option value="120">Últimas 2h</option>
+    <option value="9999">Tudo</option>
+  </select>
   <div class="menu-sep"></div>
   <div class="util-btns">
     <button class="menu-btn" data-sec="cap" onclick="togMenu(this)">✏️ Captura</button>
@@ -339,7 +346,12 @@ main{padding:18px 20px;max-width:1140px;margin:0 auto}
 </main>
 <script>
 // ── STATE
-let rw=[],manual=[],cfg={purple:2,purple5:5,pink:10},colorFilter=null,activeGame='aviator';
+let rw=[],manual=[],cfg={purple:2,purple5:5,pink:10},colorFilter=null,activeGame='aviator',periodMinutes=0;
+
+function changePeriod(val){
+  periodMinutes=Number(val);
+  renderAll();
+}
 
 function switchGame(game){
   activeGame=game;
@@ -353,6 +365,17 @@ const toMin=t=>{if(!t||!t.includes(':'))return null;const[h,m]=t.split(':').map(
 function gapMin(a,b){if(a===null||b===null)return 0;let d=b-a;if(d<-720)d+=1440;return d;}
 function currentSession(){
   const wt=allWT();if(!wt.length)return wt;
+  // Filtro de período (0 = sessão atual)
+  if(periodMinutes>0&&periodMinutes<9999){
+    const nowMin=toMin(new Date().toTimeString().slice(0,5));
+    return wt.filter(r=>{
+      const m=toMin(r.time);if(m===null)return true;
+      let diff=nowMin-m;if(diff<0)diff+=1440;
+      return diff<=periodMinutes;
+    });
+  }
+  if(periodMinutes===9999)return wt; // tudo
+  // Sessão atual (padrão): ignora gap > 4 min
   let start=0;
   for(let i=1;i<wt.length;i++){
     const a=toMin(wt[i-1].time),b=toMin(wt[i].time);
