@@ -359,7 +359,8 @@ function switchGame(game){
   document.querySelectorAll('.gtab').forEach(b=>b.classList.toggle('active',b.id==='gtab-'+game));
   fetchData();
 }
-const allWT=()=>[...rw.map(r=>({mult:r.maxMultiplier,time:r.horario?r.horario.slice(0,5):null,rid:r.roundId})),...manual.map(m=>({...m,rid:null}))];
+const todayStr=()=>new Date().toLocaleDateString('pt-BR'); // ex: "16/06/2026"
+const allWT=()=>[...rw.filter(r=>!r.data||r.data===todayStr()).map(r=>({mult:r.maxMultiplier,time:r.horario?r.horario.slice(0,5):null,rid:r.roundId})),...manual.map(m=>({...m,rid:null}))];
 // Retorna só a sessão contínua mais recente (ignora dados com gap > 4 min)
 const toMin=t=>{if(!t||!t.includes(':'))return null;const[h,m]=t.split(':').map(Number);return h*60+m;};
 function gapMin(a,b){if(a===null||b===null)return 0;let d=b-a;if(d<-720)d+=1440;return d;}
